@@ -1,0 +1,6 @@
+{
+  "name": "EventSphere Management",
+  "description": "Comprehensive Expo and Event Management platform with public landing page and dedicated panels for Organizers, Exhibitors, and Attendees with interactive floor plans and live schedule management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

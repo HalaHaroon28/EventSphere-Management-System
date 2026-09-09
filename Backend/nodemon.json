@@ -1,0 +1,18 @@
+{
+  "ignore": [
+    "uploads/*",
+    "uploads/**/*",
+    "*.test.js",
+    ".git"
+  ],
+  "watch": [
+    "controllers",
+    "routes",
+    "models",
+    "middlewares",
+    "config",
+    "utils",
+    "index.js"
+  ],
+  "ext": "js,mjs,cjs,json,env"
+}
