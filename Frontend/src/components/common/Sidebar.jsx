@@ -95,7 +95,7 @@ export const Sidebar = ({
             ]
           },
           {
-            title: "REPORTS & ACCOUNT",
+            title: "REPORTS & INBOX",
             items: [
               { id: "analytics", label: "Analytics & Reports", icon: BarChart3 },
               {
@@ -111,15 +111,7 @@ export const Sidebar = ({
                 icon: HelpCircle,
                 badge: openFeedbackCount > 0 ? openFeedbackCount : undefined,
                 badgeColor: "bg-[#1488A6]/10 text-[#1488A6] dark:bg-[#38B2AC]/20 dark:text-[#38B2AC] font-bold border border-[#1488A6]/30 dark:border-[#38B2AC]/40"
-              },
-              {
-                id: "notifications",
-                label: "Notifications & Alerts",
-                icon: Bell,
-                badge: unreadNotifsCount > 0 ? unreadNotifsCount : undefined,
-                badgeColor: "bg-rose-500 text-white font-bold"
-              },
-              { id: "profile", label: "My Profile", icon: User }
+              }
             ]
           }
         ];
@@ -143,7 +135,7 @@ export const Sidebar = ({
             ]
           },
           {
-            title: "MESSAGES & ACCOUNT",
+            title: "MESSAGES & COMMUNICATION",
             items: [
               {
                 id: "messages",
@@ -151,50 +143,12 @@ export const Sidebar = ({
                 icon: MessageSquare,
                 badge: unreadMessagesCount > 0 ? unreadMessagesCount : undefined,
                 badgeColor: "teal-badge font-bold"
-              },
-              { id: "feedback", label: "Feedback / Support", icon: HelpCircle },
-              { id: "profile", label: "My Profile", icon: User }
+              }
             ]
           }
         ];
       default:
-        return [
-          {
-            title: "MY EVENTS",
-            items: [
-              {
-                id: "dashboard",
-                label: "Dashboard",
-                icon: Ticket,
-                badge: myPassesCount > 0 ? myPassesCount : undefined,
-                badgeColor: "teal-badge font-bold"
-              },
-              { id: "browse-expos", label: "Browse Expos", icon: Calendar },
-              { id: "exhibitors", label: "Exhibitor Search", icon: Building2 },
-              {
-                id: "my-schedule",
-                label: "My Schedule",
-                icon: Clock,
-                badge: bookmarks.length > 0 ? bookmarks.length : undefined,
-                badgeColor: "bg-[#1488A6]/10 text-[#1488A6] dark:bg-[#38B2AC]/20 dark:text-[#38B2AC] font-bold border border-[#1488A6]/30 dark:border-[#38B2AC]/40"
-              }
-            ]
-          },
-          {
-            title: "ACCOUNT & MESSAGES",
-            items: [
-              {
-                id: "messages",
-                label: "Messages",
-                icon: MessageSquare,
-                badge: unreadMessagesCount > 0 ? unreadMessagesCount : undefined,
-                badgeColor: "teal-badge font-bold"
-              },
-              { id: "feedback", label: "Feedback", icon: HelpCircle },
-              { id: "profile", label: "My Profile", icon: User }
-            ]
-          }
-        ];
+        return [];
     }
   };
 

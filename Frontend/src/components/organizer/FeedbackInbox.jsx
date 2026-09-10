@@ -7,36 +7,37 @@ import {
   Check
 } from "lucide-react";
 const FeedbackInbox = () => {
-  const { feedbackList, resolveFeedback, currentUser, expos } = useApp();
+  const { feedbackList = [], resolveFeedback, currentUser, expos = [] } = useApp();
   const [activeFilter, setActiveFilter] = useState("all");
   const [replyingFeedback, setReplyingFeedback] = useState(null);
   const [replyText, setReplyText] = useState("");
 
-  const myExpoIds = expos.filter((e) => {
-    if (!currentUser) return true;
-    const orgId = typeof e.organizer_id === "object" ? e.organizer_id?._id : e.organizer_id;
-    return orgId === currentUser._id || e.organizer_name === currentUser.name;
-  }).map(e => String(e._id));
+  const currentUserIdStr = String(currentUser?._id || currentUser?.user_id || "");
 
+  // Strictly filter expos belonging to the logged-in organizer
+  const myExpoIds = expos.filter((e) => {
+    if (!currentUser) return false;
+    const orgId = typeof e.organizer_id === "object" ? String(e.organizer_id?._id || "") : String(e.organizer_id || "");
+    return orgId === currentUserIdStr || (e.organizer_name && e.organizer_name === currentUser.name);
+  }).map((e) => String(e._id));
+
+  // Strictly filter feedback belonging to this organizer's expos
   const myFeedbackList = feedbackList.filter((f) => {
-    if (!currentUser) return true;
-    const fUserId = typeof f.user_id === "object" ? f.user_id?._id : f.user_id;
-    const fExpoId = typeof f.expo_id === "object" ? f.expo_id?._id : f.expo_id;
-    if (String(fUserId) === String(currentUser._id)) return true;
-    if (myExpoIds.includes(String(fExpoId))) return true;
-    if (f.user_name === currentUser.name) return true;
-    // Default fallback if populated objects returned
-    return true;
+    if (!currentUser) return false;
+    const fExpoId = typeof f.expo_id === "object" ? String(f.expo_id?._id || "") : String(f.expo_id || "");
+    return myExpoIds.includes(fExpoId);
   });
 
   const filteredFeedback = myFeedbackList.filter((f) => {
     if (activeFilter !== "all" && f.status !== activeFilter) return false;
     return true;
   });
+
   const handleOpenReply = (f) => {
     setReplyingFeedback(f);
-    setReplyText(f.response || "Thank you for your note. We have addressed this with the convention floor staff.");
+    setReplyText(f.response || "Thank you for reaching out. An EventSphere representative has reviewed your inquiry.");
   };
+
   const handleConfirmReply = (e) => {
     e.preventDefault();
     if (!replyingFeedback) return;
@@ -44,16 +45,17 @@ const FeedbackInbox = () => {
     setReplyingFeedback(null);
     setReplyText("");
   };
+
   return (
     <div id="feedback-inbox-view" className="space-y-6 font-body">
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight font-heading">
-            Feedback & Inquiries
+            Feedback & Enterprise Inquiries
           </h2>
           <p className="text-xs text-[#6B7280] dark:text-[#CBD5E1] mt-0.5">
-            Read messages, suggestions, and questions from attendees and exhibitors.
+            Manage inquiries, feedback, and enterprise lead messages for your expos.
           </p>
         </div>
 
@@ -92,18 +94,20 @@ const FeedbackInbox = () => {
       <div className="space-y-3">
         {filteredFeedback.length === 0 ? (
           <div className="py-12 bg-white dark:bg-[#1A202C] rounded-2xl border border-[#E5E7EB] dark:border-white/10 text-center text-xs text-[#6B7280] dark:text-[#CBD5E1]/60">
-            No feedback items found in this view.
+            No feedback or inquiry items found for your organized expos.
           </div>
         ) : (
           filteredFeedback.map((item) => {
             const rawType = typeof item.type === "object" && item.type !== null ? item.type.type : item.type;
-            const displayType = String(rawType || item.category || "general");
+            const displayType = String(rawType || item.inquiryType || item.category || "general");
             const rawStatus = typeof item.status === "object" && item.status !== null ? item.status.status : item.status;
             const displayStatus = String(rawStatus || "open");
-            const displayUserName = typeof item.user_id === "object" && item.user_id !== null ? item.user_id.name : (item.user_name || "User");
-            const displayUserRole = typeof item.user_id === "object" && item.user_id !== null ? item.user_id.role : (item.user_role || "attendee");
-            const displayExpoTitle = typeof item.expo_id === "object" && item.expo_id !== null ? item.expo_id.title : (item.expo_title || "General Expo Operations");
-            const displayMessage = item.content || item.message || "";
+            const displayUserName = item.name || (typeof item.user_id === "object" && item.user_id !== null ? item.user_id.name : item.user_name || "Enterprise Lead");
+            const displayUserEmail = item.email || (typeof item.user_id === "object" && item.user_id !== null ? item.user_id.email : item.user_email || "");
+            const displayCompany = item.company || "";
+            const displayUserRole = typeof item.user_id === "object" && item.user_id !== null ? item.user_id.role : (item.email ? "Public Lead" : item.user_role || "Attendee");
+            const displayExpoTitle = typeof item.expo_id === "object" && item.expo_id !== null ? item.expo_id.title : (item.expo_title || "Expo Operations");
+            const displayMessage = item.content || item.comments || item.message || "";
             const displayResponse = item.response || null;
 
             return (
@@ -111,11 +115,13 @@ const FeedbackInbox = () => {
                 key={item._id}
                 className="bg-white dark:bg-[#1A202C] p-5 rounded-2xl border border-[#E5E7EB] dark:border-white/10 hover:border-[#38B2AC]/50 shadow-xs transition-all flex flex-col sm:flex-row sm:items-start justify-between gap-4"
               >
-                <div className="space-y-2 flex-1">
+                <div className="space-y-2.5 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <span
                       className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded ${displayType === "issue" || displayType === "complaint"
                           ? "bg-rose-50 dark:bg-rose-950/80 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800"
+                          : displayType === "enterprise" || displayType === "custom" || displayType === "partnership"
+                          ? "bg-purple-50 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800"
                           : "bg-teal-50 dark:bg-[#203748] text-[#1488A6] dark:text-[#38B2AC] border border-[#1488A6]/30 dark:border-[#38B2AC]/40"
                         }`}
                     >
@@ -131,14 +137,27 @@ const FeedbackInbox = () => {
                     </span>
                     <span className="text-xs font-bold text-[#1F2937] dark:text-[#F8FAFC]">{displayUserName}</span>
                     <span className="text-[11px] text-[#6B7280] dark:text-[#CBD5E1]/60 capitalize">({displayUserRole})</span>
+                    {displayCompany && (
+                      <span className="text-[11px] font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">
+                        🏢 {displayCompany}
+                      </span>
+                    )}
+                    {displayUserEmail && (
+                      <a
+                        href={`mailto:${displayUserEmail}`}
+                        className="text-[11px] text-[#1488A6] dark:text-[#38B2AC] hover:underline font-mono"
+                      >
+                        ✉️ {displayUserEmail}
+                      </a>
+                    )}
                   </div>
 
-                  <p className="text-xs sm:text-sm text-[#1F2937] dark:text-[#CBD5E1] leading-relaxed font-normal">
+                  <p className="text-xs sm:text-sm text-[#1F2937] dark:text-[#CBD5E1] leading-relaxed font-normal bg-slate-50/50 dark:bg-[#0F172A]/50 p-3 rounded-xl border border-slate-100 dark:border-white/5">
                     &ldquo;{displayMessage}&rdquo;
                   </p>
 
                   <div className="flex items-center gap-3 text-[11px] text-[#6B7280] dark:text-[#CBD5E1]/60">
-                    <span>Target: {displayExpoTitle}</span>
+                    <span>Target Event: <strong className="text-[#1F2937] dark:text-white">{displayExpoTitle}</strong></span>
                     <span>•</span>
                     <span>{new Date(item.createdAt || item.created_at || Date.now()).toLocaleDateString()}</span>
                   </div>
@@ -172,9 +191,9 @@ const FeedbackInbox = () => {
 
       {/* Reply Modal */}
       {replyingFeedback && (() => {
-        const modalUserName = typeof replyingFeedback.user_id === "object" && replyingFeedback.user_id !== null 
+        const modalUserName = replyingFeedback.name || (typeof replyingFeedback.user_id === "object" && replyingFeedback.user_id !== null 
           ? replyingFeedback.user_id.name 
-          : (replyingFeedback.user_name || "User");
+          : (replyingFeedback.user_name || "User"));
         const modalMessage = replyingFeedback.content || replyingFeedback.comments || replyingFeedback.message || "";
 
         return (

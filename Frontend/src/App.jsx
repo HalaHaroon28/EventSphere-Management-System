@@ -4,11 +4,17 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import { Navbar } from "./components/common/Navbar";
 import { ToastContainer } from "./components/common/ToastContainer";
 import { DigitalPassModal } from "./components/common/DigitalPassModal";
+import { MyPassesModal } from "./components/common/MyPassesModal";
+import { MySessionsModal } from "./components/common/MySessionsModal";
+import { ContactBoothModal } from "./components/common/ContactBoothModal";
+import { AttendeeInquiriesDrawer } from "./components/attendee/AttendeeInquiriesDrawer";
+import { ProfileModal } from "./components/common/ProfileModal";
 import { FeedbackModal } from "./components/common/FeedbackModal";
 import { Sidebar } from "./components/common/Sidebar";
 import { AIChatbot } from "./components/common/AIChatbot";
 import { LandingPage } from "./components/public/LandingPage";
 import { ExpoListing } from "./components/public/ExpoListing";
+import { SessionsListing } from "./components/public/SessionsListing";
 import { LoginPage } from "./components/public/LoginPage";
 import { RegisterPage } from "./components/public/RegisterPage";
 import { ForgotPasswordPage } from "./components/public/ForgotPasswordPage";
@@ -29,14 +35,11 @@ import { MyBoothManager } from "./components/exhibitor/MyBoothManager";
 import { CompanyProfileView } from "./components/exhibitor/CompanyProfileView";
 import { ExhibitorMessages } from "./components/exhibitor/ExhibitorMessages";
 import { ApplyExpoModal } from "./components/exhibitor/ApplyExpoModal";
-import { AttendeeDashboard } from "./components/attendee/AttendeeDashboard";
-import { AttendeeBrowseExpos } from "./components/attendee/AttendeeBrowseExpos";
 import { ExhibitorSearch } from "./components/attendee/ExhibitorSearch";
-import { AttendeeMessages } from "./components/attendee/AttendeeMessages";
-import { MyScheduleView } from "./components/attendee/MyScheduleView";
-import { NotificationsView } from "./components/attendee/NotificationsView";
+import { GetPassModal } from "./components/attendee/GetPassModal";
 import { ProfileView } from "./components/common/ProfileView";
 import { FeedbackSupportView } from "./components/common/FeedbackSupportView";
+import { NotificationsView } from "./components/attendee/NotificationsView";
 import { Menu } from "lucide-react";
 
 const MainContent = () => {
@@ -56,17 +59,27 @@ const MainContent = () => {
     registrations,
     expos
   } = useApp();
+
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-  const [authRole, setAuthRole] = useState("organizer");
+  const [authRole, setAuthRole] = useState("attendee");
   const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
   const [applyExpoId, setApplyExpoId] = useState("expo_1");
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
   const [approvalTargetAppId, setApprovalTargetAppId] = useState(null);
   const [detailModalExpoId, setDetailModalExpoId] = useState(null);
+  const [detailModalInitialTab, setDetailModalInitialTab] = useState("overview");
   const [getPassExpo, setGetPassExpo] = useState(null);
-  const [activeChatExhibitorId, setActiveChatExhibitorId] = useState(null);
   const [resetToken, setResetToken] = useState(null);
+
+  // Attendee in-page modals & drawer state
+  const [isMyPassesOpen, setIsMyPassesOpen] = useState(false);
+  const [isMySessionsOpen, setIsMySessionsOpen] = useState(false);
+  const [isInquiriesDrawerOpen, setIsInquiriesDrawerOpen] = useState(false);
+  const [isContactBoothModalOpen, setIsContactBoothModalOpen] = useState(false);
+  const [contactBoothTarget, setContactBoothTarget] = useState(null);
+  const [contactBoothExpoTitle, setContactBoothExpoTitle] = useState("");
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   useEffect(() => {
     if (!authLoading) {
@@ -88,17 +101,21 @@ const MainContent = () => {
       setActiveView("reset-password");
     }
   }, []);
-  const handleOpenAuth = (mode = "login", role = "organizer") => {
+
+  const handleOpenAuth = (mode = "login", role = "attendee") => {
     setAuthRole(role);
     setActiveView(mode);
   };
-  const handleSelectExpo = (expoId) => {
+
+  const handleSelectExpo = (expoId, tab = "overview") => {
     setSelectedExpoId(expoId);
+    setDetailModalInitialTab(tab || "overview");
     setDetailModalExpoId(expoId);
   };
+
   const handleRegisterPass = (expoId) => {
     if (currentRole === "public" || !currentUser || currentUser?.role === "public") {
-      showToast("Authentication Required", "You need to login first.", "error");
+      showToast("Authentication Required", "Please sign in to get your summit access pass.", "error");
       setDetailModalExpoId(null);
       handleOpenAuth("login", "attendee");
       return;
@@ -111,6 +128,7 @@ const MainContent = () => {
       registerForExpo(expoId, "Standard Attendee Pass");
     }
   };
+
   const handleApplyExhibitor = (expoId) => {
     if (currentRole === "public" || (!currentUser && currentRole === "public")) {
       showToast("Authentication Required", "You need to login first as an exhibitor.", "error");
@@ -122,12 +140,27 @@ const MainContent = () => {
     setApplyExpoId(expoId);
     setIsApplyModalOpen(true);
   };
+
   const handleQuickApproveModal = (appId) => {
     setApprovalTargetAppId(appId);
     setActiveView("applications");
   };
+
+  const handleOpenContactBooth = (exhibitorObj, expoTitle) => {
+    if (!currentUser || currentUser.role === "public") {
+      showToast("Authentication Required", "Please sign in to contact exhibitors.", "error");
+      handleOpenAuth("login", "attendee");
+      return;
+    }
+    setContactBoothTarget(exhibitorObj);
+    setContactBoothExpoTitle(expoTitle || "");
+    setIsContactBoothModalOpen(true);
+  };
+
   const isAuthPage = activeView === "login" || activeView === "register" || activeView === "forgot-password" || activeView === "reset-password";
-  const showSidebar = currentRole !== "public" && activeView !== "landing" && !isAuthPage;
+  // Sidebar is restricted STRICTLY to Organizers and Exhibitors. Attendees stay on the public site layout.
+  const showSidebar = (currentRole === "organizer" || currentRole === "exhibitor") && activeView !== "landing" && !isAuthPage;
+
   const renderCurrentView = () => {
     if (activeView === "login") {
       return <LoginPage initialRole={authRole} />;
@@ -142,37 +175,70 @@ const MainContent = () => {
       return <ResetPasswordPage token={resetToken} />;
     }
     if (activeView === "landing") {
-      return <LandingPage
-        onSelectExpo={handleSelectExpo}
-        onRegisterPass={handleRegisterPass}
-        onApplyExhibitor={handleApplyExhibitor}
-        onOpenAuth={handleOpenAuth}
-      />;
+      return (
+        <LandingPage
+          onSelectExpo={handleSelectExpo}
+          onRegisterPass={handleRegisterPass}
+          onApplyExhibitor={handleApplyExhibitor}
+          onOpenAuth={handleOpenAuth}
+        />
+      );
     }
-    if (activeView === "expos" && currentRole !== "organizer" && currentRole !== "attendee") {
-      return <ExpoListing
-        onSelectExpo={handleSelectExpo}
-        onRegisterPass={handleRegisterPass}
-        onApplyExhibitor={handleApplyExhibitor}
-      />;
+    if (activeView === "expos" && currentRole !== "organizer") {
+      return (
+        <ExpoListing
+          onSelectExpo={handleSelectExpo}
+          onRegisterPass={handleRegisterPass}
+          onApplyExhibitor={handleApplyExhibitor}
+        />
+      );
     }
+    if (activeView === "sessions" || activeView === "schedule" && currentRole !== "organizer") {
+      return (
+        <SessionsListing
+          onSelectExpo={handleSelectExpo}
+          onRegisterPass={handleRegisterPass}
+        />
+      );
+    }
+    if (activeView === "exhibitors" && currentRole !== "organizer") {
+      return (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <ExhibitorSearch
+            onContactExhibitor={handleOpenContactBooth}
+            onMessageExhibitor={(exhibitorId) => {
+              handleOpenContactBooth({ _id: exhibitorId });
+            }}
+            onViewFloorPlan={(expoId) => {
+              handleSelectExpo(expoId, "floorplan");
+            }}
+            onSelectExpo={handleSelectExpo}
+          />
+        </div>
+      );
+    }
+
     if (currentRole === "organizer") {
       switch (activeView) {
         case "dashboard":
-          return <OrganizerDashboard
-            onNavigate={(v) => setActiveView(v)}
-            onOpenCreateExpo={() => setActiveView("expos")}
-            onOpenApproveModal={handleQuickApproveModal}
-          />;
+          return (
+            <OrganizerDashboard
+              onNavigate={(v) => setActiveView(v)}
+              onOpenCreateExpo={() => setActiveView("expos")}
+              onOpenApproveModal={handleQuickApproveModal}
+            />
+          );
         case "expos":
           return <ManageExpos />;
         case "floorplan":
           return <FloorPlanManager />;
         case "applications":
-          return <ExhibitorApplicationsManager
-            selectedAppIdForApproval={approvalTargetAppId}
-            onClearApprovalTarget={() => setApprovalTargetAppId(null)}
-          />;
+          return (
+            <ExhibitorApplicationsManager
+              selectedAppIdForApproval={approvalTargetAppId}
+              onClearApprovalTarget={() => setApprovalTargetAppId(null)}
+            />
+          );
         case "booth-requests":
           return <BoothRequestsManager />;
         case "schedule":
@@ -188,32 +254,41 @@ const MainContent = () => {
         case "profile":
           return <ProfileView />;
         default:
-          return <OrganizerDashboard
-            onNavigate={(v) => setActiveView(v)}
-            onOpenCreateExpo={() => setActiveView("expos")}
-            onOpenApproveModal={handleQuickApproveModal}
-          />;
+          return (
+            <OrganizerDashboard
+              onNavigate={(v) => setActiveView(v)}
+              onOpenCreateExpo={() => setActiveView("expos")}
+              onOpenApproveModal={handleQuickApproveModal}
+            />
+          );
       }
     }
+
     if (currentRole === "exhibitor") {
       switch (activeView) {
         case "dashboard":
-          return <ExhibitorDashboard
-            onNavigate={(v) => setActiveView(v)}
-            onOpenApply={() => setIsApplyModalOpen(true)}
-          />;
+          return (
+            <ExhibitorDashboard
+              onNavigate={(v) => setActiveView(v)}
+              onOpenApply={() => setIsApplyModalOpen(true)}
+            />
+          );
         case "my-applications":
-          return <MyApplicationsView
-            onNavigateToBoothSelection={(expoId) => {
-              setApplyExpoId(expoId);
-              setActiveView("booth-selection");
-            }}
-          />;
+          return (
+            <MyApplicationsView
+              onNavigateToBoothSelection={(expoId) => {
+                setApplyExpoId(expoId);
+                setActiveView("booth-selection");
+              }}
+            />
+          );
         case "booth-selection":
-          return <BoothSelectionView
-            initialExpoId={applyExpoId}
-            onBookingSuccess={() => setActiveView("dashboard")}
-          />;
+          return (
+            <BoothSelectionView
+              initialExpoId={applyExpoId}
+              onBookingSuccess={() => setActiveView("dashboard")}
+            />
+          );
         case "my-booth":
           return <MyBoothManager />;
         case "company-profile":
@@ -226,63 +301,37 @@ const MainContent = () => {
           return <ProfileView />;
         case "browse-expos":
         case "expos":
-          return <ExpoListing
-            onSelectExpo={handleSelectExpo}
-            onRegisterPass={handleRegisterPass}
-            onApplyExhibitor={handleApplyExhibitor}
-          />;
+          return (
+            <ExpoListing
+              onSelectExpo={handleSelectExpo}
+              onRegisterPass={handleRegisterPass}
+              onApplyExhibitor={handleApplyExhibitor}
+            />
+          );
         default:
-          return <ExhibitorDashboard
-            onNavigate={(v) => setActiveView(v)}
-            onOpenApply={() => setIsApplyModalOpen(true)}
-          />;
+          return (
+            <ExhibitorDashboard
+              onNavigate={(v) => setActiveView(v)}
+              onOpenApply={() => setIsApplyModalOpen(true)}
+            />
+          );
       }
     }
-    if (currentRole === "attendee") {
-      switch (activeView) {
-        case "dashboard":
-          return <AttendeeDashboard
-            onNavigate={(v) => setActiveView(v)}
-            onOpenPass={(regId) => setActivePassId(regId)}
-            onSelectExpo={handleSelectExpo}
-          />;
-        case "browse-expos":
-        case "expos":
-          return <AttendeeBrowseExpos
-            onSelectExpo={handleSelectExpo}
-            onRegisterPass={handleRegisterPass}
-          />;
-        case "exhibitors":
-          return <ExhibitorSearch onMessageExhibitor={(exhibitorId) => {
-            setActiveChatExhibitorId(exhibitorId);
-            setActiveView("messages");
-          }} />;
-        case "my-schedule":
-          return <MyScheduleView />;
-        case "messages":
-          return <AttendeeMessages initialExhibitorId={activeChatExhibitorId} />;
-        case "feedback":
-          return <FeedbackSupportView />;
-        case "profile":
-          return <ProfileView />;
-        default:
-          return <AttendeeDashboard
-            onNavigate={(v) => setActiveView(v)}
-            onOpenPass={(regId) => setActivePassId(regId)}
-            onSelectExpo={handleSelectExpo}
-          />;
-      }
-    }
-    return <LandingPage
-      onSelectExpo={handleSelectExpo}
-      onRegisterPass={handleRegisterPass}
-      onApplyExhibitor={handleApplyExhibitor}
-      onOpenAuth={handleOpenAuth}
-    />;
+
+    // Default fallback (Attendees and Guests stay on public homepage)
+    return (
+      <LandingPage
+        onSelectExpo={handleSelectExpo}
+        onRegisterPass={handleRegisterPass}
+        onApplyExhibitor={handleApplyExhibitor}
+        onOpenAuth={handleOpenAuth}
+      />
+    );
   };
+
   return (
     <div className="min-h-screen bg-white dark:bg-[#0F172A] text-[#1F2937] dark:text-[#F8FAFC] flex flex-col font-body selection:bg-[#38B2AC] selection:text-white transition-colors duration-200">
-      {/* Persistent Role Sidebar (Fixed on left) */}
+      {/* Persistent Role Sidebar (Fixed on left for Organizers and Exhibitors ONLY) */}
       {showSidebar && (
         <Sidebar
           isCollapsed={isSidebarCollapsed}
@@ -294,17 +343,22 @@ const MainContent = () => {
 
       {/* Main Layout Area - dynamically padded on desktop when sidebar is active */}
       <div
-        className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${showSidebar ? (isSidebarCollapsed ? "md:pl-20" : "md:pl-64 lg:pl-72") : ""
-          }`}
+        className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${
+          showSidebar ? (isSidebarCollapsed ? "md:pl-20" : "md:pl-64 lg:pl-72") : ""
+        }`}
       >
         {/* Universal Top Navigation */}
         <Navbar
           onOpenAuth={(mode, role) => handleOpenAuth(mode, role)}
           onOpenFeedback={() => setIsFeedbackModalOpen(true)}
           onToggleMobileSidebar={() => setIsMobileSidebarOpen(true)}
+          onOpenMyPasses={() => setIsMyPassesOpen(true)}
+          onOpenMySessions={() => setIsMySessionsOpen(true)}
+          onOpenInquiries={() => setIsInquiriesDrawerOpen(true)}
+          onOpenProfile={() => setIsProfileModalOpen(true)}
         />
 
-        {/* Mobile Sidebar Trigger for Auth Roles */}
+        {/* Mobile Sidebar Trigger for Organizer/Exhibitor Panels */}
         {showSidebar && (
           <div className="md:hidden bg-white dark:bg-[#1A202C] border-b border-[#E5E7EB] dark:border-white/10 px-4 py-2.5 flex items-center justify-between">
             <button
@@ -321,13 +375,13 @@ const MainContent = () => {
         )}
 
         {/* Main View Container */}
-        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-16 font-body">
+        <main className={`flex-1 w-full mx-auto font-body ${showSidebar ? "p-4 sm:p-6 lg:p-8" : ""}`}>
           {renderCurrentView()}
         </main>
 
         {/* Professional Footer */}
         <footer className="border-t border-[#E5E7EB] dark:border-white/10 bg-white dark:bg-[#0F172A] py-8 text-xs text-[#6B7280] dark:text-[#CBD5E1]/70 mt-auto font-body">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className={`${showSidebar ? "w-full" : "max-w-7xl mx-auto"} px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4`}>
             <div className="flex items-center gap-2 font-bold text-[#1F2937] dark:text-[#F8FAFC] font-heading">
               <span className="w-2.5 h-2.5 rounded-full bg-[#38B2AC]" />
               <span>EventSphere Enterprise Expo Architecture</span>
@@ -346,66 +400,114 @@ const MainContent = () => {
         </footer>
       </div>
 
-      {
-        /* Gemini AI Multi-turn Chatbot Concierge */
-      }
+      {/* Gemini AI Multi-turn Chatbot Concierge */}
       <AIChatbot />
 
-      {
-        /* Global Modals & Overlays */
-      }
+      {/* Global Toast Alerts */}
       <ToastContainer />
 
-      {/* Expo Detail Modal */}
+      {/* Global Expo Detail Modal */}
       {detailModalExpoId && (
         <ExpoDetailModal
           expoId={detailModalExpoId}
-          onClose={() => setDetailModalExpoId(null)}
+          initialTab={detailModalInitialTab || "overview"}
+          onClose={() => {
+            setDetailModalExpoId(null);
+            setDetailModalInitialTab("overview");
+          }}
           onRegisterPass={handleRegisterPass}
           onApplyExhibitor={handleApplyExhibitor}
           onOpenRegisterPass={handleRegisterPass}
           onOpenApplyExhibitor={handleApplyExhibitor}
+          onOpenContactBooth={(exh) => {
+            const currentExpo = expos.find((e) => e._id === detailModalExpoId || e.id === detailModalExpoId);
+            handleOpenContactBooth(exh, currentExpo?.title || "");
+          }}
         />
       )}
 
-      {
-        /* Digital Pass QR Modal */
-      }
-      {activePassId && <DigitalPassModal
-        registrationId={activePassId}
-        onClose={() => setActivePassId(null)}
-      />}
+      {/* Global Digital Pass Turnstile QR Modal */}
+      {activePassId && (
+        <DigitalPassModal
+          registrationId={activePassId}
+          onClose={() => setActivePassId(null)}
+        />
+      )}
 
-      {
-        /* Apply for Expo Modal */
-      }
-      {isApplyModalOpen && <ApplyExpoModal
-        initialExpoId={applyExpoId}
-        onClose={() => setIsApplyModalOpen(false)}
-        onSuccess={() => setActiveView("my-applications")}
-      />}
+      {/* Global My Passes Modal */}
+      <MyPassesModal
+        isOpen={isMyPassesOpen}
+        onClose={() => setIsMyPassesOpen(false)}
+        onSelectExpo={handleSelectExpo}
+        onOpenGetPass={handleRegisterPass}
+      />
 
-      {/* Get Pass Modal */}
+      {/* Global My Bookmarked Sessions Modal */}
+      <MySessionsModal
+        isOpen={isMySessionsOpen}
+        onClose={() => setIsMySessionsOpen(false)}
+        onSelectExpo={handleSelectExpo}
+      />
+
+      {/* Global Attendee Inquiries Slide-over Drawer */}
+      <AttendeeInquiriesDrawer
+        isOpen={isInquiriesDrawerOpen}
+        onClose={() => setIsInquiriesDrawerOpen(false)}
+      />
+
+      {/* Global Contact Booth Inquiry Modal */}
+      <ContactBoothModal
+        isOpen={isContactBoothModalOpen}
+        onClose={() => {
+          setIsContactBoothModalOpen(false);
+          setContactBoothTarget(null);
+        }}
+        exhibitor={contactBoothTarget}
+        expoTitle={contactBoothExpoTitle}
+      />
+
+      {/* Global Profile Settings Modal */}
+      <ProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+      />
+
+      {/* Global Apply for Expo Modal */}
+      {isApplyModalOpen && (
+        <ApplyExpoModal
+          initialExpoId={applyExpoId}
+          onClose={() => setIsApplyModalOpen(false)}
+          onSuccess={() => setActiveView("my-applications")}
+        />
+      )}
+
+      {/* Global Get Pass Modal */}
       {getPassExpo && (
         <GetPassModal
           expo={getPassExpo}
           onClose={() => setGetPassExpo(null)}
+          onSuccess={() => {
+            setIsMyPassesOpen(true);
+          }}
         />
       )}
 
-      {/* Feedback Modal */}
-      {isFeedbackModalOpen && <FeedbackModal onClose={() => setIsFeedbackModalOpen(false)} />}
+      {/* Global Feedback Modal */}
+      {isFeedbackModalOpen && (
+        <FeedbackModal onClose={() => setIsFeedbackModalOpen(false)} />
+      )}
     </div>
   );
 };
-function App() {
-  return <AuthProvider>
-    <AppContextProvider>
-      <MainContent />
-    </AppContextProvider>
 
-  </AuthProvider>;
+function App() {
+  return (
+    <AuthProvider>
+      <AppContextProvider>
+        <MainContent />
+      </AppContextProvider>
+    </AuthProvider>
+  );
 }
-export {
-  App as default
-};
+
+export default App;

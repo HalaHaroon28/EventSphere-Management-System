@@ -12,10 +12,16 @@ import {
   Calendar,
   Layers,
   MessageSquare,
-  PackageCheck
+  PackageCheck,
+  ChevronDown
 } from "lucide-react";
 
-export const ExhibitorSearch = ({ onMessageExhibitor }) => {
+export const ExhibitorSearch = ({
+  onMessageExhibitor,
+  onContactExhibitor,
+  onViewFloorPlan,
+  onSelectExpo
+}) => {
   const {
     showcases = [],
     showcase = [],
@@ -25,7 +31,8 @@ export const ExhibitorSearch = ({ onMessageExhibitor }) => {
     currentUser = {},
     sendMessage,
     showToast,
-    setActiveView
+    setActiveView,
+    setSelectedExpoId: setContextSelectedExpoId
   } = useApp();
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -98,18 +105,35 @@ export const ExhibitorSearch = ({ onMessageExhibitor }) => {
 
     const key = `${exhId}_${expoId || "default"}`;
 
-    exhibitorsMap[key] = {
-      _id: b._id,
-      exhibitor_id: exhId,
-      expo_id: expoId,
-      company_name: compName,
-      logo_url: exhObj?.company_profile?.logo || exhObj?.profile_photo_url || null,
-      booth_number: b.booth_number || "Assigned Booth",
-      category: b.category || exhObj?.company_profile?.industry || "Technology",
-      description: desc || `${compName} exhibition booth.`,
-      products: (bDetails.products && Array.isArray(bDetails.products)) ? bDetails.products : [],
-      staff: (bDetails.staff && Array.isArray(bDetails.staff)) ? bDetails.staff : []
-    };
+    if (!exhibitorsMap[key]) {
+      const staffList = (bDetails.staff || []).map((st) => ({
+        _id: st._id,
+        name: st.name || "Staff Member",
+        role: st.role || "Booth Attendant",
+        email: st.email || ""
+      }));
+
+      const productsList = (bDetails.products || []).map((p) => ({
+        _id: p._id,
+        name: p.name || "Product",
+        price: p.price || 0,
+        description: p.description || ""
+      }));
+
+      exhibitorsMap[key] = {
+        _id: key,
+        exhibitor_id: exhId,
+        expo_id: expoId,
+        company_name: compName,
+        category: b.category || exhObj?.category || "Technology",
+        booth_number: b.booth_number,
+        hall: b.hall,
+        logo_url: exhObj?.company_profile?.logo || exhObj?.profile_photo_url || null,
+        description: desc,
+        products: productsList,
+        staff: staffList
+      };
+    }
   });
 
   // 2. Process Approved Exhibitor Applications from MongoDB
@@ -164,29 +188,30 @@ export const ExhibitorSearch = ({ onMessageExhibitor }) => {
   // 3. Process DB Showcase Records
   realDbShowcases.forEach((sc) => {
     const exhId = sc.exhibitor_id;
-    const expoId = sc.expo_id;
-    if (!exhId) return;
-
-    if (isTestExhibitor(exhId, sc.company_name, sc.description)) return;
-
+    if (!exhId || isTestExhibitor(exhId, sc.company_name, sc.description)) return;
+    const expoId = sc.expo_id?._id || sc.expo_id;
     const key = `${exhId}_${expoId || "default"}`;
+
     if (exhibitorsMap[key]) {
-      exhibitorsMap[key] = {
-        ...exhibitorsMap[key],
-        company_name: sc.company_name || exhibitorsMap[key].company_name,
-        description: sc.description || exhibitorsMap[key].description,
-        products: (sc.products && sc.products.length > 0) ? sc.products : exhibitorsMap[key].products,
-        staff: (sc.staff && sc.staff.length > 0) ? sc.staff : exhibitorsMap[key].staff
-      };
+      if (!exhibitorsMap[key].logo_url && sc.logo_url) {
+        exhibitorsMap[key].logo_url = sc.logo_url;
+      }
+      if ((!exhibitorsMap[key].products || exhibitorsMap[key].products.length === 0) && sc.products?.length > 0) {
+        exhibitorsMap[key].products = sc.products;
+      }
+      if ((!exhibitorsMap[key].staff || exhibitorsMap[key].staff.length === 0) && sc.staff?.length > 0) {
+        exhibitorsMap[key].staff = sc.staff;
+      }
     } else {
       exhibitorsMap[key] = {
-        _id: sc._id,
+        _id: sc._id || key,
         exhibitor_id: exhId,
         expo_id: expoId,
         company_name: sc.company_name,
-        logo_url: sc.logo_url || null,
+        category: sc.category || "Technology",
         booth_number: sc.booth_number || "Main Pavilion",
-        category: sc.category || "Exhibitor",
+        hall: sc.hall || "Hall A",
+        logo_url: sc.logo_url || null,
         description: sc.description,
         products: sc.products || [],
         staff: sc.staff || []
@@ -235,29 +260,57 @@ export const ExhibitorSearch = ({ onMessageExhibitor }) => {
     return true;
   });
 
-  const handleOpenMessageThread = (targetExhibitorId) => {
+  const handleOpenMessageThread = (targetExhibitor, expoTitle) => {
     if (!currentUser || currentUser.role === "public") {
       showToast("Authentication Required", "Please log in to message exhibitors.", "error");
       setActiveView("login");
       return;
     }
-    if (onMessageExhibitor) {
-      onMessageExhibitor(targetExhibitorId);
+    if (onContactExhibitor) {
+      const exhObj = typeof targetExhibitor === "object" ? targetExhibitor : { _id: targetExhibitor };
+      onContactExhibitor(exhObj, expoTitle);
+    } else if (onMessageExhibitor) {
+      const targetId = typeof targetExhibitor === "object" ? (targetExhibitor.exhibitor_id || targetExhibitor._id) : targetExhibitor;
+      onMessageExhibitor(targetId);
     } else {
       setActiveView("messages");
     }
   };
 
+  const handleViewFloorPlanAction = (expoId) => {
+    const targetExpoId = typeof expoId === "object" ? expoId?._id : expoId;
+    if (onViewFloorPlan) {
+      onViewFloorPlan(targetExpoId);
+    } else if (onSelectExpo) {
+      onSelectExpo(targetExpoId, "floorplan");
+    } else {
+      if (targetExpoId) setContextSelectedExpoId(targetExpoId);
+      setActiveView("floorplan");
+    }
+  };
+
   return (
-    <div id="exhibitor-search-view" className="space-y-6 font-body">
-      {/* Top Header */}
-      <div>
-        <h2 className="text-xl sm:text-2xl font-bold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight font-heading">
-          Exhibitor Search & Directory
-        </h2>
-        <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#CBD5E1] mt-0.5">
-          Search and filter exhibitors based on categories, products, or keywords.
-        </p>
+    <div id="exhibitor-search-view" className="space-y-8 font-body">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#E5E7EB] dark:border-white/10 pb-6">
+        <div>
+          <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#1488A6] dark:text-[#38B2AC]">
+            Discovery & Vendors
+          </span>
+          <h1 className="text-2xl sm:text-4xl font-extrabold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight mt-1 font-heading">
+            Browse Verified Exhibitors & Booths
+          </h1>
+          <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#CBD5E1]/80 mt-1.5 max-w-xl leading-relaxed">
+            Search verified corporate vendors, explore digital product catalogs, and send direct inquiries to booth attendants.
+          </p>
+        </div>
+
+        {/* Count Tab */}
+        <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-[#1A202C] p-1.5 rounded-2xl text-xs self-start md:self-auto border border-[#E5E7EB] dark:border-white/10">
+          <span className="px-3.5 py-1.5 rounded-xl font-bold bg-white dark:bg-[#203748] text-[#1488A6] dark:text-[#38B2AC] shadow-xs border border-[#E5E7EB] dark:border-white/10">
+            All Exhibitors ({dynamicExhibitorsList.length})
+          </span>
+        </div>
       </div>
 
       {/* Filter Bar: Search Input + Category Selector + Dynamic Expo Selector */}
@@ -282,18 +335,21 @@ export const ExhibitorSearch = ({ onMessageExhibitor }) => {
             <label className="text-xs font-semibold text-[#6B7280] dark:text-[#CBD5E1]/80 shrink-0">
               Category:
             </label>
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-3 py-2 text-xs sm:text-sm bg-[#F8FAFC] dark:bg-[#0F172A] border border-[#E5E7EB] dark:border-white/10 rounded-xl text-[#1F2937] dark:text-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-[#38B2AC] cursor-pointer"
-            >
-              <option value="all">All Categories</option>
-              {availableCategories.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
+            <div className="relative">
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="appearance-none pl-3 pr-8 py-2 text-xs sm:text-sm bg-[#F8FAFC] dark:bg-[#0F172A] border border-[#E5E7EB] dark:border-white/10 rounded-xl text-[#1F2937] dark:text-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-[#38B2AC] cursor-pointer"
+              >
+                <option value="all">All Categories</option>
+                {availableCategories.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#6B7280] dark:text-[#CBD5E1]/60" />
+            </div>
           </div>
 
           {/* Expo Dropdown */}
@@ -302,18 +358,21 @@ export const ExhibitorSearch = ({ onMessageExhibitor }) => {
               <Calendar className="w-3.5 h-3.5 text-[#1488A6] dark:text-[#38B2AC]" />
               Expo:
             </label>
-            <select
-              value={selectedExpoId}
-              onChange={(e) => setSelectedExpoId(e.target.value)}
-              className="px-3 py-2 text-xs sm:text-sm bg-[#F8FAFC] dark:bg-[#0F172A] border border-[#E5E7EB] dark:border-white/10 rounded-xl text-[#1F2937] dark:text-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-[#38B2AC] cursor-pointer"
-            >
-              <option value="all">All Exhibitions ({expos.length})</option>
-              {expos.map((e) => (
-                <option key={e._id} value={e._id}>
-                  {e.title}
-                </option>
-              ))}
-            </select>
+            <div className="relative">
+              <select
+                value={selectedExpoId}
+                onChange={(e) => setSelectedExpoId(e.target.value)}
+                className="appearance-none pl-3 pr-8 py-2 text-xs sm:text-sm bg-[#F8FAFC] dark:bg-[#0F172A] border border-[#E5E7EB] dark:border-white/10 rounded-xl text-[#1F2937] dark:text-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-[#38B2AC] cursor-pointer max-w-[180px] sm:max-w-[220px] truncate"
+              >
+                <option value="all">All Exhibitions ({expos.length})</option>
+                {expos.map((e) => (
+                  <option key={e._id} value={e._id}>
+                    {e.title}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#6B7280] dark:text-[#CBD5E1]/60" />
+            </div>
           </div>
 
           <span className="text-xs font-mono font-bold teal-badge px-2.5 py-1 rounded-lg shrink-0">
@@ -363,9 +422,15 @@ export const ExhibitorSearch = ({ onMessageExhibitor }) => {
                           {sc.company_name}
                         </h3>
                         <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
-                          <span className="text-[10px] font-mono font-bold teal-badge px-2 py-0.5 rounded">
+                          <button
+                            type="button"
+                            onClick={() => sc.expo_id && handleViewFloorPlanAction(sc.expo_id)}
+                            title="View booth on floor plan"
+                            className="text-[10px] font-mono font-bold teal-badge px-2 py-0.5 rounded flex items-center gap-1 hover:brightness-110 cursor-pointer"
+                          >
+                            <MapPin className="w-2.5 h-2.5" />
                             Booth {sc.booth_number || "Main Pavilion"}
-                          </span>
+                          </button>
                           {expoObj && (
                             <span className="text-[10px] text-[#6B7280] dark:text-[#CBD5E1]/60 font-mono truncate max-w-[120px]">
                               {expoObj.title}
@@ -413,17 +478,20 @@ export const ExhibitorSearch = ({ onMessageExhibitor }) => {
                 <div className="pt-3 border-t border-[#E5E7EB] dark:border-white/10 flex items-center justify-between gap-2">
                   <button
                     onClick={() => setActiveShowcaseModal(sc)}
-                    className="px-3.5 py-2 rounded-xl border border-[#E5E7EB] dark:border-white/10 hover:bg-slate-100 dark:hover:bg-[#203748] text-[#1F2937] dark:text-[#CBD5E1] text-xs font-bold transition-colors cursor-pointer"
+                    className="flex-1 py-2 rounded-xl border border-[#E5E7EB] dark:border-white/10 hover:bg-slate-100 dark:hover:bg-[#203748] text-[#1F2937] dark:text-[#CBD5E1] text-xs font-bold transition-colors cursor-pointer text-center"
                   >
                     View Catalog
                   </button>
-
-                  <button
-                    onClick={() => handleOpenMessageThread(exhibitorId)}
-                    className="px-3.5 py-2 rounded-xl btn-teal-primary text-xs font-bold transition-colors shadow-xs flex items-center gap-1.5 cursor-pointer"
-                  >
-                    <MessageSquare className="w-3.5 h-3.5 text-white" /> Message Booth
-                  </button>
+                  {sc.expo_id && (
+                    <button
+                      onClick={() => handleViewFloorPlanAction(sc.expo_id)}
+                      title="View booth location on interactive floor plan"
+                      className="flex-1 py-2 rounded-xl border border-[#1488A6]/30 dark:border-[#38B2AC]/30 hover:bg-[#38B2AC]/10 text-[#1488A6] dark:text-[#38B2AC] text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                    >
+                      <MapPin className="w-3.5 h-3.5" />
+                      <span>Floor Plan</span>
+                    </button>
+                  )}
                 </div>
               </div>
             );
@@ -454,9 +522,23 @@ export const ExhibitorSearch = ({ onMessageExhibitor }) => {
                   <h3 className="text-base sm:text-lg font-bold font-heading">
                     {activeShowcaseModal.company_name}
                   </h3>
-                  <span className="text-xs font-mono font-bold teal-badge px-2 py-0.5 rounded">
-                    Booth {activeShowcaseModal.booth_number || "Main Pavilion"}
-                  </span>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="text-xs font-mono font-bold teal-badge px-2 py-0.5 rounded">
+                      Booth {activeShowcaseModal.booth_number || "Main Pavilion"}
+                    </span>
+                    {activeShowcaseModal.expo_id && (
+                      <button
+                        onClick={() => {
+                          const targetExpo = activeShowcaseModal.expo_id;
+                          setActiveShowcaseModal(null);
+                          handleViewFloorPlanAction(targetExpo);
+                        }}
+                        className="text-xs font-mono font-bold text-[#1488A6] dark:text-[#38B2AC] hover:underline flex items-center gap-1 cursor-pointer"
+                      >
+                        <MapPin className="w-3 h-3" /> View on Floor Plan
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -537,15 +619,23 @@ export const ExhibitorSearch = ({ onMessageExhibitor }) => {
 
             {/* Modal Bottom Actions */}
             <div className="pt-4 border-t border-[#E5E7EB] dark:border-white/10 flex items-center justify-between gap-3">
+              {activeShowcaseModal.expo_id && (
+                <button
+                  onClick={() => {
+                    const targetExpo = activeShowcaseModal.expo_id;
+                    setActiveShowcaseModal(null);
+                    handleViewFloorPlanAction(targetExpo);
+                  }}
+                  className="px-4 py-2.5 rounded-xl border border-[#1488A6]/30 dark:border-[#38B2AC]/30 hover:bg-[#38B2AC]/10 text-[#1488A6] dark:text-[#38B2AC] text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <MapPin className="w-4 h-4 text-[#38B2AC]" /> View Booth on Floor Plan
+                </button>
+              )}
               <button
-                onClick={() => {
-                  const targetId = activeShowcaseModal.exhibitor_id || activeShowcaseModal._id;
-                  setActiveShowcaseModal(null);
-                  handleOpenMessageThread(targetId);
-                }}
-                className="w-full py-2.5 rounded-xl btn-teal-primary text-white text-xs sm:text-sm font-bold shadow-md flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                onClick={() => setActiveShowcaseModal(null)}
+                className="px-4 py-2.5 rounded-xl border border-[#E5E7EB] dark:border-white/10 hover:bg-slate-100 dark:hover:bg-[#203748] text-[#1F2937] dark:text-[#CBD5E1] text-xs font-bold transition-colors cursor-pointer ml-auto"
               >
-                <MessageSquare className="w-4 h-4 text-white" /> Start Direct Chat with {activeShowcaseModal.company_name}
+                Close
               </button>
             </div>
           </div>

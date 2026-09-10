@@ -10,11 +10,24 @@ const feedbackSchema = new mongoose.Schema(
     user_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
-      required: true,
+      required: false,
+      default: null,
+    },
+    name: {
+      type: String,
+      default: '',
+    },
+    email: {
+      type: String,
+      default: '',
+    },
+    company: {
+      type: String,
+      default: '',
     },
     type: {
       type: String,
-      enum: ['complaint', 'suggestion', 'general', 'issue'],
+      enum: ['complaint', 'suggestion', 'general', 'issue', 'inquiry', 'enterprise', 'custom', 'partnership', 'exhibitor'],
       default: 'general',
     },
     content: {

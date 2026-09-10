@@ -48,6 +48,7 @@ export const LoginPage = ({ initialRole = "organizer" }) => {
       } else if (response.success) {
         setCurrentUser(response.user);
         loginAs(response.user);
+        showToast("Access Granted", `Welcome back, ${response.user?.name || "User"}!`, "success");
       }
     } catch (error) {
       setIsLoading(false);
@@ -182,7 +183,7 @@ export const LoginPage = ({ initialRole = "organizer" }) => {
                     <span>Authenticating...</span>
                   ) : (
                     <>
-                      <span>Continue to OTP Verification</span>
+                      <span>Login</span>
                       <ArrowRight className="w-4.5 h-4.5" />
                     </>
                   )}
@@ -260,8 +261,11 @@ export const LoginPage = ({ initialRole = "organizer" }) => {
         <OTPVerificationModal
           isOpen={showOtpModal}
           targetRole={pendingUserRole}
+          role={pendingUserRole}
           targetEmail={email}
+          email={email}
           pendingUserId={pendingUserId}
+          userId={pendingUserId}
           onSuccess={handleOtpSuccess}
           onClose={() => setShowOtpModal(false)}
         />

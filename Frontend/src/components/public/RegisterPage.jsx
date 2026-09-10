@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { useApp } from "../../context/AppContext";
 import { useAuth } from "../../context/AuthContext";
 import { authService } from "../../services/authService";
+import { OTPVerificationModal } from "../common/OTPVerificationModal";
 import {
   Shield,
   Briefcase,
@@ -22,7 +23,7 @@ import {
 
 export const RegisterPage = ({ initialRole = "organizer" }) => {
   const { setCurrentUser, loginAs, showToast, setActiveView } = useApp();
-  const { register } = useAuth();
+  const { register, verifyOtp } = useAuth();
   const [selectedRole, setSelectedRole] = useState(
     initialRole === "public" ? "organizer" : initialRole
   );
@@ -37,6 +38,12 @@ export const RegisterPage = ({ initialRole = "organizer" }) => {
   const [pfpFile, setPfpFile] = useState(null);
   const [pfpPreview, setPfpPreview] = useState(null);
   const fileInputRef = useRef(null);
+
+  // OTP Verification Modal State
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [pendingUserId, setPendingUserId] = useState(null);
+  const [devOtpCode, setDevOtpCode] = useState(null);
+  const [pendingUserRole, setPendingUserRole] = useState("attendee");
 
   const handlePfpChange = (e) => {
     const file = e.target.files?.[0];
@@ -106,11 +113,35 @@ export const RegisterPage = ({ initialRole = "organizer" }) => {
       const response = await register(userData);
       setIsLoading(false);
 
-      showToast("Account Created Successfully", `Welcome to EventSphere, ${name}! Please log in to access your ${selectedRole.toUpperCase()} workspace.`, "success");
-      setActiveView("login");
+      if (response.otpRequired) {
+        setPendingUserId(response.userId);
+        setDevOtpCode(response.devOtpCode);
+        setPendingUserRole(response.role || selectedRole);
+        setShowOtpModal(true);
+        showToast("Verification Required", "We've sent a 6-digit verification code to your email.", "info");
+      } else if (response.success) {
+        setCurrentUser(response.user);
+        loginAs(response.user);
+        showToast("Account Created", `Welcome to EventSphere, ${name}!`, "success");
+      }
     } catch (error) {
       setIsLoading(false);
       showToast("Registration Failed", error.message || "An error occurred during registration.", "error");
+    }
+  };
+
+  const handleOtpSuccess = async (otpCode) => {
+    try {
+      const response = await verifyOtp(pendingUserId, otpCode);
+      setShowOtpModal(false);
+      if (response.success) {
+        setCurrentUser(response.user);
+        loginAs(response.user);
+        showToast("Email Verified & Signed In", `Welcome to EventSphere, ${response.user?.name || name}!`, "success");
+      }
+    } catch (error) {
+      showToast("Verification Failed", error.message || "Invalid OTP verification code.", "error");
+      throw error;
     }
   };
 
@@ -430,10 +461,10 @@ export const RegisterPage = ({ initialRole = "organizer" }) => {
                   className="w-full py-3 sm:py-3.5 px-6 rounded-xl font-bold text-xs sm:text-sm md:text-base text-white btn-teal-primary shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
                 >
                   {isLoading ? (
-                    <span>Creating Account...</span>
+                    <span>Authenticating...</span>
                   ) : (
                     <>
-                      <span>Create Account</span>
+                      <span>Continue To OTP Verfication</span>
                       <ArrowRight className="w-4.5 h-4.5" />
                     </>
                   )}
@@ -455,6 +486,20 @@ export const RegisterPage = ({ initialRole = "organizer" }) => {
           </div>
         </div>
       </div>
+
+      {/* Verification OTP Modal on Sign Up */}
+      <OTPVerificationModal
+        isOpen={showOtpModal}
+        onClose={() => setShowOtpModal(false)}
+        onSuccess={handleOtpSuccess}
+        userId={pendingUserId}
+        pendingUserId={pendingUserId}
+        email={email}
+        targetEmail={email}
+        devOtpCode={devOtpCode}
+        role={pendingUserRole}
+        targetRole={pendingUserRole}
+      />
     </div>
   );
 };

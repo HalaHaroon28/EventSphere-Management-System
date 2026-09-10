@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useApp } from "../../context/AppContext";
 import {
   Calendar,
@@ -33,7 +33,7 @@ export const LandingPage = ({
   onApplyExhibitor,
   onOpenAuth
 }) => {
-  const { expos, loginAs, setActiveView, showToast } = useApp();
+  const { expos = [], loginAs, setActiveView, showToast, submitFeedback } = useApp();
 
   // FAQ Accordion State
   const [openFaq, setOpenFaq] = useState(0);
@@ -43,36 +43,63 @@ export const LandingPage = ({
     name: "",
     email: "",
     company: "",
+    expo_id: "",
     inquiryType: "enterprise",
     message: ""
   });
   const [isSubmittingContact, setIsSubmittingContact] = useState(false);
   const [contactSubmitted, setContactSubmitted] = useState(false);
 
-  const handleContactSubmit = (e) => {
+  // Sync first expo if available
+  useEffect(() => {
+    if (expos.length > 0 && !contactForm.expo_id) {
+      setContactForm((prev) => ({ ...prev, expo_id: expos[0]._id }));
+    }
+  }, [expos]);
+
+  const handleContactSubmit = async (e) => {
     e.preventDefault();
     if (!contactForm.name || !contactForm.email || !contactForm.message) {
       showToast("Missing Information", "Please fill in your name, email, and message.", "error");
       return;
     }
 
+    const selectedExpoId = contactForm.expo_id || (expos.length > 0 ? expos[0]._id : null);
+    if (!selectedExpoId) {
+      showToast("No Expo Available", "Please wait for expos to load or select an expo.", "error");
+      return;
+    }
+
     setIsSubmittingContact(true);
-    setTimeout(() => {
-      setIsSubmittingContact(false);
-      setContactSubmitted(true);
-      showToast(
-        "Inquiry Received",
-        "Thank you for contacting EventSphere. Our enterprise event team will respond within 24 hours.",
-        "success"
-      );
-      setContactForm({
-        name: "",
-        email: "",
-        company: "",
-        inquiryType: "enterprise",
-        message: ""
+    try {
+      const res = await submitFeedback({
+        name: contactForm.name.trim(),
+        email: contactForm.email.trim(),
+        company: contactForm.company.trim(),
+        expo_id: selectedExpoId,
+        inquiryType: contactForm.inquiryType,
+        type: contactForm.inquiryType,
+        content: contactForm.message.trim(),
+        comments: contactForm.message.trim(),
+        message: contactForm.message.trim()
       });
-    }, 600);
+
+      if (res) {
+        setContactSubmitted(true);
+        setContactForm({
+          name: "",
+          email: "",
+          company: "",
+          expo_id: expos.length > 0 ? expos[0]._id : "",
+          inquiryType: "enterprise",
+          message: ""
+        });
+      }
+    } catch (err) {
+      console.error("Error submitting contact inquiry:", err);
+    } finally {
+      setIsSubmittingContact(false);
+    }
   };
 
   const coreFeatures = [
@@ -150,10 +177,10 @@ export const LandingPage = ({
   ];
 
   const statistics = [
-    { label: "Events Managed", value: "1,200+", subtext: "Across 42 countries", icon: Globe },
-    { label: "Exhibitors", value: "8,500+", subtext: "Active corporate showcases", icon: Building2 },
-    { label: "Attendees", value: "450,000+", subtext: "Seamlessly checked in", icon: Users },
-    { label: "Sessions", value: "12,000+", subtext: "Keynotes & workshops hosted", icon: Clock }
+    { label: "Events Managed", value: "120+", subtext: "Across 42 countries", icon: Globe },
+    { label: "Exhibitors", value: "340+", subtext: "Active corporate showcases", icon: Building2 },
+    { label: "Attendees", value: "1200+", subtext: "Seamlessly checked in", icon: Users },
+    { label: "Sessions", value: "1300+", subtext: "Keynotes & workshops hosted", icon: Clock }
   ];
 
   const testimonials = [
@@ -209,26 +236,26 @@ export const LandingPage = ({
   return (
     <div id="landing-page-root" className="space-y-20 sm:space-y-28 pb-16 font-body">
       {/* 1. HERO SECTION */}
-      <section id="hero-section" className="relative pt-8 sm:pt-14 pb-12 sm:pb-20 overflow-hidden">
+      <section id="hero-section" className="relative min-h-[calc(100vh-5rem)] flex flex-col items-center justify-center pt-8 pb-16 sm:py-24 overflow-hidden">
         {/* Sleek Concentric Halo & Backdrop Rings */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] sm:w-[540px] md:w-[680px] h-[340px] sm:h-[540px] md:h-[680px] rounded-full border border-slate-200/60 dark:border-slate-800/80 pointer-events-none -z-10" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[240px] sm:w-[380px] md:w-[480px] h-[240px] sm:h-[380px] md:h-[480px] rounded-full border border-teal-500/10 dark:border-[#38B2AC]/15 pointer-events-none -z-10" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 sm:w-[420px] h-80 sm:h-[420px] bg-gradient-to-tr from-[#1488A6]/20 via-[#EA580C]/10 to-[#38B2AC]/15 dark:from-[#1488A6]/25 dark:via-[#F97316]/15 dark:to-[#38B2AC]/20 rounded-full blur-3xl pointer-events-none -z-10" />
 
-        <div className="max-w-4xl mx-auto text-center space-y-7 sm:space-y-9 px-4">
+        <div className="w-full max-w-4xl mx-auto text-center space-y-8 sm:space-y-10 px-4 sm:px-6">
           {/* Clean Headline & Subtitle */}
-          <div className="space-y-4 max-w-2xl mx-auto">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight leading-tight font-heading">
+          <div className="space-y-5 max-w-3xl mx-auto">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight leading-[1.15] font-heading">
               Plan, Exhibit & Attend <br className="hidden sm:inline" />
               <span className="text-[#1488A6] dark:text-[#38B2AC]">Global Exhibitions</span>
             </h1>
-            <p className="text-sm sm:text-base text-[#6B7280] dark:text-[#CBD5E1] leading-relaxed">
+            <p className="text-base sm:text-lg text-[#6B7280] dark:text-[#CBD5E1] leading-relaxed max-w-2xl mx-auto">
               The all-in-one exhibition platform for event organizers, corporate exhibitors, and attendees. Book floor booths, get instant digital QR passes, and explore live schedules.
             </p>
           </div>
 
           {/* Prominent EXPLORE EXPOS CTA Button */}
-          <div className="flex flex-col items-center justify-center gap-4 pt-1">
+          <div className="flex flex-col items-center justify-center gap-4 pt-2">
             <button
               id="hero-explore-expos-btn"
               onClick={() => setActiveView("expos")}
@@ -535,9 +562,8 @@ export const LandingPage = ({
                     {faq.q}
                   </span>
                   <ChevronDown
-                    className={`w-4 h-4 text-slate-400 shrink-0 transition-transform duration-200 ${
-                      isOpen ? "rotate-180 text-[#1488A6] dark:text-[#38B2AC]" : ""
-                    }`}
+                    className={`w-4 h-4 text-slate-400 shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180 text-[#1488A6] dark:text-[#38B2AC]" : ""
+                      }`}
                   />
                 </button>
                 {isOpen && (
@@ -674,14 +700,33 @@ export const LandingPage = ({
                       <select
                         value={contactForm.inquiryType}
                         onChange={(e) => setContactForm({ ...contactForm, inquiryType: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-[#1A202C] border border-[#E5E7EB] dark:border-white/10 text-xs sm:text-sm text-[#1F2937] dark:text-white focus-ring"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-[#1A202C] border border-[#E5E7EB] dark:border-white/10 text-xs sm:text-sm text-[#1F2937] dark:text-white focus-ring cursor-pointer"
                       >
                         <option value="enterprise">Enterprise Expo Hosting (1,000+ attendees)</option>
                         <option value="exhibitor">Corporate Exhibitor Inquiries</option>
                         <option value="custom">Custom Floor Plan & Staging</option>
                         <option value="partnership">Technology & API Partnerships</option>
+                        <option value="general">General Summit Inquiries</option>
                       </select>
                     </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-[#1F2937] dark:text-[#CBD5E1]">
+                      Target Expo / Summit *
+                    </label>
+                    <select
+                      required
+                      value={contactForm.expo_id}
+                      onChange={(e) => setContactForm({ ...contactForm, expo_id: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-[#1A202C] border border-[#E5E7EB] dark:border-white/10 text-xs sm:text-sm text-[#1F2937] dark:text-white focus-ring cursor-pointer"
+                    >
+                      {expos.map((expo) => (
+                        <option key={expo._id} value={expo._id}>
+                          {expo.title} {expo.location ? `(${expo.location})` : ""}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
                   <div className="space-y-1.5">

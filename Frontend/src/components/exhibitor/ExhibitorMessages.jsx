@@ -175,7 +175,7 @@ const ExhibitorMessages = () => {
         <div>
           <div className="flex items-center gap-2.5">
             <h2 className="text-xl sm:text-2xl font-extrabold text-[#1F2937] dark:text-[#F8FAFC] font-heading tracking-tight">
-              {isOrganizer ? "Organizer B2B Messages Inbox" : isAttendee ? "Attendee Messages Inbox" : "Exhibitor Direct Messages Inbox"}
+              {isOrganizer ? "Organizer Messages Inbox" : isAttendee ? "Attendee Messages Inbox" : "Exhibitor Direct Messages Inbox"}
             </h2>
             <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold font-mono teal-badge uppercase">
               Direct Communications
@@ -240,8 +240,8 @@ const ExhibitorMessages = () => {
                         key={contact._id}
                         onClick={() => setSelectedPartner(contact)}
                         className={`w-full text-left p-3 rounded-xl hover:bg-[#F8FAFC] dark:hover:bg-[#203748]/50 transition-colors flex items-center justify-between gap-2 cursor-pointer ${isSelected
-                            ? "bg-[#1488A6]/10 dark:bg-[#38B2AC]/15 border-l-4 border-[#1488A6] dark:border-[#38B2AC]"
-                            : ""
+                          ? "bg-[#1488A6]/10 dark:bg-[#38B2AC]/15 border-l-4 border-[#1488A6] dark:border-[#38B2AC]"
+                          : ""
                           }`}
                       >
                         <div className="min-w-0 flex-1">
@@ -279,8 +279,8 @@ const ExhibitorMessages = () => {
                     key={partner?._id || item._id}
                     onClick={() => setSelectedPartner(partner)}
                     className={`w-full text-left p-3.5 hover:bg-[#F8FAFC] dark:hover:bg-[#203748]/50 transition-colors flex items-start justify-between gap-2 cursor-pointer ${isSelected
-                        ? "bg-[#1488A6]/10 dark:bg-[#38B2AC]/15 border-l-4 border-[#1488A6] dark:border-[#38B2AC]"
-                        : ""
+                      ? "bg-[#1488A6]/10 dark:bg-[#38B2AC]/15 border-l-4 border-[#1488A6] dark:border-[#38B2AC]"
+                      : ""
                       }`}
                   >
                     <div className="min-w-0 flex-1">
@@ -401,8 +401,8 @@ const ExhibitorMessages = () => {
                       >
                         <div
                           className={`p-3.5 rounded-2xl text-xs max-w-md ${isMe
-                              ? "btn-teal-primary text-white rounded-br-xs shadow-xs font-medium"
-                              : "bg-white dark:bg-[#1A202C] border border-[#E5E7EB] dark:border-white/10 text-[#1F2937] dark:text-[#F8FAFC] rounded-bl-xs shadow-xs"
+                            ? "btn-teal-primary text-white rounded-br-xs shadow-xs font-medium"
+                            : "bg-white dark:bg-[#1A202C] border border-[#E5E7EB] dark:border-white/10 text-[#1F2937] dark:text-[#F8FAFC] rounded-bl-xs shadow-xs"
                             }`}
                         >
                           <p className="whitespace-pre-wrap">{msg.content}</p>
@@ -458,7 +458,7 @@ const ExhibitorMessages = () => {
             <div className="flex items-center justify-between border-b border-[#E5E7EB] dark:border-white/10 pb-3">
               <div>
                 <h3 className="text-base font-bold text-[#1F2937] dark:text-[#F8FAFC] font-heading">
-                  Start New B2B Conversation
+                  Start New Conversation
                 </h3>
                 <p className="text-xs text-[#6B7280] dark:text-[#CBD5E1]/70">
                   {isOrganizer ? "Select a registered exhibitor to open a chat thread." : "Select an organizer or fellow exhibitor to open a chat thread."}

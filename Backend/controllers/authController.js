@@ -81,6 +81,9 @@ export const register = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const password_hash = await bcrypt.hash(password, salt);
 
+    const otp_code = Math.floor(100000 + Math.random() * 900000).toString();
+    const otp_expires_at = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes for verification
+
     const user = await User.create({
       name,
       email: email.toLowerCase().trim(),
@@ -88,20 +91,24 @@ export const register = async (req, res) => {
       role,
       phone: phone.trim(),
       profile_photo_url: finalPfpUrl,
-      otp_enabled: true, // Universal OTP for all roles
+      is_verified: false,
+      otp_code,
+      otp_expires_at,
+      otp_enabled: true,
     });
 
+    try {
+      await sendOtpEmail(user.email, otp_code);
+    } catch (mailErr) {
+      console.error('Failed to send verification email on register:', mailErr);
+    }
+
     res.status(201).json({
-      message: 'Registration successful',
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        role: user.role,
-        profile_photo_url: user.profile_photo_url,
-        otp_enabled: user.otp_enabled,
-      },
+      otpRequired: true,
+      user_id: user._id,
+      role: user.role,
+      message: 'Registration successful! Verification code sent to your email.',
+      dev_otp_code: otp_code,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -118,28 +125,29 @@ export const login = async (req, res) => {
 
     const user = await User.findOne({ email: email.toLowerCase().trim() });
     if (!user) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ message: 'Invalid email or password' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password_hash);
     if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    const otp_code = Math.floor(100000 + Math.random() * 900000).toString();
-    const otp_expires_at = new Date(Date.now() + 1 * 60 * 1000); // 1 minute (60 seconds)
-
-    user.otp_code = otp_code;
-    user.otp_expires_at = otp_expires_at;
-    await user.save();
-
-    await sendOtpEmail(user.email, otp_code);
+    // Direct Login with credentials: Issue JWT token directly with 0 friction
+    const token = generateToken(user);
 
     return res.status(200).json({
-      otpRequired: true,
-      user_id: user._id,
-      message: 'OTP sent to registered verification channel',
-      dev_otp_code: otp_code,
+      token,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        profile_photo_url: user.profile_photo_url,
+        company_profile: user.company_profile,
+        is_verified: true,
+      },
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -160,7 +168,7 @@ export const resendOtp = async (req, res) => {
     }
 
     const otp_code = Math.floor(100000 + Math.random() * 900000).toString();
-    const otp_expires_at = new Date(Date.now() + 1 * 60 * 1000); // 1 minute
+    const otp_expires_at = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
     user.otp_code = otp_code;
     user.otp_expires_at = otp_expires_at;
@@ -169,7 +177,7 @@ export const resendOtp = async (req, res) => {
     await sendOtpEmail(user.email, otp_code);
 
     return res.status(200).json({
-      message: 'Fresh OTP sent to registered email address',
+      message: 'New verification code sent to your email address',
       user_id: user._id,
       dev_otp_code: otp_code,
     });
@@ -192,20 +200,21 @@ export const verifyOtp = async (req, res) => {
     }
 
     if (!user.otp_code || !user.otp_expires_at) {
-      return res.status(400).json({ message: 'No active OTP request found. Please login again.' });
+      return res.status(400).json({ message: 'No active verification request found. Please login or register again.' });
     }
 
     if (new Date() > user.otp_expires_at) {
       user.otp_code = undefined;
       user.otp_expires_at = undefined;
       await user.save();
-      return res.status(400).json({ message: 'OTP has expired (1 minute limit). Please click Resend Email to get a new code.' });
+      return res.status(400).json({ message: 'Verification code has expired. Please click Resend Email to get a new code.' });
     }
 
     if (user.otp_code !== otp_code.trim()) {
-      return res.status(400).json({ message: 'Invalid OTP code' });
+      return res.status(400).json({ message: 'Invalid verification code' });
     }
 
+    user.is_verified = true;
     user.otp_code = undefined;
     user.otp_expires_at = undefined;
     await user.save();
@@ -222,7 +231,7 @@ export const verifyOtp = async (req, res) => {
         role: user.role,
         profile_photo_url: user.profile_photo_url,
         company_profile: user.company_profile,
-        otp_enabled: user.otp_enabled,
+        is_verified: true,
       },
     });
   } catch (error) {

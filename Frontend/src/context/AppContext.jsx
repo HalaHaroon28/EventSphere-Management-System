@@ -147,9 +147,13 @@ export const AppProvider = ({ children }) => {
       if (currentUser.role && currentRole === "public") {
         setCurrentRoleState(currentUser.role);
       }
+      fetchBookmarksApi();
     } else {
       localStorage.removeItem("eventsphere_user");
       localStorage.removeItem("eventsphere_auth_user");
+      setBookmarks([]);
+      localStorage.removeItem("eventsphere_bookmarks");
+      localStorage.removeItem("bookmarks");
     }
   }, [currentUser]);
 
@@ -161,7 +165,14 @@ export const AppProvider = ({ children }) => {
   useEffect(() => { saveToStorage("applications", applications); }, [applications]);
   useEffect(() => { saveToStorage("sessions", sessions); }, [sessions]);
   useEffect(() => { saveToStorage("registrations", registrations); }, [registrations]);
-  useEffect(() => { saveToStorage("bookmarks", bookmarks); }, [bookmarks]);
+  useEffect(() => {
+    if (currentUser) {
+      saveToStorage("bookmarks", bookmarks);
+    } else {
+      localStorage.removeItem("eventsphere_bookmarks");
+      localStorage.removeItem("bookmarks");
+    }
+  }, [bookmarks, currentUser]);
   useEffect(() => { saveToStorage("showcase", showcase); }, [showcase]);
   useEffect(() => { saveToStorage("messages", messages); }, [messages]);
   useEffect(() => { saveToStorage("feedback", feedbackList); }, [feedbackList]);
@@ -193,6 +204,11 @@ export const AppProvider = ({ children }) => {
     setCurrentUser(null);
     setCurrentRoleState("public");
     setActiveView("landing");
+    setBookmarks([]);
+    try {
+      localStorage.removeItem("eventsphere_bookmarks");
+      localStorage.removeItem("bookmarks");
+    } catch (e) {}
     showToast("Logged Out Successfully", "You have been returned to the public home page.", "info");
   };
 
@@ -206,7 +222,11 @@ export const AppProvider = ({ children }) => {
     if (user) {
       setCurrentUser(user);
       setCurrentRoleState(user.role);
-      setActiveView("dashboard");
+      if (user.role === "attendee") {
+        setActiveView("landing");
+      } else {
+        setActiveView("dashboard");
+      }
       showToast("Logged In Successfully", `Welcome back, ${user.name}!`, "success");
     }
   };
@@ -1085,6 +1105,35 @@ export const AppProvider = ({ children }) => {
       return String(bSessId) === String(sessionId) && String(bUserId) === String(currentUserId);
     });
 
+    // Determine target expo ID
+    let targetExpoId = expoId;
+    if (!targetExpoId) {
+      const sessObj = (sessions || []).find((s) => s._id === sessionId || s.id === sessionId);
+      targetExpoId = sessObj?.expo_id?._id || sessObj?.expo_id;
+    }
+
+    // Check if attendee has an active pass for this expo when adding a new bookmark
+    if (!existing) {
+      const hasPass = (registrations || []).some((r) => {
+        const rExpoId = String(typeof r.expo_id === "object" ? r.expo_id?._id : r.expo_id || "");
+        const rUserId = String(typeof r.user_id === "object" ? r.user_id?._id : r.user_id || "");
+        const rEmail = (r.user_email || r.email || "").toLowerCase();
+        const uEmail = (currentUser?.email || "").toLowerCase();
+        const matchExpo = targetExpoId ? rExpoId === String(targetExpoId) : true;
+        const matchUser = (rUserId && rUserId === String(currentUserId)) || (uEmail && rEmail === uEmail);
+        return matchExpo && matchUser;
+      });
+
+      if (!hasPass) {
+        showToast(
+          "Access Pass Required",
+          "You can only bookmark sessions for summits where you hold an active verified Access Pass. Please claim your pass first!",
+          "error"
+        );
+        return false;
+      }
+    }
+
     try {
       const token = authService.getToken();
       if (token) {
@@ -1396,19 +1445,28 @@ export const AppProvider = ({ children }) => {
     try {
       const token = authService.getToken();
       const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const headers = {
+        "Content-Type": "application/json"
+      };
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
       const response = await fetch(`${API_BASE_URL}/feedback`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
+        headers,
         body: JSON.stringify(fbData)
       });
       if (response.ok) {
         const data = await response.json();
-        showToast("Feedback Submitted", "Your inquiry was logged successfully.", "success");
-        fetchFeedbackList();
-        return data.feedback || data.data;
+        showToast("Inquiry Received", "Your message was sent to the event specialist successfully.", "success");
+        if (token) {
+          fetchFeedbackList();
+        }
+        return data.feedback || data.data || data;
+      } else {
+        const errData = await response.json().catch(() => ({}));
+        showToast("Submission Note", errData.message || "Could not submit inquiry.", "error");
+        return null;
       }
     } catch (e) {
       console.error("Failed to submit feedback:", e);
@@ -1417,14 +1475,14 @@ export const AppProvider = ({ children }) => {
     const newFb = {
       ...fbData,
       _id: "fb_" + Date.now(),
-      user_id: currentUser._id,
-      user_name: currentUser.name,
-      user_role: currentRole,
+      user_id: currentUser?._id || null,
+      user_name: currentUser?.name || fbData.name || "Guest",
+      user_role: currentRole || "public",
       status: "open",
       created_at: new Date().toISOString()
     };
     setFeedbackList((prev) => [newFb, ...prev]);
-    showToast("Feedback Submitted", "Your inquiry was logged.", "success");
+    showToast("Inquiry Received", "Your message was recorded.", "success");
     return newFb;
   };
 

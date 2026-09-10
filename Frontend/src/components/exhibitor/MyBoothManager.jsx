@@ -153,7 +153,7 @@ const MyBoothManager = () => {
     setNewProdPrice("");
     setNewProdCategory("Hardware");
     setNewProdImg("https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&auto=format&fit=crop&q=80");
-    showToast("Product Added", `"${newP.name}" added to booth catalog. Save changes to lock to DB.`, "info");
+    showToast("Product Added", `"${newP.name}" added to booth catalog. `, "info");
   };
 
   const handleRemoveProduct = (index) => {
@@ -162,7 +162,7 @@ const MyBoothManager = () => {
       return;
     }
     setProducts((prev) => prev.filter((_, idx) => idx !== index));
-    showToast("Product Removed", "Item removed from catalog list. Click Save Changes to update DB.", "info");
+    showToast("Product Removed", "Item removed from catalog list.", "info");
   };
 
   const handleAddStaff = (e) => {
@@ -186,7 +186,7 @@ const MyBoothManager = () => {
     setNewStaffName("");
     setNewStaffRole("");
     setNewStaffEmail("");
-    showToast("Attendant Added", `"${newS.name}" added as booth attendant. Save changes to lock to DB.`, "info");
+    showToast("Attendant Added", `"${newS.name}" added as booth attendant.`, "info");
   };
 
   const handleRemoveStaff = (index) => {

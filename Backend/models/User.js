@@ -40,9 +40,13 @@ const userSchema = new mongoose.Schema({
     contact_phone: { type: String, default: '' },
     address: { type: String, default: '' },
   },
-  otp_enabled: {
+  is_verified: {
     type: Boolean,
     default: true,
+  },
+  otp_enabled: {
+    type: Boolean,
+    default: false,
   },
   otp_code: {
     type: String,

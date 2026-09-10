@@ -18,12 +18,16 @@ import {
 export const OTPVerificationModal = ({
   isOpen,
   targetRole = "attendee",
+  role,
   targetEmail,
+  email,
   pendingUserId,
+  userId,
   onSuccess,
   onClose,
   title,
-  subtitle
+  subtitle,
+  devOtpCode
 }) => {
   const { currentUser, showToast } = useApp();
   const { resendOtp } = useAuth();
@@ -37,7 +41,9 @@ export const OTPVerificationModal = ({
   const [isResending, setIsResending] = useState(false);
   const inputRefs = useRef([]);
 
-  const emailDisplay = targetEmail || currentUser?.email || "your email address";
+  const effectiveRole = role || targetRole || "attendee";
+  const effectiveUserId = pendingUserId || userId;
+  const emailDisplay = targetEmail || email || currentUser?.email || "your email address";
 
   useEffect(() => {
     if (isOpen) {
@@ -140,8 +146,8 @@ export const OTPVerificationModal = ({
     setIsResending(true);
     setIsVerifying(false);
     try {
-      if (pendingUserId) {
-        await resendOtp(pendingUserId);
+      if (effectiveUserId) {
+        await resendOtp(effectiveUserId);
       }
       setCountdown(60);
       setCanResend(false);
@@ -195,9 +201,9 @@ export const OTPVerificationModal = ({
   };
 
   const renderRoleIcon = () => {
-    if (targetRole === "organizer") {
+    if (effectiveRole === "organizer") {
       return <Shield className="w-6 h-6 text-[#1488A6] dark:text-[#38B2AC]" />;
-    } else if (targetRole === "exhibitor") {
+    } else if (effectiveRole === "exhibitor") {
       return <Briefcase className="w-6 h-6 text-[#1488A6] dark:text-[#38B2AC]" />;
     }
     return <Ticket className="w-6 h-6 text-[#1488A6] dark:text-[#38B2AC]" />;

@@ -21,9 +21,8 @@ export const EventSphereLogo = ({
 
   return (
     <div
-      className={`inline-flex items-center gap-2.5 sm:gap-3 select-none ${className} ${
-        interactive ? "group cursor-pointer" : ""
-      }`}
+      className={`inline-flex items-center gap-2.5 sm:gap-3 select-none ${className} ${interactive ? "group cursor-pointer" : ""
+        }`}
     >
       {/* Dynamic Geometric 3D Sphere Emblem */}
       <div

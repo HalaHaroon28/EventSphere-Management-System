@@ -59,6 +59,20 @@ const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     const response = await authService.register(userData);
+    if (response.otpRequired) {
+      return {
+        otpRequired: true,
+        userId: response.user_id,
+        role: response.role,
+        devOtpCode: response.dev_otp_code,
+        message: response.message,
+      };
+    }
+    if (response.token) {
+      authService.setToken(response.token);
+      authService.setUser(response.user);
+      setUser(response.user);
+    }
     return { success: true, user: response.user };
   };
 
