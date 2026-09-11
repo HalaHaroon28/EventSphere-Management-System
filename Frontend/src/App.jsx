@@ -343,9 +343,8 @@ const MainContent = () => {
 
       {/* Main Layout Area - dynamically padded on desktop when sidebar is active */}
       <div
-        className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${
-          showSidebar ? (isSidebarCollapsed ? "md:pl-20" : "md:pl-64 lg:pl-72") : ""
-        }`}
+        className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${showSidebar ? (isSidebarCollapsed ? "md:pl-20" : "md:pl-64 lg:pl-72") : ""
+          }`}
       >
         {/* Universal Top Navigation */}
         <Navbar
@@ -358,21 +357,6 @@ const MainContent = () => {
           onOpenProfile={() => setIsProfileModalOpen(true)}
         />
 
-        {/* Mobile Sidebar Trigger for Organizer/Exhibitor Panels */}
-        {showSidebar && (
-          <div className="md:hidden bg-white dark:bg-[#1A202C] border-b border-[#E5E7EB] dark:border-white/10 px-4 py-2.5 flex items-center justify-between">
-            <button
-              onClick={() => setIsMobileSidebarOpen(true)}
-              className="flex items-center gap-2 text-xs font-bold text-[#1F2937] dark:text-[#CBD5E1] hover:text-[#1488A6] dark:hover:text-white px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-[#203748] border border-[#E5E7EB] dark:border-white/10 cursor-pointer"
-            >
-              <Menu className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC]" />
-              <span>Navigation Menu</span>
-            </button>
-            <span className="text-[11px] font-mono font-bold text-[#6B7280] dark:text-[#CBD5E1]/70 capitalize">
-              {currentRole} Portal
-            </span>
-          </div>
-        )}
 
         {/* Main View Container */}
         <main className={`flex-1 w-full mx-auto font-body ${showSidebar ? "p-4 sm:p-6 lg:p-8" : ""}`}>

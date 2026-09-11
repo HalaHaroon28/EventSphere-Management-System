@@ -4,6 +4,7 @@ export const EventSphereLogo = ({
   size = "md", // "xs", "sm", "md", "lg", "xl", "hero"
   showText = true,
   showTagline = true,
+  taglineClassName = "",
   className = "",
   interactive = false
 }) => {
@@ -58,70 +59,73 @@ export const EventSphereLogo = ({
             </linearGradient>
 
             {/* Platinum Sheen Highlight */}
-            <linearGradient id="esGleam" x1="0%" y1="0%" x2="0%" y2="100%">
+            <linearGradient id="esGleam" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.85" />
               <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
             </linearGradient>
 
-            {/* Ambient Core Glow */}
-            <radialGradient id="esCoreGlow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#14B8A6" stopOpacity="0.3" />
-              <stop offset="100%" stopColor="#0F172A" stopOpacity="0" />
-            </radialGradient>
+            <filter id="esSoftGlow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
           </defs>
 
-          {/* Background Ambient Core */}
-          <circle cx="50" cy="50" r="44" fill="url(#esCoreGlow)" />
+          {/* Glowing Ambient Aura */}
+          <circle
+            cx="50"
+            cy="50"
+            r="36"
+            fill="url(#esTealGrad)"
+            opacity="0.12"
+            filter="url(#esSoftGlow)"
+          />
 
-          {/* Outer Orbital Ring (Deep Cyan/Sky) */}
+          {/* Outer Orbital Loop 1 (Teal & Indigo) */}
           <ellipse
             cx="50"
             cy="50"
-            rx="42"
-            ry="20"
+            rx="40"
+            ry="18"
             transform="rotate(-28 50 50)"
-            stroke="url(#esCyanGrad)"
-            strokeWidth="6"
+            stroke="url(#esTealGrad)"
+            strokeWidth="3.5"
             strokeLinecap="round"
             strokeDasharray="180 30"
           />
 
-          {/* Main Dynamic Ribbon 1: Front Swirling Teal Arc */}
-          <path
-            d="M 20 62 C 16 42 32 20 54 18 C 76 16 88 32 84 52 C 80 70 62 82 44 80 C 30 78 24 68 26 56 C 28 44 40 36 52 38 C 62 40 68 48 64 56 C 62 62 54 64 48 62"
-            stroke="url(#esTealGrad)"
-            strokeWidth="7"
+          {/* Outer Orbital Loop 2 (Cyan Gradient) */}
+          <ellipse
+            cx="50"
+            cy="50"
+            rx="38"
+            ry="16"
+            transform="rotate(35 50 50)"
+            stroke="url(#esCyanGrad)"
+            strokeWidth="3"
             strokeLinecap="round"
-            fill="none"
+            strokeDasharray="160 40"
           />
 
-          {/* Interlocking Secondary Ribbon 2: Amber/Coral Power Curve */}
-          <path
-            d="M 80 38 C 84 58 68 80 46 82 C 24 84 12 68 16 48 C 20 30 38 18 56 20 C 70 22 76 32 74 44 C 72 56 60 64 48 62 C 38 60 32 52 36 44"
+          {/* Inner Swirling Core Ring (Amber / Coral Accent) */}
+          <ellipse
+            cx="50"
+            cy="50"
+            rx="26"
+            ry="12"
+            transform="rotate(-65 50 50)"
             stroke="url(#esAmberGrad)"
-            strokeWidth="5"
+            strokeWidth="2.8"
             strokeLinecap="round"
-            fill="none"
           />
 
-          {/* Central Pulse / Connection Node */}
-          <circle cx="50" cy="50" r="6" fill="#FFFFFF" />
-          <circle cx="50" cy="50" r="4" fill="#0D9488" />
+          {/* Central Nucleus Node */}
+          <circle cx="50" cy="50" r="7.5" fill="url(#esTealGrad)" />
+          <circle cx="50" cy="50" r="4" fill="url(#esCyanGrad)" />
           <circle cx="50" cy="50" r="1.5" fill="#FFFFFF" />
 
           {/* Satellite Spark Nodes */}
           <circle cx="30" cy="24" r="2.5" fill="#38BDF8" />
           <circle cx="74" cy="72" r="2.2" fill="#FB923C" />
-          <circle cx="78" cy="28" r="1.8" fill="#FFFFFF" />
-
-          {/* Gloss Sheen Edge */}
-          <path
-            d="M 28 32 C 36 22 48 18 60 20"
-            stroke="url(#esGleam)"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            fill="none"
-          />
         </svg>
       </div>
 
@@ -146,7 +150,7 @@ export const EventSphereLogo = ({
 
           {showTagline && (
             <span
-              className={`font-mono font-bold uppercase tracking-[0.22em] text-[#64748B] dark:text-[#94A3B8] mt-1 ${config.tag}`}
+              className={`font-mono font-bold uppercase tracking-[0.22em] text-[#64748B] dark:text-[#94A3B8] mt-1 ${config.tag} ${taglineClassName}`}
             >
               Global Events OS
             </span>

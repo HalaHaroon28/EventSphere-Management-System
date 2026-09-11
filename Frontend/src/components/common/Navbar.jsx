@@ -23,7 +23,10 @@ import {
   Clock,
   Bookmark,
   Sparkles,
-  QrCode
+  QrCode,
+  Home,
+  LogIn,
+  UserPlus
 } from "lucide-react";
 
 export const Navbar = ({
@@ -176,7 +179,7 @@ export const Navbar = ({
                 onClick={() => setActiveView("landing")}
                 className="flex items-center group text-left focus:outline-none cursor-pointer shrink-0"
               >
-                <EventSphereLogo size="sm" showText={true} showTagline={true} interactive={true} />
+                <EventSphereLogo size="sm" showText={true} showTagline={true} taglineClassName="hidden sm:block" interactive={true} />
               </button>
             )}
           </div>
@@ -228,8 +231,7 @@ export const Navbar = ({
           )}
 
           {/* RIGHT ACTION BAR: Profile Menu, Notifications Bell, Light/Dark Toggle */}
-          <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
-
+          <div className="flex items-center space-x-1.5 sm:space-x-3 shrink-0">
 
             {/* Public Guest Auth Buttons vs Logged-In User Profile */}
             {!currentUser ? (
@@ -240,7 +242,7 @@ export const Navbar = ({
                     if (onOpenAuth) onOpenAuth("login");
                     else setActiveView("login");
                   }}
-                  className={`px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-bold rounded-xl transition-colors cursor-pointer ${activeView === "login"
+                  className={`px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-bold rounded-xl transition-colors cursor-pointer ${activeView === "login"
                     ? "bg-slate-200 dark:bg-[#203748] text-[#1F2937] dark:text-[#F8FAFC]"
                     : "text-[#6B7280] dark:text-[#CBD5E1] hover:text-[#1488A6] dark:hover:text-[#38B2AC] hover:bg-slate-100 dark:hover:bg-[#1A202C]"
                     }`}
@@ -253,7 +255,7 @@ export const Navbar = ({
                     if (onOpenAuth) onOpenAuth("register");
                     else setActiveView("register");
                   }}
-                  className="px-3.5 py-1.5 sm:py-2 text-xs sm:text-sm font-bold btn-teal-primary rounded-xl transition-all shadow-xs cursor-pointer"
+                  className="hidden sm:inline-flex px-3.5 py-1.5 sm:py-2 text-xs sm:text-sm font-bold btn-teal-primary rounded-xl transition-all shadow-xs cursor-pointer"
                 >
                   Register
                 </button>
@@ -513,10 +515,10 @@ export const Navbar = ({
             {isPublicView && (
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 text-slate-600 dark:text-[#CBD5E1] hover:bg-slate-100 dark:hover:bg-[#1A202C] rounded-xl cursor-pointer border border-[#E5E7EB] dark:border-white/10"
+                className="md:hidden p-2 text-slate-600 dark:text-[#CBD5E1] hover:bg-slate-100 dark:hover:bg-[#1A202C] rounded-xl cursor-pointer border border-[#E5E7EB] dark:border-white/10 shrink-0"
                 aria-label="Toggle navigation menu"
               >
-                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                {mobileMenuOpen ? <X className="w-5 h-5 text-[#1488A6] dark:text-[#38B2AC]" /> : <Menu className="w-5 h-5" />}
               </button>
             )}
           </div>
@@ -524,55 +526,91 @@ export const Navbar = ({
 
         {/* Mobile Dropdown Menu for Public / Attendee */}
         {isPublicView && mobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-[#E5E7EB] dark:border-white/10 space-y-2 animate-in slide-in-from-top-2 duration-150">
+          <div className="md:hidden py-3 border-t border-[#E5E7EB] dark:border-white/10 space-y-1 animate-in slide-in-from-top-2 duration-150">
             <button
               onClick={() => {
                 setActiveView("landing");
                 setMobileMenuOpen(false);
               }}
-              className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${activeView === "landing"
-                ? "bg-slate-100 dark:bg-[#203748] text-[#1488A6] dark:text-[#38B2AC]"
-                : "text-[#1F2937] dark:text-[#CBD5E1]"
-                }`}
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                activeView === "landing"
+                  ? "bg-slate-100 dark:bg-[#203748] text-[#1488A6] dark:text-[#38B2AC]"
+                  : "text-[#1F2937] dark:text-[#CBD5E1] hover:bg-slate-50 dark:hover:bg-white/5"
+              }`}
             >
-              Home
+              <Home className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC]" />
+              <span>Home</span>
             </button>
             <button
               onClick={() => {
                 setActiveView("expos");
                 setMobileMenuOpen(false);
               }}
-              className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${activeView === "expos"
-                ? "bg-slate-100 dark:bg-[#203748] text-[#1488A6] dark:text-[#38B2AC]"
-                : "text-[#1F2937] dark:text-[#CBD5E1]"
-                }`}
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                activeView === "expos"
+                  ? "bg-slate-100 dark:bg-[#203748] text-[#1488A6] dark:text-[#38B2AC]"
+                  : "text-[#1F2937] dark:text-[#CBD5E1] hover:bg-slate-50 dark:hover:bg-white/5"
+              }`}
             >
-              Expos
+              <Calendar className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC]" />
+              <span>Expos</span>
             </button>
             <button
               onClick={() => {
                 setActiveView("exhibitors");
                 setMobileMenuOpen(false);
               }}
-              className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${activeView === "exhibitors"
-                ? "bg-slate-100 dark:bg-[#203748] text-[#1488A6] dark:text-[#38B2AC]"
-                : "text-[#1F2937] dark:text-[#CBD5E1]"
-                }`}
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                activeView === "exhibitors"
+                  ? "bg-slate-100 dark:bg-[#203748] text-[#1488A6] dark:text-[#38B2AC]"
+                  : "text-[#1F2937] dark:text-[#CBD5E1] hover:bg-slate-50 dark:hover:bg-white/5"
+              }`}
             >
-              Exhibitors
+              <Building2 className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC]" />
+              <span>Exhibitors</span>
             </button>
             <button
               onClick={() => {
                 setActiveView("sessions");
                 setMobileMenuOpen(false);
               }}
-              className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${activeView === "sessions"
-                ? "bg-slate-100 dark:bg-[#203748] text-[#1488A6] dark:text-[#38B2AC]"
-                : "text-[#1F2937] dark:text-[#CBD5E1]"
-                }`}
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                activeView === "sessions"
+                  ? "bg-slate-100 dark:bg-[#203748] text-[#1488A6] dark:text-[#38B2AC]"
+                  : "text-[#1F2937] dark:text-[#CBD5E1] hover:bg-slate-50 dark:hover:bg-white/5"
+              }`}
             >
-              Sessions
+              <Sparkles className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC]" />
+              <span>Sessions</span>
             </button>
+
+            {/* Mobile Auth Options for Guest */}
+            {!currentUser && (
+              <div className="pt-2 mt-2 border-t border-[#E5E7EB] dark:border-white/10 grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    if (onOpenAuth) onOpenAuth("login");
+                    else setActiveView("login");
+                  }}
+                  className="w-full flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs font-bold text-[#1F2937] dark:text-[#F8FAFC] bg-slate-100 dark:bg-[#203748] hover:bg-slate-200 dark:hover:bg-[#2a455a] transition-colors"
+                >
+                  <LogIn className="w-3.5 h-3.5 text-[#1488A6] dark:text-[#38B2AC]" />
+                  <span>Sign In</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    if (onOpenAuth) onOpenAuth("register");
+                    else setActiveView("register");
+                  }}
+                  className="w-full flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs font-bold btn-teal-primary transition-all shadow-xs"
+                >
+                  <UserPlus className="w-3.5 h-3.5" />
+                  <span>Register</span>
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
