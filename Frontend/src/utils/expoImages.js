@@ -1,4 +1,4 @@
-// Curated high-resolution photography presets for global expos and summits
+
 export const EXPO_IMAGE_PRESETS = [
   {
     category: "technology",

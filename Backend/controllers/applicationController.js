@@ -5,9 +5,6 @@ import Booth from '../models/Booth.js';
 import User from '../models/User.js';
 import Expo from '../models/Expo.js';
 
-// @desc    4.1 Apply to Expo
-// @route   POST /api/expos/:expoId/applications
-// @access  Private (Exhibitor only)
 export const applyToExpo = async (req, res) => {
   try {
     const { expoId } = req.params;
@@ -21,7 +18,6 @@ export const applyToExpo = async (req, res) => {
     const registeredUser = await User.findById(userId);
     const registeredEmail = registeredUser?.email || req.user?.email || 'exhibitor@eventsphere.io';
 
-    // 🔒 RESTRICTION: One application per expo per exhibitor
     const existingApp = await ExhibitorApplication.findOne({
       expo_id: expoId,
       exhibitor_id: userId,
@@ -55,7 +51,6 @@ export const applyToExpo = async (req, res) => {
 
     await application.save();
 
-    // 🔔 NOTIFICATION HOOK: Send receipt notification to Exhibitor and alert Organizer
     try {
       await Notification.create({
         user_id: userId,
@@ -88,9 +83,6 @@ export const applyToExpo = async (req, res) => {
   }
 };
 
-// @desc    4.2 Track My Applications
-// @route   GET /api/applications/mine
-// @access  Private (Exhibitor only)
 export const listMyApplications = async (req, res) => {
   try {
     const userId = req.user.user_id || req.user._id;
@@ -109,9 +101,6 @@ export const listMyApplications = async (req, res) => {
   }
 };
 
-// @desc    List All Applications (Organizer)
-// @route   GET /api/applications
-// @access  Private (Organizer only)
 export const listAllApplications = async (req, res) => {
   try {
     const applications = await ExhibitorApplication.find({})
@@ -147,9 +136,6 @@ export const listApplicationsForExpo = async (req, res) => {
   }
 };
 
-// @desc    Approve an Exhibitor Application (Organizer - Step 1: Accept/Approve)
-// @route   PATCH /api/applications/:id/approve
-// @access  Private (Organizer only)
 export const approveApplication = async (req, res) => {
   try {
     const { id } = req.params;
@@ -182,7 +168,6 @@ export const approveApplication = async (req, res) => {
 
     await application.save();
 
-    // 🔔 NOTIFICATION HOOK: Send approval notification to exhibitor with message
     const expoTitle = application.expo_id?.title || application.expo_id?.name || 'the expo';
 
     try {
@@ -205,9 +190,7 @@ export const approveApplication = async (req, res) => {
   }
 };
 
-// @desc    Reject an Exhibitor Application (Organizer)
-// @route   PATCH /api/applications/:id/reject
-// @access  Private (Organizer only)
+
 export const rejectApplication = async (req, res) => {
   try {
     const { id } = req.params;
@@ -240,7 +223,6 @@ export const rejectApplication = async (req, res) => {
 
     await application.save();
 
-    // 🔔 NOTIFICATION HOOK: Send rejection notification to exhibitor with reason
     const expoTitle = application.expo_id?.title || application.expo_id?.name || 'the expo';
 
     try {
@@ -263,9 +245,6 @@ export const rejectApplication = async (req, res) => {
   }
 };
 
-// @desc    Exhibitor selects booth after application is approved (Step 2)
-// @route   PATCH /api/applications/:id/select-booth
-// @access  Private (Exhibitor only)
 export const selectBoothForApplication = async (req, res) => {
   try {
     const { id } = req.params;
@@ -299,7 +278,6 @@ export const selectBoothForApplication = async (req, res) => {
     }
 
     if (booth_id) {
-      // Revert any previously selected booth
       if (application.booth_id && application.booth_id.toString() !== booth_id) {
         const oldBooth = await Booth.findById(application.booth_id);
         if (oldBooth) {
@@ -322,7 +300,6 @@ export const selectBoothForApplication = async (req, res) => {
         await booth.save();
       }
 
-      // 🔔 NOTIFICATION HOOK: Alert Organizer about booth selection request
       try {
         const expo = await Expo.findById(application.expo_id?._id || application.expo_id);
         const expoTitle = expo?.title || application.expo_id?.title || 'the expo';
@@ -351,9 +328,6 @@ export const selectBoothForApplication = async (req, res) => {
   }
 };
 
-// @desc    Organizer confirms/assigns or declines selected booth (Step 3)
-// @route   PATCH /api/applications/:id/confirm-booth
-// @access  Private (Organizer only)
 export const confirmBoothAssignment = async (req, res) => {
   try {
     const { id } = req.params;
@@ -401,7 +375,6 @@ export const confirmBoothAssignment = async (req, res) => {
       });
     }
 
-    // Confirm & Lock Booth
     let assignedBoothNumber = '';
     if (targetBoothId) {
       application.booth_id = targetBoothId;
@@ -422,7 +395,6 @@ export const confirmBoothAssignment = async (req, res) => {
     if (note) application.approval_message = note;
     await application.save();
 
-    // Send confirmation notification
     try {
       const exhibitorId = application.exhibitor_id?._id || application.exhibitor_id;
       const expoTitle = application.expo_id?.title || application.expo_id?.name || 'the expo';

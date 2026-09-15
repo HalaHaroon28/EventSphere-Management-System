@@ -1,7 +1,6 @@
 import Feedback from '../models/Feedback.js';
 import Expo from '../models/Expo.js';
 
-// POST /api/feedback
 export const submitFeedback = async (req, res) => {
   try {
     const {
@@ -21,10 +20,8 @@ export const submitFeedback = async (req, res) => {
 
     const user_id = req.user ? (req.user._id || req.user.user_id) : null;
 
-    // Accept content from multiple possible field names
     const feedbackContent = content || comments || message;
-    
-    // Accept expo_id from multiple possible field names
+
     let targetExpoId = expo_id || event_id;
 
     if (!feedbackContent || feedbackContent.trim() === '') {
@@ -34,7 +31,6 @@ export const submitFeedback = async (req, res) => {
     }
 
     if (!targetExpoId) {
-      // Find the first available expo if not provided
       const defaultExpo = await Expo.findOne();
       if (defaultExpo) {
         targetExpoId = defaultExpo._id;
@@ -92,16 +88,13 @@ export const listFeedback = async (req, res) => {
       filter.type = type;
     }
 
-    // Role-based strict isolation
     if (userRole === 'organizer') {
-      // Find all expos organized by this specific organizer
       const myExpos = await Expo.find({ organizer_id: userId }).select('_id');
       const myExpoIds = myExpos.map((e) => e._id);
 
       if (expo_id) {
         const isOwned = myExpoIds.some((id) => id.toString() === expo_id.toString());
         if (!isOwned) {
-          // If organizer requested feedback for an expo they don't own, return empty
           return res.status(200).json({
             count: 0,
             feedback: [],
@@ -109,11 +102,9 @@ export const listFeedback = async (req, res) => {
         }
         filter.expo_id = expo_id;
       } else {
-        // Only return feedback for expos organized by this user
         filter.expo_id = { $in: myExpoIds };
       }
     } else if (userRole === 'attendee' || userRole === 'exhibitor') {
-      // Attendees and exhibitors only see their own submissions
       filter.user_id = userId;
       if (expo_id) {
         filter.expo_id = expo_id;
@@ -141,7 +132,6 @@ export const listFeedback = async (req, res) => {
   }
 };
 
-// PATCH /api/feedback/:id/status
 export const resolveFeedback = async (req, res) => {
   try {
     const { id } = req.params;
@@ -156,7 +146,6 @@ export const resolveFeedback = async (req, res) => {
       return res.status(404).json({ message: 'Feedback entry not found' });
     }
 
-    // Ensure the organizer owns the expo to which this feedback belongs
     if (req.user.role === 'organizer' && feedback.expo_id) {
       const expoOrganizerId = feedback.expo_id.organizer_id
         ? feedback.expo_id.organizer_id.toString()

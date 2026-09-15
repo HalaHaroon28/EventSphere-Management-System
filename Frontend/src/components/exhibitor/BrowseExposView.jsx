@@ -32,7 +32,6 @@ export const BrowseExposView = ({ onNavigateToBoothSelection, onNavigateToApplic
   const userEmail = currentUser?.email || "";
   const companyName = currentUser?.company_name || currentUser?.company_profile?.company_name || currentUser?.name || "";
 
-  // Helper to format dates
   const formatDateRange = (startDate, endDate) => {
     if (!startDate) return "Dates TBA";
     const start = new Date(startDate);
@@ -47,7 +46,6 @@ export const BrowseExposView = ({ onNavigateToBoothSelection, onNavigateToApplic
     return `${sStr} – ${eStr}`;
   };
 
-  // Find user's existing application for a given expo
   const getApplicationForExpo = (expoId) => {
     return (applications || []).find((app) => {
       const aExpoId = typeof app?.expo_id === "object" ? app?.expo_id?._id : app?.expo_id;
@@ -61,10 +59,8 @@ export const BrowseExposView = ({ onNavigateToBoothSelection, onNavigateToApplic
     });
   };
 
-  // Categories list
   const categories = ["All", ...new Set((expos || []).map((e) => e.category).filter(Boolean))];
 
-  // Filtered expos
   const filteredExpos = (expos || []).filter((expo) => {
     if (!expo) return false;
     if (selectedCategory !== "All" && expo.category !== selectedCategory) return false;
@@ -86,7 +82,7 @@ export const BrowseExposView = ({ onNavigateToBoothSelection, onNavigateToApplic
 
   return (
     <div id="exhibitor-browse-expos-view" className="space-y-6 font-body">
-      {/* Header */}
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E5E7EB] dark:border-white/10 pb-5">
         <div>
           <div className="flex items-center gap-2.5">
@@ -99,7 +95,6 @@ export const BrowseExposView = ({ onNavigateToBoothSelection, onNavigateToApplic
           </p>
         </div>
 
-        {/* Global count */}
         <div className="flex items-center gap-2">
           <button
             onClick={() => handleOpenApply(null)}
@@ -110,7 +105,6 @@ export const BrowseExposView = ({ onNavigateToBoothSelection, onNavigateToApplic
         </div>
       </div>
 
-      {/* Filter & Search Bar */}
       <div className="flex flex-col md:flex-row items-center justify-between gap-3 bg-slate-50 dark:bg-[#1A202C] p-3 rounded-2xl border border-[#E5E7EB] dark:border-white/10">
         <div className="relative w-full md:w-80">
           <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#6B7280] dark:text-[#CBD5E1]/60" />
@@ -123,7 +117,6 @@ export const BrowseExposView = ({ onNavigateToBoothSelection, onNavigateToApplic
           />
         </div>
 
-        {/* Category Pills */}
         <div className="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-1 md:pb-0">
           {categories.map((cat) => (
             <button
@@ -140,7 +133,6 @@ export const BrowseExposView = ({ onNavigateToBoothSelection, onNavigateToApplic
         </div>
       </div>
 
-      {/* Expos Grid */}
       {filteredExpos.length === 0 ? (
         <div className="py-16 text-center bg-white dark:bg-[#1A202C] rounded-2xl border border-[#E5E7EB] dark:border-white/10 space-y-3 p-6">
           <Building2 className="w-10 h-10 mx-auto text-[#6B7280] dark:text-[#CBD5E1]/40" />
@@ -176,7 +168,7 @@ export const BrowseExposView = ({ onNavigateToBoothSelection, onNavigateToApplic
                 key={expoId}
                 className="bg-white dark:bg-[#1A202C] rounded-2xl border border-[#E5E7EB] dark:border-white/10 overflow-hidden flex flex-col shadow-xs hover:border-[#1488A6]/40 dark:hover:border-[#38B2AC]/40 transition-all group"
               >
-                {/* Image Banner */}
+
                 <div className="relative h-44 w-full overflow-hidden bg-slate-900">
                   <img
                     src={bannerSrc}
@@ -187,17 +179,14 @@ export const BrowseExposView = ({ onNavigateToBoothSelection, onNavigateToApplic
                     }}
                   />
 
-                  {/* Gradient Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
-                  {/* Category Badge */}
                   {expo.category && (
                     <span className="absolute top-3 left-3 px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold uppercase tracking-wider bg-slate-900/80 text-[#38B2AC] border border-white/10 backdrop-blur-md">
                       {expo.category}
                     </span>
                   )}
 
-                  {/* Application Status Badge overlay */}
                   {status && (
                     <div className="absolute top-3 right-3">
                       {status === "approved" ? (
@@ -216,7 +205,6 @@ export const BrowseExposView = ({ onNavigateToBoothSelection, onNavigateToApplic
                     </div>
                   )}
 
-                  {/* Title on Banner */}
                   <div className="absolute bottom-3 left-3 right-3">
                     <h3 className="text-sm sm:text-base font-bold text-white font-heading truncate drop-shadow-sm">
                       {expo.title}
@@ -224,7 +212,6 @@ export const BrowseExposView = ({ onNavigateToBoothSelection, onNavigateToApplic
                   </div>
                 </div>
 
-                {/* Details Body */}
                 <div className="p-4 flex-1 flex flex-col justify-between space-y-4">
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-xs text-[#6B7280] dark:text-[#CBD5E1]/80">
@@ -244,7 +231,6 @@ export const BrowseExposView = ({ onNavigateToBoothSelection, onNavigateToApplic
                     )}
                   </div>
 
-                  {/* Booths Capacity indicator */}
                   <div className="flex items-center justify-between text-[11px] font-mono py-2 px-3 rounded-xl bg-slate-50 dark:bg-[#0F172A] border border-[#E5E7EB] dark:border-white/5 text-[#6B7280] dark:text-[#CBD5E1]/80">
                     <span className="flex items-center gap-1.5">
                       <Grid className="w-3.5 h-3.5 text-[#1488A6] dark:text-[#38B2AC]" />
@@ -255,7 +241,6 @@ export const BrowseExposView = ({ onNavigateToBoothSelection, onNavigateToApplic
                     </span>
                   </div>
 
-                  {/* Action Buttons */}
                   <div className="pt-1">
                     {status === "approved" ? (
                       <button
@@ -295,7 +280,6 @@ export const BrowseExposView = ({ onNavigateToBoothSelection, onNavigateToApplic
         </div>
       )}
 
-      {/* Apply Modal */}
       {isApplyModalOpen && (
         <ApplyExpoModal
           isOpen={isApplyModalOpen}

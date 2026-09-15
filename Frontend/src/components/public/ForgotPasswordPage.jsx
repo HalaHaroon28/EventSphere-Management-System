@@ -16,7 +16,7 @@ export const ForgotPasswordPage = ({ onResetTokenGenerated }) => {
       showToast("Validation Error", "Please enter your account email.", "error");
       return;
     }
-    
+
     setIsLoading(true);
     try {
       const response = await authService.forgotPassword(email);

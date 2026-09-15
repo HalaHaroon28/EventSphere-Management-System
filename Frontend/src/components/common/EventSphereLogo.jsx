@@ -1,14 +1,14 @@
 import React from "react";
 
 export const EventSphereLogo = ({
-  size = "md", // "xs", "sm", "md", "lg", "xl", "hero"
+  size = "md",
   showText = true,
   showTagline = true,
   taglineClassName = "",
   className = "",
   interactive = false
 }) => {
-  // Dimension presets for scalable rendering
+
   const sizeMap = {
     xs: { icon: 26, text: "text-sm", tag: "text-[8px]", h: 28 },
     sm: { icon: 34, text: "text-base", tag: "text-[9px]", h: 36 },
@@ -25,7 +25,7 @@ export const EventSphereLogo = ({
       className={`inline-flex items-center gap-2.5 sm:gap-3 select-none ${className} ${interactive ? "group cursor-pointer" : ""
         }`}
     >
-      {/* Dynamic Geometric 3D Sphere Emblem */}
+
       <div
         className="relative shrink-0 flex items-center justify-center transition-transform duration-200 group-hover:scale-105"
         style={{ width: config.icon, height: config.icon }}
@@ -37,28 +37,25 @@ export const EventSphereLogo = ({
           xmlns="http://www.w3.org/2000/svg"
         >
           <defs>
-            {/* Vibrant Cyan-to-Teal Gradient */}
+
             <linearGradient id="esTealGrad" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="#2DD4BF" />
               <stop offset="50%" stopColor="#0D9488" />
               <stop offset="100%" stopColor="#0F766E" />
             </linearGradient>
 
-            {/* Radiant Indigo/Cyan Orbit Gradient */}
             <linearGradient id="esCyanGrad" x1="0%" y1="100%" x2="100%" y2="0%">
               <stop offset="0%" stopColor="#0284C7" />
               <stop offset="50%" stopColor="#0EA5E9" />
               <stop offset="100%" stopColor="#38BDF8" />
             </linearGradient>
 
-            {/* Energetic Coral/Amber Accent Gradient */}
             <linearGradient id="esAmberGrad" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="#FDBA74" />
               <stop offset="45%" stopColor="#FB923C" />
               <stop offset="100%" stopColor="#EA580C" />
             </linearGradient>
 
-            {/* Platinum Sheen Highlight */}
             <linearGradient id="esGleam" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.85" />
               <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
@@ -70,7 +67,6 @@ export const EventSphereLogo = ({
             </filter>
           </defs>
 
-          {/* Glowing Ambient Aura */}
           <circle
             cx="50"
             cy="50"
@@ -80,7 +76,6 @@ export const EventSphereLogo = ({
             filter="url(#esSoftGlow)"
           />
 
-          {/* Outer Orbital Loop 1 (Teal & Indigo) */}
           <ellipse
             cx="50"
             cy="50"
@@ -93,7 +88,6 @@ export const EventSphereLogo = ({
             strokeDasharray="180 30"
           />
 
-          {/* Outer Orbital Loop 2 (Cyan Gradient) */}
           <ellipse
             cx="50"
             cy="50"
@@ -106,7 +100,6 @@ export const EventSphereLogo = ({
             strokeDasharray="160 40"
           />
 
-          {/* Inner Swirling Core Ring (Amber / Coral Accent) */}
           <ellipse
             cx="50"
             cy="50"
@@ -118,18 +111,15 @@ export const EventSphereLogo = ({
             strokeLinecap="round"
           />
 
-          {/* Central Nucleus Node */}
           <circle cx="50" cy="50" r="7.5" fill="url(#esTealGrad)" />
           <circle cx="50" cy="50" r="4" fill="url(#esCyanGrad)" />
           <circle cx="50" cy="50" r="1.5" fill="#FFFFFF" />
 
-          {/* Satellite Spark Nodes */}
           <circle cx="30" cy="24" r="2.5" fill="#38BDF8" />
           <circle cx="74" cy="72" r="2.2" fill="#FB923C" />
         </svg>
       </div>
 
-      {/* High-Contrast Typographic Brand Title */}
       {showText && (
         <div className="flex flex-col justify-center leading-none">
           <div className="flex items-center tracking-tight">

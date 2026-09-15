@@ -14,7 +14,7 @@ import {
 
 const BoothRequestsManager = () => {
   const { applications, booths, fetchApplications, fetchExpos, confirmBoothAssignment, showToast } = useApp();
-  const [filterStatus, setFilterStatus] = useState("all"); // 'all', 'pending', 'confirmed'
+  const [filterStatus, setFilterStatus] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [rejectingAppId, setRejectingAppId] = useState(null);
   const [rejectNote, setRejectNote] = useState("");
@@ -28,7 +28,6 @@ const BoothRequestsManager = () => {
     ? import.meta.env.VITE_API_URL.replace("/api", "")
     : "http://localhost:5000";
 
-  // Filter applications that have a booth selection
   const boothRequests = applications.filter((a) => {
     if (!a) return false;
     const hasBooth = Boolean(a.booth_id || a.booth_number || a.booth_status === "selected" || a.booth_status === "confirmed");
@@ -83,7 +82,7 @@ const BoothRequestsManager = () => {
 
   return (
     <div id="booth-requests-view" className="space-y-6 font-body">
-      {/* Top Header */}
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight font-heading">
@@ -94,7 +93,6 @@ const BoothRequestsManager = () => {
           </p>
         </div>
 
-        {/* Status Filter Tabs */}
         <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-[#1A202C] p-1 rounded-xl text-xs overflow-x-auto no-scrollbar border border-[#E5E7EB] dark:border-white/10">
           <button
             onClick={() => setFilterStatus("all")}
@@ -130,7 +128,6 @@ const BoothRequestsManager = () => {
         </div>
       </div>
 
-      {/* Search Bar */}
       <div className="bg-white dark:bg-[#1A202C] p-4 rounded-2xl border border-[#E5E7EB] dark:border-white/10 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="relative w-full max-w-sm">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7280] dark:text-[#CBD5E1]/60" />
@@ -147,7 +144,6 @@ const BoothRequestsManager = () => {
         </span>
       </div>
 
-      {/* Booth Requests Grid */}
       <div className="space-y-4">
         {boothRequests.length === 0 ? (
           <div className="py-16 bg-white dark:bg-[#1A202C] rounded-2xl border border-[#E5E7EB] dark:border-white/10 text-center space-y-3 p-6">
@@ -174,7 +170,7 @@ const BoothRequestsManager = () => {
                 key={app._id}
                 className="bg-white dark:bg-[#1A202C] p-5 sm:p-6 rounded-2xl border border-[#E5E7EB] dark:border-white/10 hover:border-[#38B2AC]/50 shadow-xs transition-all flex flex-col lg:flex-row lg:items-center justify-between gap-5"
               >
-                {/* Left: Application & Booth Summary */}
+
                 <div className="space-y-3 flex-1 min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <h3 className="text-base font-extrabold text-[#1F2937] dark:text-[#F8FAFC] font-heading">
@@ -201,7 +197,6 @@ const BoothRequestsManager = () => {
                     </span>
                   </div>
 
-                  {/* Highlighted Requested Booth Box */}
                   <div className="bg-[#F8FAFC] dark:bg-[#0F172A] p-3.5 rounded-xl border border-[#E5E7EB] dark:border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-lg bg-[#1488A6] dark:bg-[#38B2AC] text-white dark:text-slate-950 flex items-center justify-center font-mono font-extrabold text-sm shrink-0">
@@ -232,22 +227,21 @@ const BoothRequestsManager = () => {
                   </div>
                 </div>
 
-                {/* Right: Actions */}
-                <div className="flex flex-row lg:flex-col items-center lg:items-end justify-end gap-2.5 shrink-0 border-t lg:border-t-0 pt-3 lg:pt-0 border-[#E5E7EB] dark:border-white/10">
+                <div className="flex flex-col sm:flex-row lg:flex-col items-stretch sm:items-center lg:items-end justify-end gap-2.5 shrink-0 border-t lg:border-t-0 pt-3 lg:pt-0 border-[#E5E7EB] dark:border-white/10">
                   {!isConfirmed ? (
                     <>
                       <button
                         onClick={() => handleApproveBooth(app._id)}
-                        className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-xs flex items-center gap-1.5 transition-colors cursor-pointer w-full lg:w-auto justify-center"
+                        className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer w-full sm:w-auto"
                       >
-                        <Check className="w-4 h-4" /> Approve & Change Status to Booked
+                        <Check className="w-4 h-4" /> Approve & Book Booth
                       </button>
                       <button
                         onClick={() => {
                           setRejectingAppId(app._id);
                           setRejectNote("");
                         }}
-                        className="px-4 py-2.5 rounded-xl border border-rose-200 dark:border-rose-800/60 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-700 dark:text-rose-400 text-xs font-semibold transition-colors cursor-pointer w-full lg:w-auto justify-center"
+                        className="px-4 py-2.5 rounded-xl border border-rose-200 dark:border-rose-800/60 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-700 dark:text-rose-400 text-xs font-semibold transition-colors cursor-pointer w-full sm:w-auto justify-center"
                       >
                         <X className="w-4 h-4" /> Decline Selection
                       </button>
@@ -275,7 +269,6 @@ const BoothRequestsManager = () => {
         )}
       </div>
 
-      {/* Reject / Decline Booth Request Modal */}
       {rejectingAppId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-xs">
           <div className="bg-white dark:bg-[#1A202C] rounded-2xl sm:rounded-3xl shadow-2xl border border-[#E5E7EB] dark:border-white/10 max-w-md w-full p-5 sm:p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150 font-body">
@@ -297,16 +290,16 @@ const BoothRequestsManager = () => {
               className="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 dark:bg-[#0F172A] border border-[#E5E7EB] dark:border-white/10 rounded-xl text-[#1F2937] dark:text-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-[#38B2AC]"
             />
 
-            <div className="flex justify-end gap-2 pt-2 border-t border-[#E5E7EB] dark:border-white/10">
+            <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-2 border-t border-[#E5E7EB] dark:border-white/10">
               <button
                 onClick={() => setRejectingAppId(null)}
-                className="px-4 py-2 rounded-xl text-xs font-semibold text-[#6B7280] dark:text-[#CBD5E1] hover:bg-slate-100 dark:hover:bg-[#203748] cursor-pointer"
+                className="w-full sm:w-auto px-4 py-2 rounded-xl text-xs font-semibold text-[#6B7280] dark:text-[#CBD5E1] hover:bg-slate-100 dark:hover:bg-[#203748] cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={() => handleConfirmRejectBooth(rejectingAppId)}
-                className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold rounded-xl shadow-xs cursor-pointer"
+                className="w-full sm:w-auto px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold rounded-xl shadow-xs cursor-pointer"
               >
                 Confirm Decline & Release Booth
               </button>

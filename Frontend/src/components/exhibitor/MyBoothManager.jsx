@@ -11,7 +11,9 @@ import {
   Upload,
   Lock,
   ArrowRight,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Calendar,
+  Store
 } from "lucide-react";
 
 const MyBoothManager = () => {
@@ -28,14 +30,12 @@ const MyBoothManager = () => {
 
   const [selectedExpoId, setSelectedExpoId] = useState(expos[0]?._id || "");
 
-  // Sync selectedExpoId if expos load after mount
   useEffect(() => {
     if (expos.length > 0 && (!selectedExpoId || !expos.some((e) => e._id === selectedExpoId || String(e._id) === String(selectedExpoId)))) {
       setSelectedExpoId(expos[0]._id);
     }
   }, [expos, selectedExpoId]);
 
-  // Fetch booths when selected expo changes
   useEffect(() => {
     if (selectedExpoId) {
       fetchBoothsForExpo(selectedExpoId);
@@ -45,7 +45,6 @@ const MyBoothManager = () => {
   const selectedExpo = expos.find((e) => e._id === selectedExpoId || String(e._id) === String(selectedExpoId)) || expos[0];
   const userId = currentUser?._id || currentUser?.user_id;
 
-  // Find user's assigned/booked/reserved booth for selected expo
   const myBooth = (booths || []).find((b) => {
     const boothExpoId = typeof b.expo_id === "object" ? b.expo_id?._id : b.expo_id;
     const isMatchingExpo = String(boothExpoId) === String(selectedExpoId);
@@ -61,7 +60,6 @@ const MyBoothManager = () => {
   const [products, setProducts] = useState(boothDetails.products || []);
   const [staff, setStaff] = useState(boothDetails.staff || []);
 
-  // Sync local form state when selected booth or its details updates from DB
   useEffect(() => {
     if (myBooth) {
       setDescription(myBooth.details?.description || "");
@@ -70,7 +68,6 @@ const MyBoothManager = () => {
     }
   }, [myBooth?._id, JSON.stringify(myBooth?.details), selectedExpoId]);
 
-  // Product Modal State
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
   const [newProdName, setNewProdName] = useState("");
   const [newProdCategory, setNewProdCategory] = useState("Hardware");
@@ -79,7 +76,6 @@ const MyBoothManager = () => {
   const [newProdImg, setNewProdImg] = useState("https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&auto=format&fit=crop&q=80");
   const [uploadingImg, setUploadingImg] = useState(false);
 
-  // Staff Modal State
   const [isAddStaffOpen, setIsAddStaffOpen] = useState(false);
   const [newStaffName, setNewStaffName] = useState("");
   const [newStaffRole, setNewStaffRole] = useState("");
@@ -209,57 +205,84 @@ const MyBoothManager = () => {
 
   return (
     <div id="my-booth-manager-view" className="space-y-6 font-body">
-      {/* Top Header & Expo Selector */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
+
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div className="min-w-0">
           <div className="flex items-center gap-2.5">
-            <h2 className="text-xl sm:text-2xl font-bold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight font-heading">
+            <h2 className="text-xl sm:text-2xl font-bold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight font-heading whitespace-nowrap">
               My Booth & Catalog Manager
             </h2>
-            {myBooth && (
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold font-mono teal-badge uppercase">
-                Booth #{myBooth.booth_number} ({myBooth.status})
-              </span>
-            )}
           </div>
-          <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#94A3B8] mt-1 font-normal">
+          <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#CBD5E1] mt-0.5">
             Configure your company booth description, products catalog (1-3 items), and registered attendants (1-3 staff).
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
-          {/* Expo Selector Dropdown */}
-          <select
-            value={selectedExpoId}
-            onChange={(e) => setSelectedExpoId(e.target.value)}
-            className="text-xs sm:text-sm bg-white dark:bg-[#1A202C] border border-[#E5E7EB] dark:border-white/10 rounded-xl px-3.5 py-2.5 font-bold text-[#1F2937] dark:text-[#F8FAFC] shadow-xs focus:outline-none focus:ring-2 focus:ring-[#38B2AC]"
-          >
-            {expos.map((e) => (
-              <option key={e._id} value={e._id}>
-                {e.title}
-              </option>
-            ))}
-          </select>
+        <div className="flex items-center gap-3 shrink-0 flex-nowrap">
 
-          {myBooth && (
+          <div className="relative w-56 sm:w-64 md:w-72 shrink-0">
+            <Calendar className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#1488A6] dark:text-[#38B2AC] pointer-events-none z-10" />
+            <select
+              value={selectedExpoId}
+              onChange={(e) => setSelectedExpoId(e.target.value)}
+              className="w-full pl-9 pr-8 py-2 text-xs sm:text-sm bg-white dark:bg-[#1A202C] border border-[#E5E7EB] dark:border-white/10 rounded-xl font-bold text-[#1F2937] dark:text-[#F8FAFC] shadow-xs focus:outline-none focus:ring-2 focus:ring-[#38B2AC] cursor-pointer truncate"
+            >
+              {expos.map((e) => (
+                <option key={e._id} value={e._id}>
+                  {e.title}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {myBooth ? (
             <button
               onClick={handleSaveBoothProfile}
-              className="px-4 py-2.5 btn-teal-primary text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
+              className="py-2 px-4 btn-teal-primary text-white text-xs sm:text-sm font-bold rounded-xl shadow-md hover:shadow-lg flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap shrink-0"
             >
               <Check className="w-4 h-4" /> Save Changes
+            </button>
+          ) : (
+            <button
+              onClick={() => setActiveView("booth-selection")}
+              className="py-2 px-4 bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/15 text-[#1F2937] dark:text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap shrink-0"
+            >
+              <Store className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC]" />
+              <span>Choose Booth</span>
             </button>
           )}
         </div>
       </div>
 
-      {/* Access Lock Banner if No Booked Booth */}
+      <div className="bg-slate-50 dark:bg-[#1A202C] p-4 rounded-2xl border border-[#E5E7EB] dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+        <div className="flex items-center gap-2.5 text-[#1F2937] dark:text-[#F8FAFC] min-w-0">
+          <Store className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC] shrink-0" />
+          <span className="truncate max-w-[280px] sm:max-w-md">
+            Active Summit: <strong>{selectedExpo?.title || "Selected Expo"}</strong>
+          </span>
+        </div>
+        <div className="flex items-center gap-2.5 text-[#6B7280] dark:text-[#CBD5E1]/70 font-mono text-[11px] shrink-0">
+          {myBooth ? (
+            <span className="px-2.5 py-1 rounded-full font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              Booth #{myBooth.booth_number} • {myBooth.hall || "Main Hall"} ({myBooth.status.toUpperCase()})
+            </span>
+          ) : (
+            <span className="px-2.5 py-1 rounded-full font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+              No Booth Reserved For This Summit
+            </span>
+          )}
+        </div>
+      </div>
+
       {!myBooth ? (
         <div className="bg-white dark:bg-[#1A202C] rounded-3xl border border-[#E5E7EB] dark:border-white/10 shadow-sm p-6 sm:p-10 font-body space-y-8">
           <div className="max-w-xl mx-auto text-center space-y-4">
             <div className="w-14 h-14 rounded-2xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto shadow-xs">
               <Lock className="w-7 h-7" />
             </div>
-            
+
             <div className="space-y-2">
               <h3 className="text-xl font-bold text-[#1F2937] dark:text-[#F8FAFC] font-heading">
                 No Booked Booth for {selectedExpo?.title || "this Expo"}
@@ -277,7 +300,6 @@ const MyBoothManager = () => {
             </button>
           </div>
 
-          {/* Quick Steps Guide */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6 border-t border-[#E5E7EB] dark:border-white/10 text-left">
             <div className="p-4 rounded-2xl bg-[#F8FAFC] dark:bg-[#0F172A] border border-[#E5E7EB] dark:border-white/5 space-y-1.5">
               <div className="flex items-center gap-2">
@@ -307,7 +329,6 @@ const MyBoothManager = () => {
       ) : (
         <>
 
-          {/* Exhibitor Description & Mission */}
           <div className="bg-white dark:bg-[#1A202C] p-5 sm:p-6 rounded-2xl border border-[#E5E7EB] dark:border-white/10 shadow-xs space-y-4">
             <div className="flex items-center gap-2 border-b border-[#E5E7EB] dark:border-white/10 pb-3">
               <Building2 className="w-4.5 h-4.5 text-[#1488A6] dark:text-[#38B2AC]" />
@@ -330,7 +351,6 @@ const MyBoothManager = () => {
             </div>
           </div>
 
-          {/* Featured Products & Demos (Min 1, Max 3) */}
           <div className="bg-white dark:bg-[#1A202C] p-5 sm:p-6 rounded-2xl border border-[#E5E7EB] dark:border-white/10 shadow-xs space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -419,7 +439,6 @@ const MyBoothManager = () => {
             </div>
           </div>
 
-          {/* Registered Booth Attendants (Min 1, Max 3) */}
           <div className="bg-white dark:bg-[#1A202C] p-5 sm:p-6 rounded-2xl border border-[#E5E7EB] dark:border-white/10 shadow-xs space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -488,7 +507,6 @@ const MyBoothManager = () => {
         </>
       )}
 
-      {/* Add Product Modal */}
       {isAddProductOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs">
           <div className="bg-white dark:bg-[#1A202C] rounded-3xl shadow-2xl border border-[#E5E7EB] dark:border-white/10 max-w-md w-full p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150 font-body max-h-[90vh] overflow-y-auto">
@@ -553,7 +571,6 @@ const MyBoothManager = () => {
                 />
               </div>
 
-              {/* Image Upload (saves to uploads/boothproducts) */}
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider font-mono text-[#6B7280] dark:text-[#CBD5E1]/70 mb-1 flex items-center justify-between">
                   <span>Product Image *</span>
@@ -616,7 +633,6 @@ const MyBoothManager = () => {
         </div>
       )}
 
-      {/* Add Staff Modal */}
       {isAddStaffOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs">
           <div className="bg-white dark:bg-[#1A202C] rounded-3xl shadow-2xl border border-[#E5E7EB] dark:border-white/10 max-w-md w-full p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150 font-body">

@@ -12,7 +12,6 @@ import { roleCheck } from '../middlewares/roleCheck.js';
 
 const router = express.Router();
 
-// GET /api/applications (Organizer)
 router.get(
   '/',
   protect,
@@ -20,7 +19,6 @@ router.get(
   listAllApplications
 );
 
-// GET /api/applications/mine (Exhibitor)
 router.get(
   '/mine',
   protect,
@@ -28,7 +26,6 @@ router.get(
   listMyApplications
 );
 
-// PATCH /api/applications/:id/approve (Organizer accepts application)
 router.patch(
   '/:id/approve',
   protect,
@@ -36,7 +33,6 @@ router.patch(
   approveApplication
 );
 
-// PATCH /api/applications/:id/reject (Organizer rejects application)
 router.patch(
   '/:id/reject',
   protect,
@@ -44,7 +40,6 @@ router.patch(
   rejectApplication
 );
 
-// PATCH /api/applications/:id/select-booth (Exhibitor picks booth)
 router.patch(
   '/:id/select-booth',
   protect,
@@ -52,7 +47,6 @@ router.patch(
   selectBoothForApplication
 );
 
-// PATCH /api/applications/:id/confirm-booth (Organizer confirms assigned booth)
 router.patch(
   '/:id/confirm-booth',
   protect,

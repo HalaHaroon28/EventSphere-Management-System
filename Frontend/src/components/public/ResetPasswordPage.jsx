@@ -41,7 +41,7 @@ export const ResetPasswordPage = ({ token }) => {
       showToast("Password Mismatch", "Passwords do not match.", "error");
       return;
     }
-    
+
     setIsLoading(true);
     try {
       await authService.resetPassword(activeToken, password);

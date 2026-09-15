@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useApp } from "../../context/AppContext";
 import { FloorPlanView } from "../common/FloorPlanView";
-import { Info, Check, AlertTriangle, ShieldCheck, Lock } from "lucide-react";
+import { Info, Check, AlertTriangle, ShieldCheck, Lock, Calendar } from "lucide-react";
 import { ApplyExpoModal } from "./ApplyExpoModal";
 
 const BoothSelectionView = ({ initialExpoId, onBookingSuccess }) => {
@@ -22,14 +22,12 @@ const BoothSelectionView = ({ initialExpoId, onBookingSuccess }) => {
   const [selectedBooth, setSelectedBooth] = useState(null);
   const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
 
-  // Sync selectedExpoId if expos load after mount
   useEffect(() => {
     if (expos.length > 0 && (!selectedExpoId || !expos.some(e => e._id === selectedExpoId || String(e._id) === String(selectedExpoId)))) {
       setSelectedExpoId(expos[0]._id);
     }
   }, [expos, selectedExpoId]);
 
-  // Fetch booths dynamically whenever selected expo changes
   useEffect(() => {
     if (selectedExpoId) {
       fetchBoothsForExpo(selectedExpoId);
@@ -46,7 +44,6 @@ const BoothSelectionView = ({ initialExpoId, onBookingSuccess }) => {
       String(b.expo_id?._id) === String(selectedExpoId)
   );
 
-  // Find user's application for the currently selected expo
   const myAppForExpo = applications.find(
     (a) =>
       (a.expo_id === selectedExpoId || a.expo_id?._id === selectedExpoId || String(a.expo_id) === String(selectedExpoId) || String(a.expo_id?._id) === String(selectedExpoId)) &&
@@ -57,7 +54,6 @@ const BoothSelectionView = ({ initialExpoId, onBookingSuccess }) => {
   const isPending = myAppForExpo?.status === "pending";
   const isRejected = myAppForExpo?.status === "rejected";
 
-  // Check if user already applied/selected a booth for this expo
   const hasBoothSelection = Boolean(
     myAppForExpo?.booth_id ||
     myAppForExpo?.booth_status === "selected" ||
@@ -127,35 +123,36 @@ const BoothSelectionView = ({ initialExpoId, onBookingSuccess }) => {
 
   return (
     <div id="booth-selection-view" className="space-y-6 font-body">
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight font-heading">
+
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div className="min-w-0">
+          <h2 className="text-xl sm:text-2xl font-bold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight font-heading whitespace-nowrap">
             Choose a Booth Space
           </h2>
-          <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#94A3B8] mt-1 font-normal">
+          <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#CBD5E1] mt-0.5">
             Pick your company&apos;s spot on the interactive expo floor plan.
           </p>
         </div>
 
-        {/* Expo Selector */}
-        <select
-          value={selectedExpoId}
-          onChange={(e) => {
-            setSelectedExpoId(e.target.value);
-            setSelectedBooth(null);
-          }}
-          className="text-xs bg-white dark:bg-[#1A202C] border border-[#E5E7EB] dark:border-white/10 rounded-xl px-3.5 py-2.5 font-bold text-[#1F2937] dark:text-[#F8FAFC] shadow-xs focus:outline-none focus:ring-2 focus:ring-[#38B2AC]"
-        >
-          {expos.map((e) => (
-            <option key={e._id} value={e._id}>
-              {e.title} ({e.city || e.location || "Online"})
-            </option>
-          ))}
-        </select>
+        <div className="relative w-56 sm:w-64 md:w-72 shrink-0">
+          <Calendar className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#1488A6] dark:text-[#38B2AC] pointer-events-none z-10" />
+          <select
+            value={selectedExpoId}
+            onChange={(e) => {
+              setSelectedExpoId(e.target.value);
+              setSelectedBooth(null);
+            }}
+            className="w-full pl-9 pr-8 py-2 text-xs sm:text-sm bg-white dark:bg-[#1A202C] border border-[#E5E7EB] dark:border-white/10 rounded-xl font-bold text-[#1F2937] dark:text-[#F8FAFC] shadow-xs focus:outline-none focus:ring-2 focus:ring-[#38B2AC] cursor-pointer truncate"
+          >
+            {expos.map((e) => (
+              <option key={e._id} value={e._id}>
+                {e.title} ({e.city || e.location || "Online"})
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
-      {/* Info / Dynamic Status Banner */}
       <div className="bg-[#F8FAFC] dark:bg-[#1A202C] p-4 rounded-2xl border border-[#E5E7EB] dark:border-white/10 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
         <div className="flex items-center gap-2.5">
           <Info className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC] shrink-0" />
@@ -208,7 +205,6 @@ const BoothSelectionView = ({ initialExpoId, onBookingSuccess }) => {
         </div>
       </div>
 
-      {/* Interactive Floor Plan */}
       <div className="space-y-4">
         <FloorPlanView
           expoId={selectedExpoId}
@@ -218,7 +214,6 @@ const BoothSelectionView = ({ initialExpoId, onBookingSuccess }) => {
         />
       </div>
 
-      {/* Selected Booth Confirmation Drawer/Bar */}
       {selectedBooth && (
         <div className="bg-white dark:bg-[#1A202C] p-5 rounded-2xl border-2 border-[#1488A6] dark:border-[#38B2AC] shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-in fade-in slide-in-from-bottom-3 duration-200">
           <div className="space-y-1">
@@ -302,4 +297,3 @@ const BoothSelectionView = ({ initialExpoId, onBookingSuccess }) => {
 };
 
 export { BoothSelectionView };
-

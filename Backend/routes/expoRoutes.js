@@ -23,7 +23,6 @@ router.patch('/:id', protect, uploadExpoImage.single('banner_image'), updateExpo
 router.put('/:id', protect, uploadExpoImage.single('banner_image'), updateExpo);
 router.delete('/:id', protect, roleCheck('organizer'), deleteExpo);
 
-// POST /api/expos/:expoId/applications
 router.post(
   '/:expoId/applications',
   protect,
@@ -32,7 +31,6 @@ router.post(
   applyToExpo
 );
 
-// GET /api/expos/:expoId/applications
 router.get(
   '/:expoId/applications',
   protect,

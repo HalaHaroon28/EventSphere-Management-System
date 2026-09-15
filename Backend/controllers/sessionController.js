@@ -4,9 +4,6 @@ import Expo from '../models/Expo.js';
 import Bookmark from '../models/Bookmark.js';
 import Notification from '../models/Notification.js';
 
-// @desc    Create a new session for an Expo
-// @route   POST /api/expos/:expoId/sessions
-// @access  Private (Organizer only)
 export const createSession = async (req, res) => {
   try {
     const { expoId } = req.params;
@@ -37,7 +34,6 @@ export const createSession = async (req, res) => {
       created_by: currentUserId,
     });
 
-    // ⚡ SOCKET EMIT: Broadcast new session to all connected clients
     try {
       getIO().emit('session_created', {
         expo_id: expoId,
@@ -53,9 +49,6 @@ export const createSession = async (req, res) => {
   }
 };
 
-// @desc    List all sessions for an Expo
-// @route   GET /api/expos/:expoId/sessions
-// @access  Public
 export const listSessionsForExpo = async (req, res) => {
   try {
     const { expoId } = req.params;
@@ -71,9 +64,6 @@ export const listSessionsForExpo = async (req, res) => {
   }
 };
 
-// @desc    Update a session & notify bookmarkers
-// @route   PATCH /api/sessions/:id
-// @access  Private (Organizer only)
 export const updateSession = async (req, res) => {
   try {
     const { id } = req.params;
@@ -94,7 +84,6 @@ export const updateSession = async (req, res) => {
       { new: true, runValidators: true }
     );
 
-    // 🔔 NOTIFICATION HOOK: Notify all attendees who bookmarked this session
     const bookmarks = await Bookmark.find({ session_id: id });
     if (bookmarks.length > 0) {
       const notificationDocs = bookmarks.map((bm) => ({
@@ -105,7 +94,6 @@ export const updateSession = async (req, res) => {
 
       const createdNotifications = await Notification.insertMany(notificationDocs);
 
-      // ⚡ SOCKET EMIT: Emit targeted notifications to each bookmarking user's room
       try {
         const io = getIO();
         createdNotifications.forEach((notif) => {
@@ -116,7 +104,6 @@ export const updateSession = async (req, res) => {
       }
     }
 
-    // ⚡ SOCKET EMIT: Broadcast session update globally
     try {
       getIO().emit('session_updated', {
         expo_id: updatedSession.expo_id,
@@ -132,9 +119,6 @@ export const updateSession = async (req, res) => {
   }
 };
 
-// @desc    Delete a session
-// @route   DELETE /api/sessions/:id
-// @access  Private (Organizer only)
 export const deleteSession = async (req, res) => {
   try {
     const { id } = req.params;
@@ -152,7 +136,6 @@ export const deleteSession = async (req, res) => {
     const expoId = session.expo_id;
     await session.deleteOne();
 
-    // ⚡ SOCKET EMIT: Broadcast session deletion
     try {
       getIO().emit('session_deleted', {
         expo_id: expoId,

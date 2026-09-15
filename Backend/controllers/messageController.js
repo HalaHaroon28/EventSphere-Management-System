@@ -5,25 +5,21 @@ import User from "../models/User.js";
 import Booth from "../models/Booth.js";
 import Notification from "../models/Notification.js";
 
-// Helper function to resolve an existing exhibitor or recipient user
 export async function resolveRecipientUser(receiver_id) {
   if (!receiver_id) return null;
 
   const isHexObjectId = /^[0-9a-fA-F]{24}$/.test(String(receiver_id));
 
-  // 1. If valid 24-hex ObjectId, try finding User directly
   if (isHexObjectId) {
     let user = await User.findById(receiver_id);
     if (user) return user;
 
-    // Check if receiver_id is a Booth ID
     const booth = await Booth.findById(receiver_id);
     if (booth) {
       if (booth.exhibitor_id && /^[0-9a-fA-F]{24}$/.test(String(booth.exhibitor_id))) {
         user = await User.findById(booth.exhibitor_id);
         if (user) return user;
       }
-      // If booth has an exhibitor_name, find existing exhibitor user
       if (booth.exhibitor_name) {
         user = await User.findOne({
           $or: [
@@ -33,14 +29,13 @@ export async function resolveRecipientUser(receiver_id) {
         });
         if (user) {
           booth.exhibitor_id = user._id;
-          await booth.save().catch(() => {});
+          await booth.save().catch(() => { });
           return user;
         }
       }
     }
   }
 
-  // 2. Try looking up existing user by name, email, or company_name
   const nameQuery = String(receiver_id).trim();
   let user = await User.findOne({
     $or: [
@@ -54,11 +49,6 @@ export async function resolveRecipientUser(receiver_id) {
   return null;
 }
 
-/**
- * Send a message to another user
- * @route POST /api/messages
- * @access Protected (All Authenticated Roles)
- */
 export const sendMessage = async (req, res) => {
   try {
     const { receiver_id, content } = req.body;
@@ -89,7 +79,6 @@ export const sendMessage = async (req, res) => {
       content: content.trim(),
     });
 
-    // Create a new message notification for recipient so it appears on login/drawer
     const senderName = sender ? sender.name : "A user";
     const senderCompany = sender?.company_profile?.company_name ? ` (${sender.company_profile.company_name})` : "";
     const previewMsg = content.trim().length > 60 ? content.trim().slice(0, 57) + "..." : content.trim();
@@ -123,17 +112,11 @@ export const sendMessage = async (req, res) => {
   }
 };
 
-/**
- * Get user inbox (latest messages received or sent, grouped by conversation partner)
- * @route GET /api/messages/inbox
- * @access Protected (All Authenticated Roles)
- */
 export const listInbox = async (req, res) => {
   try {
     const userId = req.user._id || req.user.user_id;
     const userRole = req.headers['x-current-role'] || req.user.role;
 
-    // Find all messages involving the current user
     const messages = await Message.find({
       $or: [{ sender_id: userId }, { receiver_id: userId }],
     })
@@ -154,15 +137,12 @@ export const listInbox = async (req, res) => {
       const partner = isSender ? msg.receiver_id : msg.sender_id;
 
       if (!partner || !partner._id) return;
-
-      // Role Restrictions filtering:
       if (userRole === "organizer" && partner.role !== "exhibitor") {
         return;
       }
       if (userRole === "attendee" && partner.role !== "exhibitor") {
         return;
       }
-      // Exhibitors see all partner roles
 
       const partnerId = partner._id.toString();
 
@@ -194,11 +174,6 @@ export const listInbox = async (req, res) => {
   }
 };
 
-/**
- * Get full conversation thread with a specific user
- * @route GET /api/messages/thread/:userId
- * @access Protected (All Authenticated Roles)
- */
 export const getThreadWithUser = async (req, res) => {
   try {
     const currentUserId = req.user._id || req.user.user_id;
@@ -225,7 +200,6 @@ export const getThreadWithUser = async (req, res) => {
       (msg) => msg.sender_id && msg.receiver_id
     );
 
-    // Mark unread messages received by current user in this thread as read
     await Message.updateMany(
       { sender_id: targetPartnerId, receiver_id: currentUserId, read: false },
       { $set: { read: true } }
@@ -243,11 +217,6 @@ export const getThreadWithUser = async (req, res) => {
   }
 };
 
-/**
- * Delete a whole conversation thread between current user and partner
- * @route DELETE /api/messages/thread/:userId
- * @access Protected
- */
 export const deleteThreadWithUser = async (req, res) => {
   try {
     const currentUserId = req.user._id || req.user.user_id;
@@ -279,11 +248,7 @@ export const deleteThreadWithUser = async (req, res) => {
   }
 };
 
-/**
- * Get contacts list for initiating new conversations
- * @route GET /api/messages/contacts
- * @access Protected
- */
+
 export const getUsersForMessaging = async (req, res) => {
   try {
     const currentUserId = req.user._id || req.user.user_id;
@@ -292,10 +257,8 @@ export const getUsersForMessaging = async (req, res) => {
     let query = { _id: { $ne: currentUserId } };
 
     if (currentUserRole === "organizer" || currentUserRole === "attendee") {
-      // Organizers and Attendees can ONLY contact registered exhibitors
       query.role = "exhibitor";
     } else if (currentUserRole === "exhibitor") {
-      // Exhibitors can contact exhibitors, organizers, and attendees
       query.role = { $in: ["organizer", "exhibitor", "attendee"] };
     } else {
       query.role = { $in: ["organizer", "exhibitor", "attendee"] };

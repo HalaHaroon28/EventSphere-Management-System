@@ -3,7 +3,6 @@ import Session from '../models/Session.js';
 import Notification from '../models/Notification.js';
 import mongoose from 'mongoose';
 
-// POST /api/bookmarks
 export const addBookmark = async (req, res) => {
   try {
     const { session_id } = req.body;
@@ -32,7 +31,6 @@ export const addBookmark = async (req, res) => {
     const session = await Session.findById(session_id);
     const sessionTitle = session ? session.title : 'a session';
 
-    // 🔔 NOTIFICATION HOOK: Send bookmark confirmation notification to attendee
     await Notification.create({
       user_id,
       type: 'session_reminder',
@@ -45,7 +43,6 @@ export const addBookmark = async (req, res) => {
   }
 };
 
-// GET /api/bookmarks/mine
 export const listMyBookmarks = async (req, res) => {
   try {
     const user_id = req.user.user_id || req.user._id;
@@ -64,7 +61,6 @@ export const listMyBookmarks = async (req, res) => {
   }
 };
 
-// DELETE /api/bookmarks/:id
 export const removeBookmark = async (req, res) => {
   try {
     const { id } = req.params;

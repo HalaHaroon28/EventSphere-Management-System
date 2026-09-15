@@ -28,11 +28,10 @@ export const SessionsListing = ({ onSelectExpo, onRegisterPass }) => {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedExpoId, setSelectedExpoId] = useState("all");
-  const [filterMode, setFilterMode] = useState("all"); // 'all' | 'bookmarked'
+  const [filterMode, setFilterMode] = useState("all");
 
   const currentUserId = String(currentUser?._id || currentUser?.user_id || "");
 
-  // Check if current user is registered for an expo
   const hasExpoPass = (expoId) => {
     if (!currentUser || currentUser.role === "public") return false;
     return (registrations || []).some((r) => {
@@ -46,7 +45,6 @@ export const SessionsListing = ({ onSelectExpo, onRegisterPass }) => {
     });
   };
 
-  // Check if session is bookmarked
   const isBookmarked = (sessionId) => {
     if (!currentUser || currentRole === "public") return false;
     const currentUserId = String(currentUser?._id || currentUser?.user_id || "");
@@ -93,7 +91,7 @@ export const SessionsListing = ({ onSelectExpo, onRegisterPass }) => {
 
   return (
     <div id="sessions-listing-page" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 font-body">
-      {/* Header */}
+
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#E5E7EB] dark:border-white/10 pb-6">
         <div>
           <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#1488A6] dark:text-[#38B2AC]">
@@ -107,7 +105,6 @@ export const SessionsListing = ({ onSelectExpo, onRegisterPass }) => {
           </p>
         </div>
 
-        {/* Filter Mode Tabs */}
         <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-[#1A202C] p-1.5 rounded-2xl text-xs self-start md:self-auto border border-[#E5E7EB] dark:border-white/10">
           <button
             onClick={() => setFilterMode("all")}
@@ -131,9 +128,8 @@ export const SessionsListing = ({ onSelectExpo, onRegisterPass }) => {
         </div>
       </div>
 
-      {/* Filter & Search Bar - Search + Event Filter ONLY (Categories removed as requested) */}
       <div className="bg-white dark:bg-[#1A202C] p-4 rounded-2xl border border-[#E5E7EB] dark:border-white/10 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
-        {/* Search */}
+
         <div className="relative flex-1 w-full">
           <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
@@ -145,13 +141,12 @@ export const SessionsListing = ({ onSelectExpo, onRegisterPass }) => {
           />
         </div>
 
-        {/* Expo Dropdown Selector with Spacious Chevron */}
         <div className="relative w-full sm:w-80 shrink-0">
           <div className="relative">
             <select
               value={selectedExpoId}
               onChange={(e) => setSelectedExpoId(e.target.value)}
-              className="w-full appearance-none pl-3.5 pr-10 py-2 text-xs sm:text-sm bg-slate-50 dark:bg-[#0F172A]/80 border border-[#E5E7EB] dark:border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#38B2AC] text-[#1F2937] dark:text-white font-semibold cursor-pointer shadow-xs"
+              className="w-full appearance-none pl-3.5 pr-10 py-2 text-xs sm:text-sm bg-slate-50 dark:bg-[#0F172A]/80 border border-[#E5E7EB] dark:border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#38B2AC] text-[#1F2937] dark:text-white font-semibold cursor-pointer shadow-xs truncate"
             >
               <option value="all">All Summits & Expos ({expos.length})</option>
               {expos.map((e) => (
@@ -165,7 +160,6 @@ export const SessionsListing = ({ onSelectExpo, onRegisterPass }) => {
         </div>
       </div>
 
-      {/* Sessions Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredSessions.length === 0 ? (
           <div className="col-span-full py-16 text-center space-y-3 saas-card rounded-3xl p-8">
@@ -191,7 +185,7 @@ export const SessionsListing = ({ onSelectExpo, onRegisterPass }) => {
                 className="saas-card saas-card-hover rounded-3xl p-5 sm:p-6 flex flex-col justify-between space-y-4 group"
               >
                 <div className="space-y-3.5">
-                  {/* Top Meta Bar */}
+
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-mono font-bold text-xs text-[#1488A6] dark:text-[#38B2AC] bg-teal-50 dark:bg-[#203748] px-2.5 py-1 rounded-lg border border-[#1488A6]/20 dark:border-[#38B2AC]/30 flex items-center gap-1.5">
                       <Clock className="w-3.5 h-3.5" />
@@ -210,7 +204,6 @@ export const SessionsListing = ({ onSelectExpo, onRegisterPass }) => {
                     </span>
                   </div>
 
-                  {/* Title & Topic */}
                   <div>
                     {session.topic && (
                       <span className="text-[11px] font-bold text-[#1488A6] dark:text-[#38B2AC] uppercase tracking-wider block mb-1">
@@ -222,7 +215,6 @@ export const SessionsListing = ({ onSelectExpo, onRegisterPass }) => {
                     </h3>
                   </div>
 
-                  {/* Speaker Details */}
                   <div className="flex items-center gap-2.5 pt-1">
                     <div className="min-w-0 flex-1 leading-tight">
                       <p className="text-xs font-bold text-[#1F2937] dark:text-[#F8FAFC] truncate">
@@ -236,7 +228,6 @@ export const SessionsListing = ({ onSelectExpo, onRegisterPass }) => {
                     </div>
                   </div>
 
-                  {/* Expo Affiliation */}
                   {expo && (
                     <div className="text-[11px] text-[#6B7280] dark:text-[#CBD5E1]/70 font-mono flex items-center gap-1.5 pt-1 border-t border-[#E5E7EB] dark:border-white/5">
                       <Calendar className="w-3 h-3 text-[#1488A6] dark:text-[#38B2AC]" />
@@ -245,7 +236,6 @@ export const SessionsListing = ({ onSelectExpo, onRegisterPass }) => {
                   )}
                 </div>
 
-                {/* Bottom Pass Requirement & Bookmark Action */}
                 <div className="pt-3 border-t border-[#E5E7EB] dark:border-white/10 flex items-center justify-between gap-2">
                   <div>
                     {userHasPass ? (

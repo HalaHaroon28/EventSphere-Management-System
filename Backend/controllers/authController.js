@@ -133,10 +133,9 @@ export const login = async (req, res) => {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    // Enforce email verification: User cannot login until email is verified
     if (!user.is_verified) {
       const otp_code = Math.floor(100000 + Math.random() * 900000).toString();
-      const otp_expires_at = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+      const otp_expires_at = new Date(Date.now() + 10 * 60 * 1000);
 
       user.otp_code = otp_code;
       user.otp_expires_at = otp_expires_at;
@@ -160,7 +159,6 @@ export const login = async (req, res) => {
       });
     }
 
-    // Direct Login with credentials: Issue JWT token once verified
     const token = generateToken(user);
 
     return res.status(200).json({
@@ -205,7 +203,7 @@ export const resendOtp = async (req, res) => {
     }
 
     const otp_code = Math.floor(100000 + Math.random() * 900000).toString();
-    const otp_expires_at = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+    const otp_expires_at = new Date(Date.now() + 10 * 60 * 1000);
 
     user.otp_code = otp_code;
     user.otp_expires_at = otp_expires_at;
@@ -308,7 +306,7 @@ export const forgotPassword = async (req, res) => {
     const resetToken = crypto.randomBytes(32).toString('hex');
     const reset_token_expires_at = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
 
-    const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+    const clientUrl = process.env.CLIENT_URL || 'http://localhost:3000';
     const resetUrl = `${clientUrl}?resetToken=${resetToken}#reset-password`;
 
     user.reset_token = resetToken;

@@ -53,7 +53,6 @@ export const ExpoDetailModal = ({
   const expoSessions = sessions.filter((s) => s.expo_id === expo._id);
   const expoBooths = booths.filter((b) => b.expo_id === expo._id);
 
-  // Check if current user is registered
   const userRegistration = (registrations || []).find((r) => {
     const rExpoId = typeof r.expo_id === "object" ? r.expo_id?._id : r.expo_id;
     const rUserId = String(typeof r.user_id === "object" ? r.user_id?._id : r.user_id || "");
@@ -109,8 +108,7 @@ export const ExpoDetailModal = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/80 backdrop-blur-xs overflow-y-auto font-body">
       <div className="bg-white dark:bg-[#1A202C] rounded-3xl shadow-2xl border border-[#E5E7EB] dark:border-white/10 max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200 my-auto text-[#1F2937] dark:text-[#F8FAFC]">
-        
-        {/* Top Hero Banner */}
+
         <div className="relative h-48 sm:h-56 bg-gradient-to-br from-slate-900 via-[#1488A6]/30 to-slate-950 shrink-0 overflow-hidden">
           <img
             src={bannerSrc}
@@ -122,7 +120,6 @@ export const ExpoDetailModal = ({
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent" />
 
-          {/* Close & Share Header Controls */}
           <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
             <button
               onClick={() => {
@@ -143,7 +140,6 @@ export const ExpoDetailModal = ({
             </button>
           </div>
 
-          {/* Banner Meta Info */}
           <div className="absolute bottom-4 left-6 right-6 text-white space-y-1">
             <div className="flex flex-wrap items-center gap-2">
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#1488A6]/40 text-[#38B2AC] border border-[#38B2AC]/40 font-mono">
@@ -168,7 +164,6 @@ export const ExpoDetailModal = ({
           </div>
         </div>
 
-        {/* Tab Navigation Strip */}
         <div className="border-b border-[#E5E7EB] dark:border-white/10 bg-slate-50/90 dark:bg-[#0F172A]/90 px-6 py-2 flex items-center justify-between gap-4 overflow-x-auto shrink-0">
           <div className="flex space-x-2 sm:space-x-3">
             <button
@@ -217,12 +212,11 @@ export const ExpoDetailModal = ({
           </div>
         </div>
 
-        {/* Modal Scrollable Content Area */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
-          {/* TAB 1: OVERVIEW */}
+
           {activeTab === "overview" && (
             <div className="space-y-6 max-w-3xl mx-auto">
-              {/* Key Quick Facts Grid */}
+
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
                 <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-[#0F172A]/80 border border-[#E5E7EB] dark:border-white/10">
                   <span className="text-[10px] uppercase font-mono font-bold text-[#6B7280] dark:text-[#CBD5E1]/60 flex items-center gap-1">
@@ -262,7 +256,6 @@ export const ExpoDetailModal = ({
                 </div>
               </div>
 
-              {/* Description */}
               <div className="space-y-2">
                 <h3 className="text-sm font-bold text-[#1F2937] dark:text-[#F8FAFC] font-heading">
                   About this Exhibition
@@ -272,7 +265,6 @@ export const ExpoDetailModal = ({
                 </p>
               </div>
 
-              {/* Venue details */}
               <div className="p-4 rounded-2xl bg-slate-50 dark:bg-[#0F172A]/80 border border-[#E5E7EB] dark:border-white/10 flex items-start gap-3.5">
                 <div className="w-9 h-9 rounded-xl bg-[#1488A6]/10 dark:bg-[#38B2AC]/15 flex items-center justify-center text-[#1488A6] dark:text-[#38B2AC] shrink-0 mt-0.5">
                   <MapPin className="w-4 h-4" />
@@ -286,7 +278,6 @@ export const ExpoDetailModal = ({
                 </div>
               </div>
 
-              {/* Action Callout */}
               <div className="p-5 rounded-2xl bg-gradient-to-r from-slate-900 to-slate-800 border border-[#1488A6]/30 text-white flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div>
                   <h4 className="text-sm font-bold font-heading">Participate in {expo.title}</h4>
@@ -329,19 +320,16 @@ export const ExpoDetailModal = ({
                 </div>
               </div>
 
-              {/* In-Context Feedback */}
               <InContextFeedback expoId={expo._id} expoTitle={expo.title} />
             </div>
           )}
 
-          {/* TAB 2: FLOOR PLAN */}
           {activeTab === "floorplan" && (
             <div className="space-y-4">
               <FloorPlanView expoId={expo._id} selectedBoothId={selectedBoothId} />
             </div>
           )}
 
-          {/* TAB 3: KEYNOTE SCHEDULE */}
           {activeTab === "schedule" && (
             <div className="space-y-4 max-w-3xl mx-auto">
               {expoSessions.length === 0 ? (
@@ -419,7 +407,6 @@ export const ExpoDetailModal = ({
             </div>
           )}
 
-          {/* TAB 4: EXHIBITORS */}
           {activeTab === "exhibitors" && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-3xl mx-auto">
               {bookedBooths.length === 0 ? (

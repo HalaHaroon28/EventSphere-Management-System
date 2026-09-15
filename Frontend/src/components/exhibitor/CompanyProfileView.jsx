@@ -24,7 +24,6 @@ const CompanyProfileView = () => {
   const [logoPreview, setLogoPreview] = useState(compProf.logo || "");
   const [saving, setSaving] = useState(false);
 
-  // Sync local form state whenever currentUser or company_profile updates from DB
   useEffect(() => {
     const cp = currentUser?.company_profile || {};
     setCompanyName(cp.company_name || currentUser?.company_name || currentUser?.name || "");
@@ -57,7 +56,6 @@ const CompanyProfileView = () => {
 
     setSaving(true);
 
-    // Construct FormData for multipart upload
     const formData = new FormData();
     formData.append("company_name", companyName.trim());
     formData.append("contact_email", email.trim());
@@ -79,13 +77,14 @@ const CompanyProfileView = () => {
   const getLogoSrc = (pathStr) => {
     if (!pathStr) return "";
     if (pathStr.startsWith("http") || pathStr.startsWith("blob:") || pathStr.startsWith("data:")) return pathStr;
-    const cleanPath = pathStr.replace(/^\//, "");
-    return `http://localhost:5000/${cleanPath}`;
+    const cleanPath = pathStr.replace(/^\/+/, "");
+    const API_URL = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace("/api", "") : "http://localhost:5000";
+    return `${API_URL}/${cleanPath}`;
   };
 
   return (
     <div id="company-profile-view" className="space-y-6 max-w-4xl mx-auto font-body">
-      {/* Top Header */}
+
       <div>
         <h2 className="text-xl sm:text-2xl font-bold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight font-heading">
           Company Profile
@@ -98,7 +97,6 @@ const CompanyProfileView = () => {
       <form onSubmit={handleSaveProfile} className="space-y-6">
         <div className="bg-white dark:bg-[#1A202C] p-6 rounded-2xl border border-[#E5E7EB] dark:border-white/10 shadow-xs space-y-5">
 
-          {/* Header Card with Logo Preview */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#E5E7EB] dark:border-white/10">
             <div className="flex items-center gap-4">
               {logoPreview ? (
@@ -125,7 +123,6 @@ const CompanyProfileView = () => {
               </div>
             </div>
 
-            {/* Logo File Upload Control */}
             <div className="flex items-center gap-2">
               <input
                 type="file"

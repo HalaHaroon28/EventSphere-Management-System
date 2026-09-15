@@ -131,9 +131,9 @@ export const FloorPlanView = ({
 
   return (
     <div id="interactive-floorplan-container" className="space-y-5">
-      {/* Controls Bar */}
+
       <div className="bg-white dark:bg-[#1A202C] p-4 sm:p-5 rounded-2xl border border-[#E5E7EB] dark:border-white/10 shadow-xs flex flex-wrap items-center justify-between gap-4">
-        {/* Search */}
+
         <div className="relative flex-1 min-w-[220px] max-w-sm">
           <Search className="w-4.5 h-4.5 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#6B7280] dark:text-[#CBD5E1]/60" />
           <input
@@ -145,9 +145,8 @@ export const FloorPlanView = ({
           />
         </div>
 
-        {/* Filters */}
         <div className="flex items-center flex-wrap gap-3 text-sm">
-          {/* Status Filter */}
+
           <div className="flex items-center gap-1 bg-slate-100 dark:bg-[#0F172A] p-1 rounded-xl border border-[#E5E7EB] dark:border-white/5">
             <button
               onClick={() => setFilterStatus("all")}
@@ -180,7 +179,6 @@ export const FloorPlanView = ({
             </button>
           </div>
 
-          {/* Size Filter */}
           <select
             value={filterSize}
             onChange={(e) => setFilterSize(e.target.value)}
@@ -192,7 +190,6 @@ export const FloorPlanView = ({
             <option value="large">Large Corner</option>
           </select>
 
-          {/* Zoom Controls */}
           <div className="flex items-center border border-[#E5E7EB] dark:border-white/10 rounded-xl overflow-hidden bg-[#F8FAFC] dark:bg-[#0F172A]">
             <button
               onClick={() => setZoomLevel((z) => Math.max(0.8, z - 0.1))}
@@ -222,11 +219,10 @@ export const FloorPlanView = ({
         </div>
       </div>
 
-      {/* Main Floor Plan Canvas & Detail Split */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Interactive Floor Plan Map */}
+
         <div className="lg:col-span-8 bg-[#0F172A] p-5 sm:p-7 rounded-3xl border border-white/10 shadow-xl overflow-hidden relative min-h-[500px]">
-          {/* Architectural Background Grid */}
+
           <div
             className="absolute inset-0 opacity-15 pointer-events-none"
             style={{
@@ -235,7 +231,6 @@ export const FloorPlanView = ({
             }}
           />
 
-          {/* Stage / Entrance / Keynote Markers */}
           <div className="flex items-center justify-between text-xs sm:text-sm text-[#CBD5E1]/70 font-mono mb-5 px-2">
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-sm bg-[#38B2AC] animate-pulse" />
@@ -248,7 +243,6 @@ export const FloorPlanView = ({
             </div>
           </div>
 
-          {/* Interactive Scalable Map Container */}
           <div className="overflow-x-auto overflow-y-auto max-h-[580px] p-2 flex justify-start sm:justify-center touch-pan-x touch-pan-y no-scrollbar">
             <div
               className="relative w-full min-w-[540px] sm:min-w-full max-w-[760px] aspect-[4/3] bg-[#0A101D] rounded-2xl border border-[#38B2AC]/40 transition-transform duration-200 origin-top shadow-2xl shrink-0 overflow-hidden"
@@ -256,7 +250,7 @@ export const FloorPlanView = ({
                 transform: `scale(${zoomLevel})`,
               }}
             >
-              {/* Floor Plan Architectural Blueprint Image Layer */}
+
               <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none select-none">
                 <img
                   src={getFloorPlanImageUrl(expo)}
@@ -278,7 +272,6 @@ export const FloorPlanView = ({
                 />
               </div>
 
-              {/* Hall Zones */}
               <div className="absolute top-3 left-4 z-10 text-[10px] sm:text-[11px] font-mono font-bold text-[#38B2AC] bg-slate-950/90 px-2.5 py-1 rounded-lg border border-[#38B2AC]/40 uppercase tracking-widest pointer-events-none shadow-sm flex items-center gap-2 backdrop-blur-xs">
                 <span className="w-2 h-2 rounded-full bg-[#38B2AC]" />
                 ZONE A — MAIN GRAND HALL
@@ -289,7 +282,6 @@ export const FloorPlanView = ({
               </div>
               <div className="absolute top-1/2 left-0 right-0 border-t border-dashed border-[#38B2AC]/30 pointer-events-none z-10" />
 
-              {/* Empty state overlay if no booths */}
               {filteredBooths.length === 0 && (
                 <div className="absolute inset-0 z-10 flex flex-col items-center justify-center p-6 text-center text-slate-400 font-body space-y-2 pointer-events-none">
                   <Building2 className="w-10 h-10 text-[#38B2AC] opacity-60" />
@@ -300,7 +292,6 @@ export const FloorPlanView = ({
                 </div>
               )}
 
-              {/* Booth Nodes Overlay */}
               {filteredBooths.map((booth) => {
                 const isSelected = selectedBoothId === booth._id || activeBooth?._id === booth._id;
                 const dims = getBoothDimensions(booth.size);
@@ -330,7 +321,6 @@ export const FloorPlanView = ({
                       </span>
                     )}
 
-                    {/* Corner badge for size */}
                     {booth.size === "island" && (
                       <span className="absolute -top-1.5 -right-1.5 px-1 py-0.2 bg-[#38B2AC] text-[#0F172A] font-black text-[8px] rounded uppercase font-mono shadow-xs">
                         Island
@@ -342,7 +332,6 @@ export const FloorPlanView = ({
             </div>
           </div>
 
-          {/* Map Legend */}
           <div className="mt-5 pt-4 border-t border-white/10 flex items-center justify-between flex-wrap gap-3 text-xs sm:text-sm text-[#CBD5E1]">
             <div className="flex flex-wrap items-center gap-3 sm:gap-5">
               <span className="flex items-center gap-2">
@@ -364,7 +353,6 @@ export const FloorPlanView = ({
           </div>
         </div>
 
-        {/* Booth Details Sidebar Card */}
         <div className="lg:col-span-4 bg-white dark:bg-[#1A202C] p-6 rounded-3xl border border-[#E5E7EB] dark:border-white/10 shadow-sm space-y-5">
           {activeBooth ? (
             <div className="space-y-5 animate-in fade-in duration-150">
@@ -396,7 +384,6 @@ export const FloorPlanView = ({
                 </div>
               </div>
 
-              {/* Specs Pill Grid */}
               <div className="grid grid-cols-2 gap-3 bg-[#F8FAFC] dark:bg-[#0F172A] p-4 rounded-2xl border border-[#E5E7EB] dark:border-white/10 text-sm">
                 <div>
                   <span className="text-[#6B7280] dark:text-[#CBD5E1]/70 text-xs block uppercase font-mono font-bold">Tier / Size</span>
@@ -414,7 +401,6 @@ export const FloorPlanView = ({
                 </div>
               </div>
 
-              {/* Occupant / Exhibitor Details if Booked or Reserved */}
               {activeBooth.exhibitor_name || activeBooth.status !== "available" ? (
                 <div className="p-4 bg-[#0F172A] text-white rounded-2xl space-y-3 border border-white/10 font-body">
                   <div className="flex items-center justify-between">
@@ -465,7 +451,6 @@ export const FloorPlanView = ({
                 </div>
               )}
 
-              {/* Inline Quick Message Form */}
               {quickMsgOpen && (
                 <div className="p-4 bg-[#F8FAFC] dark:bg-[#0F172A] border border-[#E5E7EB] dark:border-white/10 rounded-2xl space-y-3 animate-in slide-in-from-top-1">
                   <label className="text-xs font-bold text-[#1F2937] dark:text-[#F8FAFC] block font-heading">
@@ -496,7 +481,6 @@ export const FloorPlanView = ({
                 </div>
               )}
 
-              {/* Role Action Buttons */}
               {isSelectionMode && activeBooth.status === "available" && (
                 <button
                   id="confirm-booth-selection-btn"

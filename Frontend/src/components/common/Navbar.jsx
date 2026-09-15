@@ -65,7 +65,6 @@ export const Navbar = ({
   const notifsRef = useRef(null);
   const userMenuRef = useRef(null);
 
-  // Click-outside listener for popups/dropdowns
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (notifsRef.current && !notifsRef.current.contains(event.target)) {
@@ -86,7 +85,6 @@ export const Navbar = ({
 
   const currentUserId = String(currentUser?._id || currentUser?.user_id || "");
 
-  // Notifications filtering
   const userNotifs = (notifications || []).filter((n) => {
     if (!currentUser) return false;
     const notifUserId = n.user_id ? String(typeof n.user_id === "object" ? n.user_id?._id : n.user_id) : "";
@@ -97,13 +95,11 @@ export const Navbar = ({
   });
   const unreadCount = userNotifs.filter((n) => !n.read).length;
 
-  // Unread Inquiries / Messages Count for Attendee
   const unreadInquiriesCount = (messages || []).filter((m) => {
     const receiverId = String(m.receiver_id?._id || m.receiver_id || "");
     return receiverId === currentUserId && !m.read;
   }).length;
 
-  // Registered passes count for attendee
   const userPassesCount = (registrations || []).filter((r) => {
     const regUserId = String(typeof r.user_id === "object" ? r.user_id?._id : r.user_id || "");
     const regEmail = (r.user_email || r.email || "").toLowerCase();
@@ -111,7 +107,6 @@ export const Navbar = ({
     return (regUserId && regUserId === currentUserId) || (userEmail && regEmail === userEmail);
   }).length;
 
-  // Bookmarked sessions count
   const userBookmarksCount = (!currentUser || !currentUserId) ? 0 : (bookmarks || []).filter((b) => {
     const bUserId = typeof b.user_id === "object" ? b.user_id?._id : b.user_id;
     return String(bUserId) === currentUserId;
@@ -158,9 +153,8 @@ export const Navbar = ({
       <div className={`${isPublicView ? "max-w-7xl mx-auto" : "w-full"} px-4 sm:px-6 lg:px-8`}>
         <div className="flex items-center justify-between h-16 sm:h-20 gap-4">
 
-          {/* LEFT: Brand Logo (Public) OR Portal Sidebar Toggle (Dashboard) */}
           <div className="flex items-center space-x-3 sm:space-x-4 shrink-0">
-            {/* Mobile Sidebar toggle for Organizer/Exhibitor only */}
+
             {!isPublicView && onToggleMobileSidebar && (
               <button
                 id="mobile-sidebar-toggle-btn"
@@ -173,7 +167,6 @@ export const Navbar = ({
               </button>
             )}
 
-            {/* Brand Logo (Public site) */}
             {isPublicView && (
               <button
                 id="brand-logo-btn"
@@ -185,7 +178,6 @@ export const Navbar = ({
             )}
           </div>
 
-          {/* MIDDLE: Desktop Navigation Links (Public site - centered, clean, no line) */}
           {isPublicView && (
             <nav className="hidden md:flex items-center justify-center space-x-1 sm:space-x-2">
               <button
@@ -231,10 +223,8 @@ export const Navbar = ({
             </nav>
           )}
 
-          {/* RIGHT ACTION BAR: Profile Menu, Notifications Bell, Light/Dark Toggle */}
           <div className="flex items-center space-x-1.5 sm:space-x-3 shrink-0">
 
-            {/* Public Guest Auth Buttons vs Logged-In User Profile */}
             {!currentUser ? (
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <button
@@ -262,7 +252,7 @@ export const Navbar = ({
                 </button>
               </div>
             ) : (
-              /* User Profile Menu Dropdown */
+
               <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => setShowUserMenu(!showUserMenu)}
@@ -296,7 +286,7 @@ export const Navbar = ({
 
                 {showUserMenu && (
                   <div className="absolute right-0 top-full mt-2 w-60 bg-white dark:bg-[#1A202C] rounded-2xl shadow-2xl border border-[#E5E7EB] dark:border-white/10 py-2 z-50 animate-in fade-in">
-                    {/* User header info */}
+
                     <div className="px-4 py-2 border-b border-slate-100 dark:border-white/10">
                       <p className="text-xs font-bold text-[#1F2937] dark:text-[#F8FAFC] truncate">
                         {currentUser?.name || "Attendee"}
@@ -309,7 +299,6 @@ export const Navbar = ({
                       </span>
                     </div>
 
-                    {/* Attendee Actions inside dropdown */}
                     {isAttendee && (
                       <div className="py-1 border-b border-slate-100 dark:border-white/10">
                         <button
@@ -377,15 +366,11 @@ export const Navbar = ({
                               <Sparkles className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC]" />
                               <span>AI Booth Matchmaker</span>
                             </div>
-                            <span className="text-[10px] font-mono font-bold bg-[#38B2AC]/20 text-[#38B2AC] px-1.5 py-0.5 rounded">
-                              Gemini
-                            </span>
                           </button>
                         )}
                       </div>
                     )}
 
-                    {/* Common Options */}
                     <div className="py-1">
                       <button
                         onClick={() => {
@@ -399,7 +384,6 @@ export const Navbar = ({
                         <span>My Profile</span>
                       </button>
 
-                      {/* Submit feedback is available for Exhibitor and Attendee, but NOT for Organizer */}
                       {onOpenFeedback && currentRole !== "organizer" && (
                         <button
                           onClick={() => {
@@ -414,7 +398,6 @@ export const Navbar = ({
                       )}
                     </div>
 
-                    {/* Sign Out */}
                     <div className="pt-1 border-t border-slate-100 dark:border-white/10">
                       <button
                         id="logout-btn"
@@ -430,7 +413,6 @@ export const Navbar = ({
               </div>
             )}
 
-            {/* Notifications Bell (Right of profile) */}
             {currentUser && (
               <div className="relative" ref={notifsRef}>
                 <button
@@ -515,7 +497,6 @@ export const Navbar = ({
               </div>
             )}
 
-            {/* Theme Toggle Button (Right of profile & notifs) */}
             <button
               id="navbar-theme-toggle-btn"
               onClick={toggleTheme}
@@ -530,7 +511,6 @@ export const Navbar = ({
               )}
             </button>
 
-            {/* Mobile Menu Toggle Button */}
             {isPublicView && (
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -543,7 +523,6 @@ export const Navbar = ({
           </div>
         </div>
 
-        {/* Mobile Dropdown Menu for Public / Attendee */}
         {isPublicView && mobileMenuOpen && (
           <div className="md:hidden py-3 border-t border-[#E5E7EB] dark:border-white/10 space-y-1 animate-in slide-in-from-top-2 duration-150">
             <button
@@ -551,11 +530,10 @@ export const Navbar = ({
                 setActiveView("landing");
                 setMobileMenuOpen(false);
               }}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                activeView === "landing"
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${activeView === "landing"
                   ? "bg-slate-100 dark:bg-[#203748] text-[#1488A6] dark:text-[#38B2AC]"
                   : "text-[#1F2937] dark:text-[#CBD5E1] hover:bg-slate-50 dark:hover:bg-white/5"
-              }`}
+                }`}
             >
               <Home className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC]" />
               <span>Home</span>
@@ -565,11 +543,10 @@ export const Navbar = ({
                 setActiveView("expos");
                 setMobileMenuOpen(false);
               }}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                activeView === "expos"
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${activeView === "expos"
                   ? "bg-slate-100 dark:bg-[#203748] text-[#1488A6] dark:text-[#38B2AC]"
                   : "text-[#1F2937] dark:text-[#CBD5E1] hover:bg-slate-50 dark:hover:bg-white/5"
-              }`}
+                }`}
             >
               <Calendar className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC]" />
               <span>Expos</span>
@@ -579,11 +556,10 @@ export const Navbar = ({
                 setActiveView("exhibitors");
                 setMobileMenuOpen(false);
               }}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                activeView === "exhibitors"
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${activeView === "exhibitors"
                   ? "bg-slate-100 dark:bg-[#203748] text-[#1488A6] dark:text-[#38B2AC]"
                   : "text-[#1F2937] dark:text-[#CBD5E1] hover:bg-slate-50 dark:hover:bg-white/5"
-              }`}
+                }`}
             >
               <Building2 className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC]" />
               <span>Exhibitors</span>
@@ -593,17 +569,15 @@ export const Navbar = ({
                 setActiveView("sessions");
                 setMobileMenuOpen(false);
               }}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                activeView === "sessions"
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${activeView === "sessions"
                   ? "bg-slate-100 dark:bg-[#203748] text-[#1488A6] dark:text-[#38B2AC]"
                   : "text-[#1F2937] dark:text-[#CBD5E1] hover:bg-slate-50 dark:hover:bg-white/5"
-              }`}
+                }`}
             >
               <Sparkles className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC]" />
               <span>Sessions</span>
             </button>
 
-            {/* Mobile Auth Options for Guest */}
             {!currentUser && (
               <div className="pt-2 mt-2 border-t border-[#E5E7EB] dark:border-white/10 grid grid-cols-2 gap-2">
                 <button

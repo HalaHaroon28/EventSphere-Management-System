@@ -115,7 +115,6 @@ export const AppProvider = ({ children }) => {
     }
   }, [theme]);
 
-  // Sync authenticated user details (including company_profile.logo) from MongoDB on startup
   useEffect(() => {
     const syncUserFromDb = async () => {
       const token = authService.getToken();
@@ -1105,14 +1104,12 @@ export const AppProvider = ({ children }) => {
       return String(bSessId) === String(sessionId) && String(bUserId) === String(currentUserId);
     });
 
-    // Determine target expo ID
     let targetExpoId = expoId;
     if (!targetExpoId) {
       const sessObj = (sessions || []).find((s) => s._id === sessionId || s.id === sessionId);
       targetExpoId = sessObj?.expo_id?._id || sessObj?.expo_id;
     }
 
-    // Check if attendee has an active pass for this expo when adding a new bookmark
     if (!existing) {
       const hasPass = (registrations || []).some((r) => {
         const rExpoId = String(typeof r.expo_id === "object" ? r.expo_id?._id : r.expo_id || "");
@@ -1192,7 +1189,6 @@ export const AppProvider = ({ children }) => {
       console.error("Error toggling bookmark via API:", e);
     }
 
-    // Local fallback
     if (existing) {
       setBookmarks((prev) => {
         const updated = prev.filter((b) => b._id !== existing._id);

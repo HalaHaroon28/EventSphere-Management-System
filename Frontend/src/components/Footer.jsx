@@ -5,7 +5,7 @@ const Footer = ({ onNavigate, onSwitchRole }) => {
     <footer className="bg-[#0F172A] border-t border-white/10 text-[#CBD5E1] text-xs mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         <div className="grid grid-cols-1 md:grid-cols-5 gap-8 lg:gap-12 mb-12">
-          {/* Col 1: Brand & Identity */}
+
           <div className="space-y-4 md:col-span-2">
             <div
               onClick={() => onNavigate && onNavigate("landing")}
@@ -27,7 +27,6 @@ const Footer = ({ onNavigate, onSwitchRole }) => {
             </div>
           </div>
 
-          {/* Col 2: Navigation & Role Portals */}
           <div className="space-y-3">
             <h4 className="font-heading font-bold text-[#F8FAFC] text-xs uppercase tracking-wider">
               Role Portals
@@ -80,7 +79,6 @@ const Footer = ({ onNavigate, onSwitchRole }) => {
             </ul>
           </div>
 
-          {/* Col 3: Platform Capabilities */}
           <div className="space-y-3">
             <h4 className="font-heading font-bold text-[#F8FAFC] text-xs uppercase tracking-wider">
               Architecture
@@ -104,7 +102,6 @@ const Footer = ({ onNavigate, onSwitchRole }) => {
             </ul>
           </div>
 
-          {/* Col 4: Compliance & Operations */}
           <div className="space-y-3">
             <h4 className="font-heading font-bold text-[#F8FAFC] text-xs uppercase tracking-wider">
               Security & SLA
@@ -129,7 +126,6 @@ const Footer = ({ onNavigate, onSwitchRole }) => {
           </div>
         </div>
 
-        {/* Bottom Copyright Bar */}
         <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-[#CBD5E1]/60 text-xs">
           <p>© {new Date().getFullYear()} EventSphere Management Inc. All rights reserved.</p>
           <div className="flex items-center gap-6">

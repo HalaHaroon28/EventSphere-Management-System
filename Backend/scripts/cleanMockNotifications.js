@@ -5,7 +5,6 @@ async function cleanMockNotifications() {
   await mongoose.connect('mongodb://127.0.0.1:27017/eventsphere');
   console.log('Connected to MongoDB');
 
-  // Delete fake / mock notifications
   const res = await Notification.deleteMany({
     $or: [
       { title: { $in: ['Exhibitor Application Received', 'Booth Selection Pending Review', 'New Support Inquiry Logged'] } },

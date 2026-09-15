@@ -1,15 +1,9 @@
 import Notification from '../models/Notification.js';
 
-// GET /api/notifications
-// Fetch all notifications for the authenticated user / role
 export const getUserNotifications = async (req, res) => {
   try {
     const user_id = req.user.user_id || req.user._id;
     const userRole = req.user.role;
-
-    // A user receives:
-    // 1. Direct personal notifications matching their user_id
-    // 2. Broadcast role alerts without a specific user_id
     const query = {
       $or: [
         { user_id: user_id },
@@ -31,8 +25,6 @@ export const getUserNotifications = async (req, res) => {
   }
 };
 
-// PATCH /api/notifications/read-all
-// Mark all notifications as read for the authenticated user / role
 export const markAllAsRead = async (req, res) => {
   try {
     const user_id = req.user.user_id || req.user._id;
@@ -54,8 +46,6 @@ export const markAllAsRead = async (req, res) => {
   }
 };
 
-// PATCH /api/notifications/:id/read
-// Mark a specific notification as read
 export const markAsRead = async (req, res) => {
   try {
     const { id } = req.params;
@@ -84,8 +74,6 @@ export const markAsRead = async (req, res) => {
   }
 };
 
-// DELETE /api/notifications/:id
-// Delete a specific notification
 export const deleteNotification = async (req, res) => {
   try {
     const { id } = req.params;
@@ -113,8 +101,6 @@ export const deleteNotification = async (req, res) => {
   }
 };
 
-// POST /api/notifications
-// Create a new notification
 export const createNotification = async (req, res) => {
   try {
     const { user_id, target_role, title, type, message } = req.body;

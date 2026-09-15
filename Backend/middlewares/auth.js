@@ -51,7 +51,7 @@ export const optionalAuth = async (req, res, next) => {
         };
       }
     } catch (error) {
-      // Gracefully continue without user if token is invalid
+
     }
   }
 

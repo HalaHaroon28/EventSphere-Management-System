@@ -1,8 +1,5 @@
 import User from '../models/User.js';
 
-// @desc    4.5 Update Company Profile
-// @route   PATCH /api/profile/company
-// @access  Private (Exhibitor only)
 export const updateCompanyProfile = async (req, res) => {
   try {
     const userId = req.user.user_id || req.user._id;
@@ -17,7 +14,6 @@ export const updateCompanyProfile = async (req, res) => {
       user.company_profile = {};
     }
 
-    // Update company_profile subdocument only (does NOT modify name, email, phone, profile_photo_url)
     if (company_name !== undefined) user.company_profile.company_name = company_name;
     if (description !== undefined) user.company_profile.description = description;
     if (website !== undefined) user.company_profile.website = website;
@@ -25,7 +21,6 @@ export const updateCompanyProfile = async (req, res) => {
     if (contact_phone !== undefined) user.company_profile.contact_phone = contact_phone;
     if (address !== undefined) user.company_profile.address = address;
 
-    // Handle logo file upload if attached via Multer
     if (req.file) {
       user.company_profile.logo = `uploads/companylogos/${req.file.filename}`;
     } else if (req.body.logo) {

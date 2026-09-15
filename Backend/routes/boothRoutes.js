@@ -3,7 +3,7 @@ import {
   addBooth,
   listBoothsForExpo,
   updateBooth,
-  reserveBooth, 
+  reserveBooth,
   updateMyBoothDetails,
   uploadBoothProductImage
 } from '../controllers/boothController.js';
@@ -20,10 +20,8 @@ router.post('/upload-product-image', protect, roleCheck('exhibitor'), handleBoot
 
 router.patch('/booths/:id', protect, updateBooth);
 
-// 4.3 Reserve booth
 router.patch('/:id/reserve', protect, roleCheck('exhibitor'), reserveBooth);
 
-// 4.4 Update booth details
 router.patch('/:id/details', protect, roleCheck('exhibitor'), updateMyBoothDetails);
 router.patch('/booths/:id/details', protect, roleCheck('exhibitor'), updateMyBoothDetails);
 

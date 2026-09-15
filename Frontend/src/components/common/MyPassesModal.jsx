@@ -39,7 +39,7 @@ export const MyPassesModal = ({ isOpen, onClose, onSelectExpo, onOpenGetPass }) 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/80 backdrop-blur-xs animate-in fade-in duration-200 font-body">
       <div className="bg-white dark:bg-[#1A202C] rounded-3xl shadow-2xl border border-[#E5E7EB] dark:border-white/10 max-w-2xl w-full flex flex-col max-h-[90vh] overflow-hidden">
-        {/* Modal Header */}
+
         <div className="bg-gradient-to-r from-slate-900 via-[#1488A6] to-slate-900 text-white p-5 sm:p-6 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/20">
@@ -65,7 +65,6 @@ export const MyPassesModal = ({ isOpen, onClose, onSelectExpo, onOpenGetPass }) 
           </button>
         </div>
 
-        {/* Modal Body */}
         <div className="p-5 sm:p-6 overflow-y-auto space-y-4 flex-1">
           {userRegistrations.length === 0 ? (
             <div className="py-12 px-4 text-center space-y-4">
@@ -138,14 +137,6 @@ export const MyPassesModal = ({ isOpen, onClose, onSelectExpo, onOpenGetPass }) 
 
                     <div className="flex items-center gap-2 w-full sm:w-auto shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-200 dark:border-white/10">
                       <button
-                        onClick={() => handleViewPass(reg)}
-                        className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl btn-teal-primary text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
-                        title="Display Turnstile QR Code"
-                      >
-                        <QrCode className="w-4 h-4" />
-                        <span>View QR Badge</span>
-                      </button>
-                      <button
                         onClick={() => handleDownload(reg, expo)}
                         className="p-2 rounded-xl bg-white dark:bg-[#1A202C] hover:bg-slate-100 dark:hover:bg-[#203748] text-[#6B7280] dark:text-[#CBD5E1] border border-[#E5E7EB] dark:border-white/10 transition-colors cursor-pointer"
                         title="Download Pass Image (PNG)"
@@ -161,7 +152,6 @@ export const MyPassesModal = ({ isOpen, onClose, onSelectExpo, onOpenGetPass }) 
           )}
         </div>
 
-        {/* Modal Footer */}
         <div className="p-4 bg-slate-50 dark:bg-[#0F172A]/50 border-t border-[#E5E7EB] dark:border-white/10 flex items-center justify-between text-xs text-[#6B7280] dark:text-[#CBD5E1]/60">
           <div className="flex items-center gap-1.5 font-mono text-[11px]">
             <Sparkles className="w-3.5 h-3.5 text-[#38B2AC]" />

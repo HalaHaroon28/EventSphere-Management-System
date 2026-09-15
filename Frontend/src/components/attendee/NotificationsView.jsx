@@ -28,7 +28,7 @@ export const NotificationsView = () => {
 
   return (
     <div id="notifications-view" className="space-y-6 font-body">
-      {/* Header */}
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight font-heading flex items-center gap-2">
@@ -50,7 +50,6 @@ export const NotificationsView = () => {
         )}
       </div>
 
-      {/* Notifications List */}
       <div className="space-y-3">
         {myNotifs.length === 0 ? (
           <div className="py-16 bg-white dark:bg-[#1A202C] rounded-2xl border border-[#E5E7EB] dark:border-white/10 text-center space-y-2">

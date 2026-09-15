@@ -15,7 +15,6 @@ import {
   ChevronRight
 } from "lucide-react";
 
-// Formats message content with markdown-like parsing (bold, italic, bullets, numbered lists, inline code)
 const FormattedMessage = ({ content }) => {
   if (!content) return null;
 
@@ -34,9 +33,8 @@ const FormattedMessage = ({ content }) => {
           text = text.replace(/^\d+\.\s+/, "");
         }
 
-        // Tokenize formatting: bold (**), italic (*), code (`)
         const tokens = [];
-        // Regex matches: `code`, **bold**, *italic*
+
         const tokenRegex = /(`[^`]+`|\*\*[^*]+\*\*|\*[^*]+\*)/g;
         let lastIndex = 0;
         let match;

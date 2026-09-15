@@ -14,7 +14,6 @@ export const ProfileView = ({ isModal = false, onClose }) => {
   const [companyName, setCompanyName] = useState(currentUser.company_name || "");
   const [uploading, setUploading] = useState(false);
 
-  // Password fields
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -83,7 +82,7 @@ export const ProfileView = ({ isModal = false, onClose }) => {
 
   return (
     <div id="user-profile-view" className={`space-y-5 ${isModal ? "w-full" : "max-w-4xl mx-auto"} font-body`}>
-      {/* Top Banner (Shown only on standalone page) */}
+
       {!isModal && (
         <div className="bg-white dark:bg-[#1A202C] p-6 rounded-2xl border border-[#E5E7EB] dark:border-white/10 shadow-xs space-y-2">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -103,14 +102,13 @@ export const ProfileView = ({ isModal = false, onClose }) => {
         </div>
       )}
 
-      {/* Main Details Form */}
       <div className="bg-white dark:bg-[#1A202C] p-6 rounded-2xl border border-[#E5E7EB] dark:border-white/10 shadow-xs space-y-6">
         <h3 className="text-base sm:text-lg font-bold text-[#1F2937] dark:text-[#F8FAFC] font-heading border-b border-[#E5E7EB] dark:border-white/10 pb-3 flex items-center gap-2">
           <User className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC]" /> Personal Information
         </h3>
 
         <form onSubmit={handleSaveDetails} className="space-y-6">
-          {/* Avatar / Profile Photo Upload */}
+
           <div>
             <label className="text-xs font-bold text-[#1F2937] dark:text-[#F8FAFC] block mb-2">
               Profile Photo
@@ -210,7 +208,6 @@ export const ProfileView = ({ isModal = false, onClose }) => {
         </form>
       </div>
 
-      {/* Change Password Section */}
       <div className="bg-white dark:bg-[#1A202C] p-6 rounded-2xl border border-[#E5E7EB] dark:border-white/10 shadow-xs space-y-5">
         <h3 className="text-base sm:text-lg font-bold text-[#1F2937] dark:text-[#F8FAFC] font-heading border-b border-[#E5E7EB] dark:border-white/10 pb-3 flex items-center gap-2">
           <Lock className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC]" /> Change Password

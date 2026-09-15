@@ -46,7 +46,6 @@ export const AIMatchmakerModal = ({
     }
   }, [initialQuery]);
 
-  // Loading step ticker for smooth synthesis UX
   useEffect(() => {
     let interval;
     if (isLoading) {
@@ -60,7 +59,6 @@ export const AIMatchmakerModal = ({
 
   if (!isOpen) return null;
 
-  // Helper function to strictly filter out mock test exhibitors
   const isTestExhibitor = (exhId, companyName, description) => {
     if (!exhId) return true;
     const strId = String(exhId).toLowerCase();
@@ -90,16 +88,13 @@ export const AIMatchmakerModal = ({
     return false;
   };
 
-  // Build live active exhibitor catalog strictly from database
   const buildCatalog = () => {
     const catalog = [];
     const seenBooths = new Set();
 
-    // 1. Process real occupied booths from database
     (booths || []).forEach((b) => {
       const bExpoId = typeof b.expo_id === "object" ? b.expo_id?._id : b.expo_id;
 
-      // Filter by expo if selected
       if (selectedExpo !== "all" && String(bExpoId) !== String(selectedExpo)) {
         return;
       }
@@ -128,7 +123,6 @@ export const AIMatchmakerModal = ({
       if (seenBooths.has(num)) return;
       seenBooths.add(num);
 
-      // Extract real products from MongoDB
       const productNames = [];
       if (bDetails.products && Array.isArray(bDetails.products)) {
         bDetails.products.forEach((p) => {
@@ -136,7 +130,6 @@ export const AIMatchmakerModal = ({
         });
       }
 
-      // Hall calculation
       const hallLetter = num.charAt(0).toUpperCase();
       let hallName = b.hall || `Hall ${hallLetter}`;
       if (!b.hall) {
@@ -145,7 +138,6 @@ export const AIMatchmakerModal = ({
         else if (hallLetter === "C") hallName = "Hall C (Innovation & Startups)";
       }
 
-      // Resolve parent expo title
       const expoObj = expos.find((e) => String(e._id) === String(bExpoId) || String(e.id) === String(bExpoId));
       const expoTitle = expoObj?.title || b.expo_id?.title || (expos.length > 0 ? expos[0]?.title : "EventSphere Tech Summit");
 
@@ -163,7 +155,6 @@ export const AIMatchmakerModal = ({
       });
     });
 
-    // 2. Process real approved exhibitor applications from MongoDB
     (applications || []).forEach((app) => {
       if (app.status === "approved") {
         const exhId = app.exhibitor_id?._id || app.exhibitor_id;
@@ -255,7 +246,6 @@ export const AIMatchmakerModal = ({
 
       const data = await response.json();
       if (data.success && Array.isArray(data.recommendations)) {
-        // Correlate recommendations strictly with database catalog entities
         const enriched = data.recommendations.map((rec) => {
           const matchInCatalog = catalog.find(
             (c) =>
@@ -320,7 +310,6 @@ export const AIMatchmakerModal = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/80 backdrop-blur-xs animate-in fade-in duration-200 font-body">
       <div className="relative w-full max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-[#1A202C] rounded-3xl border border-[#E5E7EB] dark:border-white/10 shadow-2xl overflow-hidden text-[#1F2937] dark:text-[#F8FAFC]">
 
-        {/* Executive Modal Header */}
         <div className="bg-gradient-to-r from-slate-900 via-[#1488A6] to-slate-900 text-white p-5 sm:p-6 flex items-center justify-between shrink-0 relative">
           <div className="flex items-center gap-3">
             <div className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-[#38B2AC] flex items-center justify-center shrink-0">
@@ -350,14 +339,11 @@ export const AIMatchmakerModal = ({
           </button>
         </div>
 
-        {/* Modal Body */}
         <div className="flex-1 overflow-y-auto p-5 sm:p-7 space-y-5">
 
-          {/* Search Controls Bar */}
           <div className="p-4 sm:p-5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 space-y-3.5">
             <div className="flex flex-col sm:flex-row gap-3">
 
-              {/* Target Expo Selector */}
               <div className="sm:w-1/3">
                 <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1.5 uppercase tracking-wider">
                   Summit / Expo
@@ -379,7 +365,6 @@ export const AIMatchmakerModal = ({
                 </div>
               </div>
 
-              {/* Inquiry Input */}
               <div className="sm:w-2/3">
                 <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1.5 uppercase tracking-wider">
                   What are you looking for?
@@ -412,7 +397,6 @@ export const AIMatchmakerModal = ({
 
             </div>
 
-            {/* Clean Suggested Inquiries */}
             <div className="flex flex-wrap items-center gap-2 pt-1">
               <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
                 Suggested:
@@ -431,7 +415,6 @@ export const AIMatchmakerModal = ({
 
           </div>
 
-          {/* Loading State */}
           {isLoading && (
             <div className="py-12 px-6 rounded-xl bg-slate-900 text-white border border-slate-800 flex flex-col items-center justify-center text-center space-y-3">
               <RefreshCw className="w-7 h-7 text-teal-400 animate-spin" />
@@ -448,7 +431,6 @@ export const AIMatchmakerModal = ({
             </div>
           )}
 
-          {/* Error Banner */}
           {error && !isLoading && (
             <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-rose-700 dark:text-rose-300 text-xs sm:text-sm flex items-center justify-between gap-3">
               <p>{error}</p>
@@ -461,11 +443,9 @@ export const AIMatchmakerModal = ({
             </div>
           )}
 
-          {/* Match Results */}
           {results && !isLoading && (
             <div className="space-y-4 animate-fadeIn">
 
-              {/* Executive Summary Bar */}
               <div className="p-3.5 rounded-lg bg-teal-50 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-900/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
                 <div className="flex items-center gap-2 text-teal-900 dark:text-teal-200 font-medium">
                   <CheckCircle2 className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" />
@@ -476,7 +456,6 @@ export const AIMatchmakerModal = ({
                 </span>
               </div>
 
-              {/* Cards List */}
               {results.recommendations.length === 0 ? (
                 <div className="py-12 px-6 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 text-center space-y-2">
                   <Building2 className="w-8 h-8 mx-auto text-slate-400" />
@@ -498,35 +477,31 @@ export const AIMatchmakerModal = ({
                         key={index}
                         className="p-5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:border-teal-500/40 dark:hover:border-teal-500/40 transition-all space-y-4"
                       >
-                        {/* Card Header: Rank, Expo Name, Location, Score */}
+
                         <div className="flex flex-wrap items-center justify-between gap-2.5 pb-3 border-b border-slate-100 dark:border-slate-800">
 
                           <div className="flex flex-wrap items-center gap-2">
-                            {/* Match Rank */}
+
                             <span className="px-2.5 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800">
                               {rankBadgeLabel}
                             </span>
 
-                            {/* Expo Name Badge (Prominently Highlighted) */}
                             <span className="px-2.5 py-0.5 rounded text-[11px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 flex items-center gap-1.5">
                               <Calendar className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
                               <span className="text-slate-500 dark:text-slate-400 font-semibold">Expo:</span>
                               <strong className="font-semibold text-slate-900 dark:text-white">{rec.expo_title}</strong>
                             </span>
 
-                            {/* Booth & Hall Badge */}
                             <span className="px-2.5 py-0.5 rounded text-[11px] font-mono font-semibold bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700">
                               Booth {rec.booth_number} • {rec.hall || "Main Floor"}
                             </span>
                           </div>
 
-                          {/* Relevance Percentage */}
                           <span className="text-xs font-mono font-bold text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/60 px-2.5 py-1 rounded border border-teal-200 dark:border-teal-800">
                             {score}% Match
                           </span>
                         </div>
 
-                        {/* Company & Category */}
                         <div className="space-y-3">
                           <div>
                             <h4 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight">
@@ -539,13 +514,11 @@ export const AIMatchmakerModal = ({
                             )}
                           </div>
 
-                          {/* Why Visit Rationale */}
                           <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-800/60 border-l-4 border-l-teal-600 dark:border-l-teal-400 border-y border-r border-slate-200 dark:border-slate-800 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
                             <span className="font-bold text-teal-800 dark:text-teal-300">Why Visit: </span>
                             {rec.why_visit}
                           </div>
 
-                          {/* Key Products / Technologies */}
                           {rec.key_highlights && rec.key_highlights.length > 0 && (
                             <div className="space-y-1.5 pt-1">
                               <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
@@ -564,7 +537,6 @@ export const AIMatchmakerModal = ({
                             </div>
                           )}
 
-                          {/* Suggested Discussion Topic */}
                           {rec.suggested_questions && rec.suggested_questions.length > 0 && (
                             <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/60 text-xs text-slate-600 dark:text-slate-400 flex items-start gap-2">
                               <HelpCircle className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0 mt-0.5" />
@@ -576,7 +548,6 @@ export const AIMatchmakerModal = ({
                           )}
                         </div>
 
-                        {/* Action Buttons */}
                         <div className="flex flex-wrap items-center justify-end gap-2.5 pt-2 border-t border-slate-100 dark:border-slate-800">
                           <button
                             onClick={() => handleMessage(rec)}
@@ -605,7 +576,6 @@ export const AIMatchmakerModal = ({
             </div>
           )}
 
-          {/* Initial Explainer when no search performed yet */}
           {!results && !isLoading && (
             <div className="py-10 px-4 text-center rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 space-y-2">
               <Building2 className="w-8 h-8 text-slate-400 mx-auto" />
@@ -620,7 +590,6 @@ export const AIMatchmakerModal = ({
 
         </div>
 
-        {/* Modal Footer */}
         <div className="px-6 py-3.5 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 shrink-0">
           <span className="font-mono text-[11px]">EventSphere Intelligence Engine</span>
           <button

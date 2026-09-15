@@ -50,14 +50,12 @@ const AnalyticsReports = () => {
   const [loading, setLoading] = useState(false);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
-  // Sync selectedExpoId if expos load
   useEffect(() => {
     if (expos.length > 0 && (!selectedExpoId || !expos.some((e) => e._id === selectedExpoId))) {
       setSelectedExpoId(expos[0]._id);
     }
   }, [expos, selectedExpoId]);
 
-  // Fetch Expo Analytics from MongoDB API on expo change
   const loadAnalytics = async (expoId) => {
     if (!expoId) return;
     setLoading(true);
@@ -101,7 +99,6 @@ const AnalyticsReports = () => {
     }
   };
 
-  // 1. Booth Traffic & Utilization Data
   const expoBooths = booths.filter(
     (b) => String(b.expo_id?._id || b.expo_id) === String(selectedExpoId)
   );
@@ -120,16 +117,14 @@ const AnalyticsReports = () => {
 
   const floorOccupancy = Math.round((bookedCount / (totalBooths || 1)) * 100);
 
-  // Revenue calculation
   const bookedBoothsList = expoBooths.filter((b) => b.status === "booked");
   const totalBoothRevenue = bookedBoothsList.reduce((sum, b) => sum + (b.price || 0), 0);
   const expoRegistrations = registrations.filter(
     (r) => String(r.expo_id?._id || r.expo_id) === String(selectedExpoId)
   );
-  const totalPassRevenue = 0; // Passes are free entry
+  const totalPassRevenue = 0;
   const aggregateRevenue = totalBoothRevenue + totalPassRevenue;
 
-  // 2. Attendee Engagement Metrics
   const apiEngagement = analyticsData?.attendee_engagement || {};
   const totalExpoRegs = apiEngagement.total_expo_registrations !== undefined
     ? apiEngagement.total_expo_registrations
@@ -141,7 +136,6 @@ const AnalyticsReports = () => {
     ? apiEngagement.total_combined_registrations
     : totalExpoRegs + totalSessionRegs;
 
-  // 3. Session Popularity Metrics
   const apiSessions = analyticsData?.session_popularity || [];
   const expoSessions = sessions.filter(
     (s) => String(s.expo_id?._id || s.expo_id) === String(selectedExpoId)
@@ -167,14 +161,12 @@ const AnalyticsReports = () => {
       };
     });
 
-  // 4. Booth Status Pie Data
   const boothStatusData = [
     { name: "Booked", value: bookedCount, color: "#1488A6" },
     { name: "Available", value: availableCount, color: "#10b981" },
     { name: "Reserved", value: reservedCount, color: "#38B2AC" }
   ];
 
-  // Hall Occupancy Data
   const hallMap = {};
   expoBooths.forEach((b) => {
     const hallName = b.hall || "Main Hall";
@@ -192,7 +184,6 @@ const AnalyticsReports = () => {
     ? Object.values(hallMap)
     : [{ hall: "Main Hall", booked: bookedCount, available: availableCount }];
 
-  // Engagement Velocity Timeline Data
   const registrationTimelineData = [
     { day: "Phase 1", attendees: Math.round(totalExpoRegs * 0.2), sessionSaves: Math.round(combinedEngagement * 0.15) },
     { day: "Phase 2", attendees: Math.round(totalExpoRegs * 0.45), sessionSaves: Math.round(combinedEngagement * 0.4) },
@@ -202,11 +193,11 @@ const AnalyticsReports = () => {
 
   return (
     <div id="analytics-reports-view" className="space-y-6 font-body">
-      {/* Top Header & Expo Selector */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
+
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div className="min-w-0">
           <div className="flex items-center gap-2.5">
-            <h2 className="text-xl sm:text-2xl font-bold text-[#1F2937] dark:text-[#F8FAFC] font-heading tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-bold text-[#1F2937] dark:text-[#F8FAFC] font-heading tracking-tight whitespace-nowrap">
               Analytics & Real-Time Performance
             </h2>
           </div>
@@ -215,14 +206,13 @@ const AnalyticsReports = () => {
           </p>
         </div>
 
-        {/* Controls: Expo Dropdown & Download PDF Report */}
-        <div className="flex items-center gap-2.5">
-          <div className="relative">
-            <Calendar className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#1488A6] dark:text-[#38B2AC]" />
+        <div className="flex items-center gap-3 shrink-0 flex-nowrap">
+          <div className="relative w-56 sm:w-64 md:w-72 shrink-0">
+            <Calendar className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#1488A6] dark:text-[#38B2AC] pointer-events-none z-10" />
             <select
               value={selectedExpoId}
               onChange={(e) => setSelectedExpoId(e.target.value)}
-              className="pl-9 pr-8 py-2 text-xs sm:text-sm bg-white dark:bg-[#1A202C] border border-[#E5E7EB] dark:border-white/10 rounded-xl text-[#1F2937] dark:text-[#F8FAFC] font-bold focus:outline-none focus:ring-2 focus:ring-[#38B2AC] shadow-xs cursor-pointer"
+              className="w-full pl-9 pr-8 py-2 text-xs sm:text-sm bg-white dark:bg-[#1A202C] border border-[#E5E7EB] dark:border-white/10 rounded-xl text-[#1F2937] dark:text-[#F8FAFC] font-bold focus:outline-none focus:ring-2 focus:ring-[#38B2AC] shadow-xs cursor-pointer truncate"
             >
               {expos.map((expo) => (
                 <option key={expo._id} value={expo._id}>
@@ -235,7 +225,7 @@ const AnalyticsReports = () => {
           <button
             onClick={handleDownloadPdfReport}
             disabled={isGeneratingPdf || !selectedExpo}
-            className="py-2 px-3.5 btn-teal-primary rounded-xl text-xs font-bold text-white flex items-center gap-2 cursor-pointer transition-all shadow-md hover:shadow-lg disabled:opacity-50"
+            className="py-2 px-3.5 sm:px-4 btn-teal-primary rounded-xl text-xs sm:text-sm font-bold text-white flex items-center gap-2 cursor-pointer transition-all shadow-md hover:shadow-lg disabled:opacity-50 whitespace-nowrap shrink-0"
             title="Download executive analytics PDF report"
           >
             <Download className={`w-4 h-4 ${isGeneratingPdf ? "animate-bounce" : ""}`} />
@@ -244,7 +234,6 @@ const AnalyticsReports = () => {
         </div>
       </div>
 
-      {/* Real-time Status Indicator Banner */}
       <div className="bg-slate-50 dark:bg-[#1A202C] p-4 rounded-2xl border border-[#E5E7EB] dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
         <div className="flex items-center gap-2.5 text-[#1F2937] dark:text-[#F8FAFC]">
           <Activity className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC] animate-pulse" />
@@ -261,7 +250,6 @@ const AnalyticsReports = () => {
         </div>
       </div>
 
-      {/* KPI Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
           id="metric-analytics-revenue"
@@ -324,9 +312,8 @@ const AnalyticsReports = () => {
         />
       </div>
 
-      {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Chart 1: Attendee Engagement Velocity */}
+
         <div className="bg-white dark:bg-[#1A202C] p-5 sm:p-6 rounded-2xl border border-[#E5E7EB] dark:border-white/10 shadow-xs space-y-4">
           <div className="flex items-center justify-between">
             <div>
@@ -372,7 +359,6 @@ const AnalyticsReports = () => {
           </div>
         </div>
 
-        {/* Chart 2: Session Popularity Breakdown */}
         <div className="bg-white dark:bg-[#1A202C] p-5 sm:p-6 rounded-2xl border border-[#E5E7EB] dark:border-white/10 shadow-xs space-y-4">
           <div>
             <h3 className="text-sm font-bold text-[#1F2937] dark:text-[#F8FAFC] font-heading flex items-center gap-2">
@@ -410,7 +396,6 @@ const AnalyticsReports = () => {
           </div>
         </div>
 
-        {/* Chart 3: Booth Traffic & Occupancy Breakdown */}
         <div className="bg-white dark:bg-[#1A202C] p-5 sm:p-6 rounded-2xl border border-[#E5E7EB] dark:border-white/10 shadow-xs space-y-4">
           <div>
             <h3 className="text-sm font-bold text-[#1F2937] dark:text-[#F8FAFC] font-heading flex items-center gap-2">
@@ -450,7 +435,6 @@ const AnalyticsReports = () => {
           </div>
         </div>
 
-        {/* Chart 4: Exhibition Hall Booth Allocation */}
         <div className="bg-white dark:bg-[#1A202C] p-5 sm:p-6 rounded-2xl border border-[#E5E7EB] dark:border-white/10 shadow-xs space-y-4">
           <div>
             <h3 className="text-sm font-bold text-[#1F2937] dark:text-[#F8FAFC] font-heading flex items-center gap-2">
@@ -483,7 +467,6 @@ const AnalyticsReports = () => {
         </div>
       </div>
 
-      {/* Session Popularity Detail Table */}
       {sessionPopularityData.length > 0 && (
         <div className="bg-white dark:bg-[#1A202C] p-6 rounded-2xl border border-[#E5E7EB] dark:border-white/10 shadow-xs space-y-4">
           <h3 className="text-base font-bold text-[#1F2937] dark:text-[#F8FAFC] font-heading flex items-center gap-2">

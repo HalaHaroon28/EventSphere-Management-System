@@ -97,7 +97,7 @@ export const LoginPage = ({ initialRole = "organizer" }) => {
 
   return (
     <div id="login-page-root" className="min-h-[calc(100vh-140px)] flex flex-col justify-center py-4 sm:py-8 md:py-12 px-3 sm:px-6 font-body">
-      {/* Back button */}
+
       <div className="max-w-5xl w-full mx-auto mb-4 sm:mb-6">
         <button
           onClick={() => setActiveView("landing")}
@@ -110,10 +110,10 @@ export const LoginPage = ({ initialRole = "organizer" }) => {
 
       <div className="max-w-5xl w-full mx-auto">
         <div className="bg-white dark:bg-[#1A202C] rounded-2xl sm:rounded-3xl border border-[#E5E7EB] dark:border-white/10 shadow-xl overflow-hidden grid grid-cols-1 lg:grid-cols-12">
-          {/* Left / Top Form Area */}
+
           <div className="lg:col-span-7 p-5 sm:p-8 md:p-10 lg:p-12 flex flex-col justify-between space-y-6 sm:space-y-8">
             <div className="space-y-5 sm:space-y-6">
-              {/* Header */}
+
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
@@ -131,7 +131,6 @@ export const LoginPage = ({ initialRole = "organizer" }) => {
                 </p>
               </div>
 
-              {/* Login Form */}
               <form onSubmit={handleLogin} className="space-y-4">
                 <div>
                   <label className="block text-xs font-bold text-[#1F2937] dark:text-[#CBD5E1] uppercase tracking-wider font-mono mb-1.5">
@@ -217,7 +216,6 @@ export const LoginPage = ({ initialRole = "organizer" }) => {
 
             </div>
 
-            {/* Switch to Register & Verify Email Link */}
             <div className="pt-4 sm:pt-6 border-t border-[#E5E7EB] dark:border-white/10 space-y-2 text-center text-xs sm:text-sm text-[#6B7280] dark:text-[#CBD5E1]/70">
               <div>
                 <span>Don't have an account yet? </span>

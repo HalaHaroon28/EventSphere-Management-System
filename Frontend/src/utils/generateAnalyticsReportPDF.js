@@ -12,15 +12,14 @@ export const generateAnalyticsReportPDF = ({
   const doc = new jsPDF({
     orientation: "portrait",
     unit: "mm",
-    format: "a4" // 210mm x 297mm
+    format: "a4"
   });
 
   const pageWidth = 210;
   const pageHeight = 297;
   const margin = 14;
-  const contentWidth = pageWidth - margin * 2; // 182mm
+  const contentWidth = pageWidth - margin * 2;
 
-  // Data calculations
   const expoId = expo?._id || expo?.id || "";
   const expoTitle = expo?.title || "Executive Exhibition & Summit";
   const expoCategory = expo?.category || "Technology & Trade";
@@ -30,7 +29,6 @@ export const generateAnalyticsReportPDF = ({
     : "Active Season 2026";
   const organizerName = currentUser?.name || "Event Organizer";
 
-  // Filter booths
   const expoBooths = booths.filter(
     (b) => String(b.expo_id?._id || b.expo_id) === String(expoId)
   );
@@ -48,13 +46,11 @@ export const generateAnalyticsReportPDF = ({
 
   const floorOccupancy = Math.round((bookedCount / (totalBooths || 1)) * 100);
 
-  // Revenue
   const bookedBoothsList = expoBooths.filter((b) => b.status === "booked");
   const totalBoothRevenue = bookedBoothsList.reduce((sum, b) => sum + (b.price || 0), 0);
-  const totalPassRevenue = 0; // Free pass model
+  const totalPassRevenue = 0;
   const aggregateRevenue = totalBoothRevenue + totalPassRevenue;
 
-  // Registrations & Attendees
   const expoRegistrations = registrations.filter(
     (r) => String(r.expo_id?._id || r.expo_id) === String(expoId)
   );
@@ -69,7 +65,6 @@ export const generateAnalyticsReportPDF = ({
     ? apiEngagement.total_combined_registrations
     : totalExpoRegs + totalSessionRegs;
 
-  // Sessions
   const expoSessions = sessions.filter(
     (s) => String(s.expo_id?._id || s.expo_id) === String(expoId)
   );
@@ -88,7 +83,6 @@ export const generateAnalyticsReportPDF = ({
         };
       });
 
-  // Hall Map
   const hallMap = {};
   expoBooths.forEach((b) => {
     const hallName = b.hall || "Main Hall";
@@ -104,17 +98,12 @@ export const generateAnalyticsReportPDF = ({
     }
   });
 
-  // ==================== PDF PAGE 1 RENDERING ====================
-
-  // 1. Header Banner Box (#0F172A Dark Navy)
   doc.setFillColor(15, 23, 42);
   doc.rect(0, 0, pageWidth, 42, "F");
 
-  // Glowing Teal Top Stripe (#38B2AC)
   doc.setFillColor(56, 178, 172);
   doc.rect(0, 0, pageWidth, 3.5, "F");
 
-  // Logo & System Title
   doc.setTextColor(255, 255, 255);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(16);
@@ -124,13 +113,12 @@ export const generateAnalyticsReportPDF = ({
   doc.setFontSize(16);
   doc.text(".", margin + 44, 17);
 
-  doc.setTextColor(148, 163, 184); // Slate 400
+  doc.setTextColor(148, 163, 184);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
   doc.text("ENTERPRISE EXPO OPERATING SYSTEM  |  EXECUTIVE INTELLIGENCE AUDIT", margin, 24);
 
-  // Right Header Meta Badge
-  doc.setFillColor(30, 41, 59); // Slate 800
+  doc.setFillColor(30, 41, 59);
   doc.roundedRect(pageWidth - margin - 62, 10, 62, 24, 2, 2, "F");
 
   doc.setTextColor(56, 178, 172);
@@ -156,13 +144,11 @@ export const generateAnalyticsReportPDF = ({
 
   let currentY = 50;
 
-  // 2. Executive Expo Focus Banner
-  doc.setFillColor(248, 250, 252); // Slate 50
-  doc.setDrawColor(226, 232, 240); // Slate 200
+  doc.setFillColor(248, 250, 252);
+  doc.setDrawColor(226, 232, 240);
   doc.roundedRect(margin, currentY, contentWidth, 26, 2, 2, "FD");
 
-  // Left category accent bar
-  doc.setFillColor(20, 136, 166); // #1488A6
+  doc.setFillColor(20, 136, 166);
   doc.rect(margin, currentY, 2.5, 26, "F");
 
   doc.setTextColor(15, 23, 42);
@@ -178,7 +164,6 @@ export const generateAnalyticsReportPDF = ({
 
   currentY += 33;
 
-  // 3. Section Title: Executive KPI Scorecard
   doc.setTextColor(15, 23, 42);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(11);
@@ -186,8 +171,7 @@ export const generateAnalyticsReportPDF = ({
 
   currentY += 5;
 
-  // 4 KPI Cards (2x2 Grid)
-  const cardW = (contentWidth - 6) / 2; // ~88mm each
+  const cardW = (contentWidth - 6) / 2;
   const cardH = 24;
 
   const renderKpiCard = (x, y, title, value, subtext, accentR, accentG, accentB) => {
@@ -195,30 +179,25 @@ export const generateAnalyticsReportPDF = ({
     doc.setDrawColor(226, 232, 240);
     doc.roundedRect(x, y, cardW, cardH, 2, 2, "FD");
 
-    // Top subtle color line
     doc.setFillColor(accentR, accentG, accentB);
     doc.rect(x, y, cardW, 1.5, "F");
 
-    // Title
     doc.setTextColor(100, 116, 139);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(7.5);
     doc.text(title.toUpperCase(), x + 6, y + 7);
 
-    // Value
     doc.setTextColor(15, 23, 42);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
     doc.text(String(value), x + 6, y + 14.5);
 
-    // Subtext
     doc.setTextColor(100, 116, 139);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(6.5);
     doc.text(subtext, x + 6, y + 20);
   };
 
-  // Card 1: Revenue
   renderKpiCard(
     margin,
     currentY,
@@ -228,7 +207,6 @@ export const generateAnalyticsReportPDF = ({
     16, 185, 129
   );
 
-  // Card 2: Attendee Engagement
   renderKpiCard(
     margin + cardW + 6,
     currentY,
@@ -240,7 +218,6 @@ export const generateAnalyticsReportPDF = ({
 
   currentY += cardH + 5;
 
-  // Card 3: Booth Floor Occupancy
   renderKpiCard(
     margin,
     currentY,
@@ -250,7 +227,6 @@ export const generateAnalyticsReportPDF = ({
     56, 178, 172
   );
 
-  // Card 4: Keynote & Session Demand
   renderKpiCard(
     margin + cardW + 6,
     currentY,
@@ -262,7 +238,6 @@ export const generateAnalyticsReportPDF = ({
 
   currentY += cardH + 10;
 
-  // 4. Section Title: Spatial Floor & Hall Utilization Breakdown
   doc.setTextColor(15, 23, 42);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(11);
@@ -270,9 +245,8 @@ export const generateAnalyticsReportPDF = ({
 
   currentY += 5;
 
-  // Table Header
   const tableX = margin;
-  const colWidths = [45, 32, 32, 35, 38]; // total = 182mm
+  const colWidths = [45, 32, 32, 35, 38];
   const tableHeaders = ["Hall / Zone", "Total Booths", "Booked Booths", "Occupancy Rate", "Pipeline Revenue"];
 
   doc.setFillColor(15, 23, 42);
@@ -290,7 +264,6 @@ export const generateAnalyticsReportPDF = ({
 
   currentY += 7;
 
-  // Table Rows (Halls)
   const hallEntries = Object.values(hallMap);
   const hallsToRender = hallEntries.length > 0
     ? hallEntries
@@ -319,8 +292,7 @@ export const generateAnalyticsReportPDF = ({
     doc.setTextColor(71, 85, 105);
     doc.text(`${hallTotal} booths`, tableX + colWidths[0] + 3, currentY + 4.8);
     doc.text(`${hallBooked} booked`, tableX + colWidths[0] + colWidths[1] + 3, currentY + 4.8);
-    
-    // Rate with color
+
     doc.setTextColor(hallRate > 0 ? 16 : 100, hallRate > 0 ? 185 : 116, hallRate > 0 ? 129 : 139);
     doc.setFont("helvetica", "bold");
     doc.text(`${hallRate}%`, tableX + colWidths[0] + colWidths[1] + colWidths[2] + 3, currentY + 4.8);
@@ -333,7 +305,6 @@ export const generateAnalyticsReportPDF = ({
 
   currentY += 8;
 
-  // 5. Section Title: Keynote Sessions & Stage Popularity
   doc.setTextColor(15, 23, 42);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(11);
@@ -341,8 +312,7 @@ export const generateAnalyticsReportPDF = ({
 
   currentY += 5;
 
-  // Session Table Headers
-  const sessionColWidths = [70, 42, 35, 35]; // total = 182mm
+  const sessionColWidths = [70, 42, 35, 35];
   const sessionHeaders = ["Session / Keynote Title", "Featured Speaker", "Registrations", "Bookmark Saves"];
 
   doc.setFillColor(15, 23, 42);
@@ -399,7 +369,6 @@ export const generateAnalyticsReportPDF = ({
 
   currentY += 8;
 
-  // 6. Section Title: Executive Turnstile & Security Summary
   doc.setTextColor(15, 23, 42);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(11);
@@ -422,7 +391,6 @@ export const generateAnalyticsReportPDF = ({
   doc.text(`• Total Digital Turnstile QR Passes Active: ${totalExpoRegs} passes issued with 100% cryptographic validation readiness.`, margin + 6, currentY + 11);
   doc.text(`• Floor Access Locks: Real-time anti-collision spatial matrix active across Hall A and Hall B with zero double-booking tolerance.`, margin + 6, currentY + 16);
 
-  // Bottom Fixed Footer
   const footerY = pageHeight - 16;
   doc.setDrawColor(226, 232, 240);
   doc.line(margin, footerY, pageWidth - margin, footerY);
@@ -435,7 +403,6 @@ export const generateAnalyticsReportPDF = ({
   const hashId = `ES-AUDIT-${expoId.slice(-6).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`;
   doc.text(`Audit ID: ${hashId}  |  Page 1 of 1`, pageWidth - margin - 58, footerY + 5);
 
-  // Save the generated PDF
   const cleanExpoTitle = expoTitle.replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 30);
   const fileName = `EventSphere_Analytics_Report_${cleanExpoTitle}.pdf`;
   doc.save(fileName);

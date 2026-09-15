@@ -67,7 +67,6 @@ export const InContextFeedback = ({ expoId, expoTitle, sessionId, sessionTitle }
           </h4>
         </div>
 
-        {/* Interactive Star Rating */}
         <div className="flex items-center gap-1">
           {[1, 2, 3, 4, 5].map((star) => (
             <button

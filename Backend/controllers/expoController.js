@@ -45,7 +45,6 @@ export const createExpo = async (req, res) => {
       return res.status(400).json({ message: 'Title, date, location, and category are required fields' });
     }
 
-    // Check if hall/location is already booked on the selected date
     const targetDate = new Date(date);
     const startOfDay = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate());
     const endOfDay = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate(), 23, 59, 59, 999);
@@ -78,7 +77,6 @@ export const createExpo = async (req, res) => {
       status: status || 'upcoming',
     });
 
-    // Automatically generate all total_booths for this new Expo in the database
     try {
       const initialBooths = generateBoothsForExpo(expo._id, boothCountToCreate);
       await Booth.insertMany(initialBooths);
@@ -113,7 +111,6 @@ export const listExpos = async (req, res) => {
     let query = {};
 
     if (date) {
-      // Filter by specific day or date match
       const searchDate = new Date(date);
       const nextDay = new Date(searchDate);
       nextDay.setDate(nextDay.getDate() + 1);
@@ -183,13 +180,12 @@ export const updateExpo = async (req, res) => {
     }
 
     if (!expo) {
-      // If expo does not exist in DB yet, create it directly in MongoDB
       const newExpo = await Expo.create({
         ...updateData,
         organizer_id: req.user.user_id,
       });
       return res.status(200).json({
-        message: 'Expo created in database',
+        message: 'Expo created',
         expo: newExpo,
       });
     }

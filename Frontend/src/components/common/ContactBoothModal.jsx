@@ -79,7 +79,7 @@ export const ContactBoothModal = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/80 backdrop-blur-xs animate-in fade-in duration-200 font-body">
       <div className="bg-white dark:bg-[#1A202C] rounded-3xl shadow-2xl border border-[#E5E7EB] dark:border-white/10 max-w-lg w-full flex flex-col overflow-hidden">
-        {/* Modal Header */}
+
         <div className="bg-gradient-to-r from-slate-900 via-[#1488A6] to-slate-900 text-white p-5 sm:p-6 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/20">
@@ -110,7 +110,6 @@ export const ContactBoothModal = ({
           </button>
         </div>
 
-        {/* Modal Body */}
         {isSuccess ? (
           <div className="p-8 text-center space-y-4">
             <div className="w-14 h-14 rounded-full bg-emerald-500/10 text-emerald-500 dark:bg-emerald-500/20 dark:text-emerald-400 flex items-center justify-center mx-auto">

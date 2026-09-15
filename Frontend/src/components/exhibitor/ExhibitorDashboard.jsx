@@ -29,7 +29,6 @@ export const ExhibitorDashboard = ({
     fetchInboxApi
   } = useApp();
 
-  // Fetch live exhibitor data on mount
   useEffect(() => {
     if (typeof fetchApplications === "function") fetchApplications();
     if (typeof fetchExpos === "function") fetchExpos();
@@ -82,7 +81,7 @@ export const ExhibitorDashboard = ({
 
   return (
     <div id="exhibitor-dashboard-view" className="space-y-6">
-      {/* Top Banner */}
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2.5">
@@ -96,9 +95,8 @@ export const ExhibitorDashboard = ({
         </div>
       </div>
 
-      {/* KPI Cards with MetricCard */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {/* Card 1: Applications Status */}
+
         <MetricCard
           id="metric-exhibitor-applications"
           title="Active Applications"
@@ -116,7 +114,6 @@ export const ExhibitorDashboard = ({
           actionLabel="View"
         />
 
-        {/* Card 2: Confirmed Floor Booths */}
         <MetricCard
           id="metric-exhibitor-booths"
           title="Allocated Booths"
@@ -133,7 +130,6 @@ export const ExhibitorDashboard = ({
           actionLabel="Reserve"
         />
 
-        {/* Card 3: Attendee Inquiries */}
         <MetricCard
           id="metric-exhibitor-leads"
           title="Lead Inquiries"
@@ -153,7 +149,6 @@ export const ExhibitorDashboard = ({
           actionLabel="Chat"
         />
 
-        {/* Card 4: Catalog Showcase Products */}
         <MetricCard
           id="metric-exhibitor-showcase"
           title="Showcase Products"
@@ -173,9 +168,8 @@ export const ExhibitorDashboard = ({
         />
       </div>
 
-      {/* Main Content Split: Applications Status + Assigned Booth Card */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: Applications Tracker */}
+
         <div className="lg:col-span-7 bg-white dark:bg-[#1A202C] p-6 sm:p-7 rounded-2xl border border-[#E5E7EB] dark:border-white/10 shadow-xs space-y-5">
           <div className="flex items-center justify-between">
             <div>
@@ -249,9 +243,8 @@ export const ExhibitorDashboard = ({
           </div>
         </div>
 
-        {/* Right Column: Confirmed Booth Card & Quick Shortcuts */}
         <div className="lg:col-span-5 space-y-6">
-          {/* Confirmed Booth Card */}
+
           {myBookedBooths.length > 0 ? (
             <div className="bg-gradient-to-br from-[#1488A6] to-[#0F172A] dark:from-[#203748] dark:to-[#0F172A] border border-white/10 text-white p-6 sm:p-7 rounded-2xl space-y-4 relative overflow-hidden shadow-lg">
               <div className="flex items-center justify-between">
@@ -299,7 +292,6 @@ export const ExhibitorDashboard = ({
             </div>
           )}
 
-          {/* Quick Links */}
           <div className="bg-white dark:bg-[#1A202C] p-6 rounded-2xl border border-[#E5E7EB] dark:border-white/10 shadow-xs space-y-4">
             <h4 className="text-xs font-mono font-bold text-[#6B7280] dark:text-[#CBD5E1]/70 uppercase tracking-wider">
               Exhibitor Management Tools

@@ -57,7 +57,7 @@ export const AttendeeBrowseExpos = ({
 
   return (
     <div id="attendee-browse-expos-view" className="space-y-6 font-body">
-      {/* Header */}
+
       <div>
         <h2 className="text-xl sm:text-2xl font-bold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight font-heading">
           Browse Expos & Events
@@ -67,7 +67,6 @@ export const AttendeeBrowseExpos = ({
         </p>
       </div>
 
-      {/* Filters Bar */}
       <div className="bg-white dark:bg-[#1A202C] p-4 rounded-2xl border border-[#E5E7EB] dark:border-white/10 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="relative w-full max-w-sm">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7280] dark:text-[#CBD5E1]/60" />
@@ -80,7 +79,6 @@ export const AttendeeBrowseExpos = ({
           />
         </div>
 
-        {/* Categories */}
         <div className="flex flex-wrap items-center gap-1.5 text-xs">
           {categories.map((cat) => (
             <button
@@ -97,7 +95,6 @@ export const AttendeeBrowseExpos = ({
         </div>
       </div>
 
-      {/* Expos Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredExpos.map((expo, idx) => {
           const isRegistered = registrations.some(
@@ -156,7 +153,6 @@ export const AttendeeBrowseExpos = ({
                 </div>
               </div>
 
-              {/* Card Footer Actions */}
               <div className="p-5 pt-0 mt-2 space-y-3">
                 <div className="pt-3 border-t border-[#E5E7EB] dark:border-white/10 flex items-center justify-between text-xs">
                   <div>
@@ -202,7 +198,6 @@ export const AttendeeBrowseExpos = ({
         })}
       </div>
 
-      {/* Render GetPassModal when an expo is selected */}
       {getPassExpo && (
         <GetPassModal
           expo={getPassExpo}

@@ -56,7 +56,7 @@ export const ExpoListing = ({
 
   return (
     <div id="expo-listing-page" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 font-body">
-      {/* Header */}
+
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#E5E7EB] dark:border-white/10 pb-6">
         <div>
           <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#1488A6] dark:text-[#38B2AC]">
@@ -70,7 +70,6 @@ export const ExpoListing = ({
           </p>
         </div>
 
-        {/* Count Pill */}
         <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-[#1A202C] p-1.5 rounded-2xl text-xs self-start md:self-auto border border-[#E5E7EB] dark:border-white/10">
           <span className="px-3.5 py-1.5 rounded-xl font-bold bg-white dark:bg-[#203748] text-[#1488A6] dark:text-[#38B2AC] shadow-xs border border-[#E5E7EB] dark:border-white/10">
             All Expos ({expos.length})
@@ -78,9 +77,8 @@ export const ExpoListing = ({
         </div>
       </div>
 
-      {/* Filter Bar: Clean Search Bar */}
       <div className="bg-white dark:bg-[#1A202C] p-4 rounded-2xl border border-[#E5E7EB] dark:border-white/10 shadow-xs flex items-center justify-between gap-4">
-        {/* Search */}
+
         <div className="relative flex-1 w-full">
           <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
@@ -93,7 +91,6 @@ export const ExpoListing = ({
         </div>
       </div>
 
-      {/* Expo Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredExpos.length === 0 ? (
           <div className="col-span-full py-16 text-center space-y-3 saas-card rounded-3xl p-8">
@@ -114,7 +111,6 @@ export const ExpoListing = ({
             const endStr = formatDateWithYear(expo.endDate || expo.date);
             const dateLabel = startStr && endStr ? (startStr === endStr ? startStr : `${startStr} – ${endStr}`) : startStr || "TBA";
 
-            // Check if current user is registered for this expo
             const userReg = (registrations || []).find((r) => {
               const rExpoId = typeof r.expo_id === "object" ? r.expo_id?._id : r.expo_id;
               const rUserId = String(typeof r.user_id === "object" ? r.user_id?._id : r.user_id || "");
@@ -133,7 +129,7 @@ export const ExpoListing = ({
                 key={expoId}
                 className="saas-card saas-card-hover rounded-3xl overflow-hidden flex flex-col justify-between group"
               >
-                {/* Card Banner Image */}
+
                 <div>
                   <div className="relative h-48 bg-gradient-to-br from-slate-900 via-[#1488A6]/30 to-slate-950 overflow-hidden">
                     <img
@@ -168,7 +164,6 @@ export const ExpoListing = ({
                     </div>
                   </div>
 
-                  {/* Card Body */}
                   <div className="p-5 space-y-4">
                     <div className="space-y-2.5">
                       <p className="text-xs text-[#6B7280] dark:text-[#CBD5E1]/80 line-clamp-2 leading-relaxed">
@@ -181,7 +176,6 @@ export const ExpoListing = ({
                       </div>
                     </div>
 
-                    {/* Meta stats bar */}
                     <div className="pt-3 border-t border-[#E5E7EB] dark:border-white/10 flex items-center justify-between text-xs">
                       <div>
                         <span className="text-[10px] uppercase font-bold font-mono text-[#6B7280] dark:text-[#CBD5E1]/60 block">
@@ -203,7 +197,6 @@ export const ExpoListing = ({
                   </div>
                 </div>
 
-                {/* Actions */}
                 <div className="p-5 pt-0 grid grid-cols-2 gap-2">
                   <button
                     onClick={() => onSelectExpo(expoId)}

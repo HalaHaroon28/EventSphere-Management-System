@@ -62,7 +62,7 @@ export const Navbar = ({
       } bg-white/90 dark:bg-[#0F172A]/90 backdrop-blur-xl border-b border-[#E5E7EB] dark:border-white/10 font-body`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-18 flex items-center justify-between gap-4">
-        {/* Left Side: Brand (if public view) or Breadcrumbs */}
+
         <div className="flex items-center gap-4">
           {!isDashboardView ? (
             <div
@@ -95,7 +95,6 @@ export const Navbar = ({
             </div>
           )}
 
-          {/* Public Nav Links (When on Home/About/Contact/Expos) */}
           {!isDashboardView && (
             <nav className="hidden md:flex items-center gap-1 ml-6 pl-6 border-l border-[#E5E7EB] dark:border-white/10">
               <button
@@ -142,7 +141,6 @@ export const Navbar = ({
           )}
         </div>
 
-        {/* Center/Right Search Bar */}
         <div className="hidden lg:flex items-center flex-1 max-w-xs mx-4">
           <form onSubmit={handleSearchSubmit} className="relative w-full">
             <Search className="w-4 h-4 text-[#6B7280] dark:text-[#CBD5E1]/60 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -156,9 +154,8 @@ export const Navbar = ({
           </form>
         </div>
 
-        {/* Right Action Icons & User Account */}
         <div className="flex items-center gap-2 sm:gap-3">
-          {/* Dashboard Quick Switch Button if public */}
+
           {!isDashboardView ? (
             <button
               onClick={() => onTabChange(getDashboardTarget(role))}
@@ -177,7 +174,6 @@ export const Navbar = ({
             </button>
           )}
 
-          {/* Notification Bell Dropdown */}
           <div className="relative">
             <button
               onClick={() => setShowNotificationMenu(!showNotificationMenu)}
@@ -237,7 +233,6 @@ export const Navbar = ({
             )}
           </div>
 
-          {/* User Account / Auth buttons */}
           {isAuthenticated && user ? (
             <div className="relative">
               <button
@@ -320,7 +315,6 @@ export const Navbar = ({
             </div>
           )}
 
-          {/* Mobile menu hamburger */}
           <button
             onClick={() => setMobileNavOpen(!mobileNavOpen)}
             className="md:hidden p-2 rounded-xl bg-slate-100 dark:bg-[#1A202C] border border-[#E5E7EB] dark:border-white/10 text-[#1F2937] dark:text-[#CBD5E1] cursor-pointer"
@@ -331,7 +325,6 @@ export const Navbar = ({
         </div>
       </div>
 
-      {/* Mobile dropdown menu */}
       {mobileNavOpen && (
         <div className="md:hidden px-4 py-4 bg-white dark:bg-[#0F172A] border-b border-[#E5E7EB] dark:border-white/10 space-y-2">
           <button

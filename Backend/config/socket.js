@@ -5,7 +5,7 @@ let io;
 export const initSocket = (server) => {
   io = new Server(server, {
     cors: {
-      origin: '*', // Adjust to your frontend URL in production
+      origin: '*',
       methods: ['GET', 'POST', 'PATCH', 'DELETE'],
     },
   });
@@ -13,7 +13,6 @@ export const initSocket = (server) => {
   io.on('connection', (socket) => {
     console.log(`⚡ Socket connected: ${socket.id}`);
 
-    // Allow clients/users to join their specific user room for targeted notifications
     socket.on('join_user_room', (userId) => {
       if (userId) {
         socket.join(userId.toString());

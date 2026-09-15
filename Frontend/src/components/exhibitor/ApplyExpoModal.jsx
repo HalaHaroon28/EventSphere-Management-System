@@ -38,7 +38,6 @@ const ApplyExpoModal = ({ initialExpoId, onClose, onSuccess }) => {
     (e) => e && (String(e._id) === String(selectedExpoId) || String(e.id) === String(selectedExpoId))
   ) || allExpos[0];
 
-  // Filter available booths for selected expo
   const expoBooths = (booths || []).filter((b) => {
     if (!b) return false;
     const bExpoId = typeof b.expo_id === "object" ? b.expo_id?._id : b.expo_id;
@@ -46,7 +45,6 @@ const ApplyExpoModal = ({ initialExpoId, onClose, onSuccess }) => {
   });
   const availableBooths = expoBooths.filter((b) => b.status === "available");
 
-  // Group available booths by size/tier
   const availableTiersMap = {};
   availableBooths.forEach((b) => {
     const sizeKey = (b.size || b.tier || "medium").toLowerCase();
@@ -162,7 +160,7 @@ const ApplyExpoModal = ({ initialExpoId, onClose, onSuccess }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/80 backdrop-blur-xs animate-in fade-in duration-200 font-body">
       <div className="bg-white dark:bg-[#1A202C] rounded-3xl shadow-2xl border border-[#E5E7EB] dark:border-white/10 max-w-xl w-full flex flex-col max-h-[90vh] overflow-hidden text-[#1F2937] dark:text-[#F8FAFC]">
-        {/* Modal Header */}
+
         <div className="bg-gradient-to-r from-slate-900 via-[#1488A6] to-slate-900 text-white p-5 sm:p-6 flex items-center justify-between shrink-0 relative">
           <div className="flex items-center gap-3">
             <div className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-[#38B2AC] flex items-center justify-center shrink-0">
@@ -195,7 +193,7 @@ const ApplyExpoModal = ({ initialExpoId, onClose, onSuccess }) => {
         </div>
 
         <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4 overflow-y-auto flex-1">
-          {/* Target Expo Select */}
+
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider font-mono text-[#6B7280] dark:text-[#CBD5E1]/70 mb-1.5">
               Select Target Summit / Expo *
@@ -219,7 +217,7 @@ const ApplyExpoModal = ({ initialExpoId, onClose, onSuccess }) => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {/* Company Name */}
+
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider font-mono text-[#6B7280] dark:text-[#CBD5E1]/70 mb-1.5">
                 Company / Brand Name *
@@ -234,7 +232,6 @@ const ApplyExpoModal = ({ initialExpoId, onClose, onSuccess }) => {
               />
             </div>
 
-            {/* Primary Contact Email - PREFILLED & NON-EDITABLE */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <label className="text-xs font-bold uppercase tracking-wider font-mono text-[#6B7280] dark:text-[#CBD5E1]/70">
@@ -254,7 +251,6 @@ const ApplyExpoModal = ({ initialExpoId, onClose, onSuccess }) => {
             </div>
           </div>
 
-          {/* Requested Booth Tier - FETCHED FROM AVAILABLE BOOTHS */}
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider font-mono text-[#6B7280] dark:text-[#CBD5E1]/70 mb-1.5">
               Requested Booth Tier *
@@ -284,7 +280,6 @@ const ApplyExpoModal = ({ initialExpoId, onClose, onSuccess }) => {
             </select>
           </div>
 
-          {/* Products & Services Showcased */}
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider font-mono text-[#6B7280] dark:text-[#CBD5E1]/70 mb-1.5">
               Products, Technologies & Services Showcased *
@@ -299,7 +294,6 @@ const ApplyExpoModal = ({ initialExpoId, onClose, onSuccess }) => {
             />
           </div>
 
-          {/* Supporting Credentials & Pitch Deck - FILE UPLOAD (PDFs, Docs, Images - Min 1, Max 3) */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <label className="text-xs font-bold uppercase tracking-wider font-mono text-[#6B7280] dark:text-[#CBD5E1]/70">
@@ -311,7 +305,7 @@ const ApplyExpoModal = ({ initialExpoId, onClose, onSuccess }) => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-2">
-              {/* File Upload Input */}
+
               <label className="flex-1 px-3.5 py-2 bg-slate-50 dark:bg-[#0F172A] border border-dashed border-[#1488A6]/40 dark:border-[#38B2AC]/40 rounded-xl flex items-center justify-center gap-2 cursor-pointer hover:bg-teal-50/50 dark:hover:bg-[#203748]/40 transition-colors">
                 <Upload className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC]" />
                 <span className="text-xs font-bold text-[#1488A6] dark:text-[#38B2AC]">Upload PDF / Spec / Image</span>
@@ -325,7 +319,6 @@ const ApplyExpoModal = ({ initialExpoId, onClose, onSuccess }) => {
                 />
               </label>
 
-              {/* Or manual filename input */}
               <div className="flex gap-2 sm:w-1/2">
                 <button
                   type="button"
@@ -338,7 +331,6 @@ const ApplyExpoModal = ({ initialExpoId, onClose, onSuccess }) => {
               </div>
             </div>
 
-            {/* Attached Chips */}
             <div className="flex flex-wrap gap-2 pt-1">
               {uploadedDocs.map((doc, i) => (
                 <div
@@ -368,18 +360,18 @@ const ApplyExpoModal = ({ initialExpoId, onClose, onSuccess }) => {
             </div>
           )}
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-[#E5E7EB] dark:border-white/10">
+          <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-3 border-t border-[#E5E7EB] dark:border-white/10 shrink-0">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-xs font-semibold text-[#6B7280] dark:text-[#CBD5E1]/70 hover:bg-slate-100 dark:hover:bg-[#203748] cursor-pointer transition-colors"
+              className="w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-semibold text-[#6B7280] dark:text-[#CBD5E1]/70 hover:bg-slate-100 dark:hover:bg-[#203748] cursor-pointer transition-colors text-center"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={Boolean(existingApp)}
-              className={`px-4 py-2 text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all ${existingApp
+              className={`w-full sm:w-auto px-5 py-2.5 text-xs font-bold rounded-xl shadow-xs flex items-center justify-center gap-1.5 transition-all ${existingApp
                 ? "bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed"
                 : "btn-teal-primary text-white cursor-pointer"
                 }`}

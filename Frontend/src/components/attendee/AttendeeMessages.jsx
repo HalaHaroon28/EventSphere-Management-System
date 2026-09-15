@@ -34,7 +34,6 @@ export const AttendeeMessages = ({ initialExhibitorId }) => {
   const [loading, setLoading] = useState(true);
   const [loadingThread, setLoadingThread] = useState(false);
 
-  // 1. Fetch available Exhibitor contacts & user inbox on mount
   const loadData = async () => {
     setLoading(true);
     try {
@@ -64,14 +63,12 @@ export const AttendeeMessages = ({ initialExhibitorId }) => {
     loadData();
   }, []);
 
-  // Update selected exhibitor if initialExhibitorId changes from props
   useEffect(() => {
     if (initialExhibitorId) {
       setSelectedExhibitorId(initialExhibitorId);
     }
   }, [initialExhibitorId]);
 
-  // 2. Fetch live message thread whenever selectedExhibitorId changes
   const loadThread = async (exhibitorId) => {
     if (!exhibitorId) return;
     setLoadingThread(true);
@@ -91,7 +88,6 @@ export const AttendeeMessages = ({ initialExhibitorId }) => {
     }
   }, [selectedExhibitorId]);
 
-  // Handle Send Message
   const handleSend = async (e) => {
     e.preventDefault();
     if (!replyText.trim() || !selectedExhibitorId) return;
@@ -99,7 +95,6 @@ export const AttendeeMessages = ({ initialExhibitorId }) => {
     const textToSend = replyText.trim();
     setReplyText("");
 
-    // Optimistic UI append
     const tempMsg = {
       _id: `temp_${Date.now()}`,
       sender_id: userId,
@@ -117,7 +112,6 @@ export const AttendeeMessages = ({ initialExhibitorId }) => {
     }
   };
 
-  // Handle Delete Conversation Thread
   const handleDeleteThread = async () => {
     if (!selectedExhibitorId) return;
     const success = await deleteThreadApi(selectedExhibitorId);
@@ -139,10 +133,8 @@ export const AttendeeMessages = ({ initialExhibitorId }) => {
     }
   };
 
-  // Merge contacts and inbox into sidebar exhibitor items list
   const conversationPartnersMap = {};
 
-  // Add exhibitors from contacts list (strictly role === 'exhibitor')
   (contacts || []).forEach((c) => {
     if (c.role === "exhibitor") {
       conversationPartnersMap[c._id] = {
@@ -155,7 +147,6 @@ export const AttendeeMessages = ({ initialExhibitorId }) => {
     }
   });
 
-  // Add/update from inbox threads
   (inboxThreads || []).forEach((ib) => {
     const contact = ib.contact;
     if (contact && (contact.role === "exhibitor" || !contact.role)) {
@@ -170,7 +161,6 @@ export const AttendeeMessages = ({ initialExhibitorId }) => {
     }
   });
 
-  // If selectedExhibitorId passed via props but not in contacts yet
   if (selectedExhibitorId && !conversationPartnersMap[selectedExhibitorId]) {
     const allSc = [...(showcases || [])];
     const matchSc = allSc.find((s) => String(s.exhibitor_id) === String(selectedExhibitorId) || String(s._id) === String(selectedExhibitorId));
@@ -200,7 +190,7 @@ export const AttendeeMessages = ({ initialExhibitorId }) => {
 
   return (
     <div id="attendee-messages-view" className="space-y-6 font-body">
-      {/* Header */}
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-[#1F2937] dark:text-[#F8FAFC] font-heading tracking-tight">
@@ -218,9 +208,8 @@ export const AttendeeMessages = ({ initialExhibitorId }) => {
         </button>
       </div>
 
-      {/* Inbox Layout */}
       <div className="bg-white dark:bg-[#1A202C] rounded-2xl border border-[#E5E7EB] dark:border-white/10 shadow-xs overflow-hidden grid grid-cols-1 md:grid-cols-12 min-h-[520px]">
-        {/* Left Side: Exhibitor Contacts & Threads List */}
+
         <div className={`md:col-span-4 border-r border-[#E5E7EB] dark:border-white/10 flex-col ${selectedExhibitorId ? "hidden md:flex" : "flex"}`}>
           <div className="p-3.5 border-b border-[#E5E7EB] dark:border-white/10 bg-slate-50 dark:bg-[#0F172A] space-y-2">
             <div className="flex items-center justify-between text-xs font-bold text-[#1F2937] dark:text-white font-heading">
@@ -305,12 +294,11 @@ export const AttendeeMessages = ({ initialExhibitorId }) => {
           </div>
         </div>
 
-        {/* Right Side: Conversation Stream */}
         <div className={`md:col-span-8 flex-col justify-between h-full bg-slate-50/40 dark:bg-[#0F172A]/40 ${!selectedExhibitorId ? "hidden md:flex" : "flex"}`}>
-          {/* Chat Header */}
+
           <div className="p-3.5 px-4 sm:px-5 bg-white dark:bg-[#1A202C] border-b border-[#E5E7EB] dark:border-white/10 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              {/* Mobile Back Button */}
+
               <button
                 onClick={() => setSelectedExhibitorId("")}
                 className="md:hidden p-1.5 rounded-lg bg-slate-100 dark:bg-[#203748] text-xs font-bold text-[#1F2937] dark:text-white cursor-pointer"
@@ -350,7 +338,6 @@ export const AttendeeMessages = ({ initialExhibitorId }) => {
             )}
           </div>
 
-          {/* Messages Stream */}
           <div className="p-4 sm:p-6 space-y-3 overflow-y-auto max-h-[380px] flex-1">
             {loadingThread ? (
               <div className="py-12 text-center text-xs text-[#6B7280] dark:text-[#CBD5E1]/60">
@@ -402,7 +389,6 @@ export const AttendeeMessages = ({ initialExhibitorId }) => {
             )}
           </div>
 
-          {/* Reply Input Form */}
           <form
             onSubmit={handleSend}
             className="p-3 bg-white dark:bg-[#1A202C] border-t border-[#E5E7EB] dark:border-white/10 flex items-center gap-2"

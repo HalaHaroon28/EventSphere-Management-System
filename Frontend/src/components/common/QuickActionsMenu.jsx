@@ -312,7 +312,7 @@ const QuickActionsMenu = ({
   };
   return <div ref={menuRef} className="fixed bottom-6 right-6 z-50">
       {
-    /* Floating Speed Dial / Quick Actions Trigger Button */
+
   }
       <button
         id="quick-actions-floating-trigger"
@@ -346,13 +346,12 @@ const QuickActionsMenu = ({
         </kbd>
       </button>
 
-      {/* Floating Modal / Radial Card Menu */}
       {isOpen && (
         <div
           id="quick-actions-flyout-panel"
           className="absolute bottom-16 right-0 w-[92vw] sm:w-[420px] max-h-[80vh] bg-white dark:bg-[#1A202C] rounded-2xl shadow-2xl border border-[#E5E7EB] dark:border-white/10 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-200 z-50 font-body"
         >
-          {/* Header */}
+
           <div className="p-4 bg-gradient-to-r from-[#0F172A] to-[#1A202C] text-white">
             <div className="flex items-center justify-between mb-2.5">
               <div className="flex items-center gap-2">
@@ -377,7 +376,6 @@ const QuickActionsMenu = ({
               </button>
             </div>
 
-            {/* Quick Search Input */}
             <div className="relative">
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
@@ -391,7 +389,6 @@ const QuickActionsMenu = ({
             </div>
           </div>
 
-          {/* Action Items List */}
           <div className="p-2.5 overflow-y-auto space-y-1 divide-y divide-[#E5E7EB] dark:divide-white/10 max-h-[360px] bg-white dark:bg-[#1A202C]">
             {filteredActions.length === 0 ? (
               <div className="py-8 text-center text-[#6B7280] dark:text-[#CBD5E1]/60">
@@ -443,7 +440,6 @@ const QuickActionsMenu = ({
             )}
           </div>
 
-          {/* Footer Shortcuts hint */}
           <div className="px-4 py-2 bg-slate-50 dark:bg-[#0F172A] border-t border-[#E5E7EB] dark:border-white/10 flex items-center justify-between text-[10px] text-[#6B7280] dark:text-[#CBD5E1]/60 font-mono">
             <span>Role Context: {currentRole.toUpperCase()}</span>
             <span>Esc to close</span>

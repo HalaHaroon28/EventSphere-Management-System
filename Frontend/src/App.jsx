@@ -76,11 +76,9 @@ const MainContent = () => {
   const [getPassExpo, setGetPassExpo] = useState(null);
   const [resetToken, setResetToken] = useState(null);
 
-  // AI Matchmaker Modal state
   const [isAIMatchmakerOpen, setIsAIMatchmakerOpen] = useState(false);
   const [aiMatchmakerQuery, setAiMatchmakerQuery] = useState("");
 
-  // Attendee in-page modals & drawer state
   const [isMyPassesOpen, setIsMyPassesOpen] = useState(false);
   const [isMySessionsOpen, setIsMySessionsOpen] = useState(false);
   const [isInquiriesDrawerOpen, setIsInquiriesDrawerOpen] = useState(false);
@@ -183,7 +181,7 @@ const MainContent = () => {
   };
 
   const isAuthPage = activeView === "login" || activeView === "register" || activeView === "forgot-password" || activeView === "reset-password";
-  // Sidebar is restricted STRICTLY to Organizers and Exhibitors. Attendees stay on the public site layout.
+
   const showSidebar = (currentRole === "organizer" || currentRole === "exhibitor") && activeView !== "landing" && !isAuthPage;
 
   const renderCurrentView = () => {
@@ -358,7 +356,6 @@ const MainContent = () => {
       }
     }
 
-    // Default fallback (Attendees and Guests stay on public homepage)
     return (
       <LandingPage
         onSelectExpo={handleSelectExpo}
@@ -371,7 +368,7 @@ const MainContent = () => {
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#0F172A] text-[#1F2937] dark:text-[#F8FAFC] flex flex-col font-body selection:bg-[#38B2AC] selection:text-white transition-colors duration-200">
-      {/* Persistent Role Sidebar (Fixed on left for Organizers and Exhibitors ONLY) */}
+
       {showSidebar && (
         <Sidebar
           isCollapsed={isSidebarCollapsed}
@@ -381,12 +378,11 @@ const MainContent = () => {
         />
       )}
 
-      {/* Main Layout Area - dynamically padded on desktop when sidebar is active */}
       <div
         className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${showSidebar ? (isSidebarCollapsed ? "md:pl-20" : "md:pl-64 lg:pl-72") : ""
           }`}
       >
-        {/* Universal Top Navigation */}
+
         <Navbar
           onOpenAuth={(mode, role) => handleOpenAuth(mode, role)}
           onOpenFeedback={() => setIsFeedbackModalOpen(true)}
@@ -398,13 +394,10 @@ const MainContent = () => {
           onOpenAIMatchmaker={handleOpenAIMatchmaker}
         />
 
-
-        {/* Main View Container */}
-        <main className={`flex-1 w-full mx-auto font-body ${showSidebar ? "p-4 sm:p-6 lg:p-8" : ""}`}>
+        <main className={`flex-1 w-full mx-auto font-body ${showSidebar ? "p-3 sm:p-5 lg:p-8" : ""}`}>
           {renderCurrentView()}
         </main>
 
-        {/* Professional Footer */}
         <footer className="border-t border-[#E5E7EB] dark:border-white/10 bg-white dark:bg-[#0F172A] py-8 text-xs text-[#6B7280] dark:text-[#CBD5E1]/70 mt-auto font-body">
           <div className={`${showSidebar ? "w-full" : "max-w-7xl mx-auto"} px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4`}>
             <div className="flex items-center gap-2 font-bold text-[#1F2937] dark:text-[#F8FAFC] font-heading">
@@ -425,10 +418,8 @@ const MainContent = () => {
         </footer>
       </div>
 
-      {/* Gemini AI Multi-turn Chatbot Concierge */}
       <AIChatbot />
 
-      {/* Gemini Smart AI Booth Matchmaker Modal */}
       <AIMatchmakerModal
         isOpen={isAIMatchmakerOpen}
         onClose={() => setIsAIMatchmakerOpen(false)}
@@ -440,10 +431,8 @@ const MainContent = () => {
         }}
       />
 
-      {/* Global Toast Alerts */}
       <ToastContainer />
 
-      {/* Global Expo Detail Modal */}
       {detailModalExpoId && (
         <ExpoDetailModal
           expoId={detailModalExpoId}
@@ -465,7 +454,6 @@ const MainContent = () => {
         />
       )}
 
-      {/* Global Digital Pass Turnstile QR Modal */}
       {activePassId && (
         <DigitalPassModal
           registrationId={activePassId}
@@ -473,7 +461,6 @@ const MainContent = () => {
         />
       )}
 
-      {/* Global My Passes Modal */}
       <MyPassesModal
         isOpen={isMyPassesOpen}
         onClose={() => setIsMyPassesOpen(false)}
@@ -481,20 +468,17 @@ const MainContent = () => {
         onOpenGetPass={handleRegisterPass}
       />
 
-      {/* Global My Bookmarked Sessions Modal */}
       <MySessionsModal
         isOpen={isMySessionsOpen}
         onClose={() => setIsMySessionsOpen(false)}
         onSelectExpo={handleSelectExpo}
       />
 
-      {/* Global Attendee Inquiries Slide-over Drawer */}
       <AttendeeInquiriesDrawer
         isOpen={isInquiriesDrawerOpen}
         onClose={() => setIsInquiriesDrawerOpen(false)}
       />
 
-      {/* Global Contact Booth Inquiry Modal */}
       <ContactBoothModal
         isOpen={isContactBoothModalOpen}
         onClose={() => {
@@ -505,13 +489,11 @@ const MainContent = () => {
         expoTitle={contactBoothExpoTitle}
       />
 
-      {/* Global Profile Settings Modal */}
       <ProfileModal
         isOpen={isProfileModalOpen}
         onClose={() => setIsProfileModalOpen(false)}
       />
 
-      {/* Global Apply for Expo Modal */}
       {isApplyModalOpen && (
         <ApplyExpoModal
           initialExpoId={applyExpoId}
@@ -520,7 +502,6 @@ const MainContent = () => {
         />
       )}
 
-      {/* Global Get Pass Modal */}
       {getPassExpo && (
         <GetPassModal
           expo={getPassExpo}
@@ -531,7 +512,6 @@ const MainContent = () => {
         />
       )}
 
-      {/* Global Feedback Modal */}
       {isFeedbackModalOpen && (
         <FeedbackModal onClose={() => setIsFeedbackModalOpen(false)} />
       )}

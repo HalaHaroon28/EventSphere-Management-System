@@ -9,27 +9,25 @@ const getTransporter = async () => {
     return transporterInstance;
   }
 
-  // 1. If explicit SMTP env settings exist, use Gmail/Custom SMTP
   if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
     const port = Number(process.env.SMTP_PORT) || 587;
 
     transporterInstance = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: port,
-      secure: port === 465, // true for 465, false for 587
+      secure: port === 465,
       auth: {
         user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS.replace(/\s+/g, ''), // strips any accidental spaces in app password
+        pass: process.env.SMTP_PASS.replace(/\s+/g, ''),
       },
       tls: {
-        rejectUnauthorized: false, // Prevents local TLS certificate handshake issues
+        rejectUnauthorized: false,
       },
     });
 
     return transporterInstance;
   }
 
-  // 2. Fallback to Ethereal test account for development
   try {
     const testAccount = await nodemailer.createTestAccount();
     transporterInstance = nodemailer.createTransport({
@@ -88,7 +86,6 @@ export const sendOtpEmail = async (email, otpCode) => {
   } catch (error) {
     console.error(`[EMAIL ERROR] Failed to send OTP email to ${email}:`, error.message);
 
-    // Fallback log to server console in local development
     console.log(`\n==================================================`);
     console.log(`[FALLBACK LOCAL CONSOLE OTP DISPATCH]`);
     console.log(`To: ${email}`);

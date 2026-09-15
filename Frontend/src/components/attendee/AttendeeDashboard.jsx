@@ -44,7 +44,6 @@ export const AttendeeDashboard = ({
     }
   };
 
-  // Fetch live attendee data on mount
   useEffect(() => {
     if (typeof fetchRegistrationsApi === "function") fetchRegistrationsApi();
     if (typeof fetchBookmarksApi === "function") fetchBookmarksApi();
@@ -55,14 +54,12 @@ export const AttendeeDashboard = ({
   const userIdStr = String(currentUser?._id || currentUser?.user_id || "");
   const userEmail = currentUser?.email || "";
 
-  // 1. My Passes (Filter by logged in attendee)
   const myRegistrations = (registrations || []).filter((r) => {
     const rUserId = typeof r.user_id === "object" ? r.user_id?._id : r.user_id;
     if (rUserId) return String(rUserId) === userIdStr;
     return r.user_email === userEmail;
   });
 
-  // 2. My Bookmarked Sessions
   const myBookmarkedSessions = (sessions || []).filter((s) =>
     (bookmarks || []).some((b) => {
       const bSessId = typeof b.session_id === "object" ? b.session_id?._id : b.session_id;
@@ -71,7 +68,6 @@ export const AttendeeDashboard = ({
     })
   );
 
-  // 3. My Direct Messages
   const myMessages = (messages || []).filter((m) => {
     const senderId = typeof m.sender_id === "object" ? m.sender_id?._id : m.sender_id;
     const receiverId = typeof m.receiver_id === "object" ? m.receiver_id?._id : m.receiver_id;
@@ -80,7 +76,7 @@ export const AttendeeDashboard = ({
 
   return (
     <div id="attendee-dashboard-view" className="space-y-8 font-body">
-      {/* Top Banner */}
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
@@ -96,23 +92,22 @@ export const AttendeeDashboard = ({
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
           <button
             onClick={() => handleTriggerMatchmaker("I want edge computing hardware and IoT sensors")}
-            className="px-4 py-2.5 bg-gradient-to-r from-[#1488A6] to-[#38B2AC] hover:from-[#117690] hover:to-[#2C9A93] text-white text-sm font-bold rounded-xl shadow-md flex items-center gap-2 transition-all cursor-pointer"
+            className="flex-1 sm:flex-initial justify-center px-4 py-2.5 bg-gradient-to-r from-[#1488A6] to-[#38B2AC] hover:from-[#117690] hover:to-[#2C9A93] text-white text-xs sm:text-sm font-bold rounded-xl shadow-md flex items-center gap-2 transition-all cursor-pointer"
           >
-            <Sparkles className="w-4.5 h-4.5" /> AI Booth Matchmaker
+            <Sparkles className="w-4 h-4" /> AI Booth Matchmaker
           </button>
           <button
             onClick={() => onNavigate("browse-expos")}
-            className="px-5 py-2.5 border border-[#E5E7EB] dark:border-white/10 hover:bg-slate-100 dark:hover:bg-[#1E293B] text-[#1F2937] dark:text-[#F8FAFC] text-sm font-bold rounded-xl shadow-xs flex items-center gap-2 transition-all cursor-pointer"
+            className="flex-1 sm:flex-initial justify-center px-4 sm:px-5 py-2.5 border border-[#E5E7EB] dark:border-white/10 hover:bg-slate-100 dark:hover:bg-[#1E293B] text-[#1F2937] dark:text-[#F8FAFC] text-xs sm:text-sm font-bold rounded-xl shadow-xs flex items-center gap-2 transition-all cursor-pointer"
           >
-            <Compass className="w-4.5 h-4.5" /> Browse All Expos
+            <Compass className="w-4 h-4" /> Browse All Expos
           </button>
         </div>
       </div>
 
-      {/* Smart AI Booth Matchmaker Hero Widget */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-[#0C2A31] to-slate-900 text-white p-6 sm:p-7 border border-teal-500/30 shadow-xl shadow-teal-950/20">
         <div className="absolute top-0 right-0 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
@@ -134,7 +129,6 @@ export const AttendeeDashboard = ({
             </p>
           </div>
 
-          {/* Quick Interactive Search Box */}
           <div className="w-full lg:max-w-md space-y-3">
             <div className="relative flex items-center">
               <Search className="w-4.5 h-4.5 absolute left-3.5 text-slate-400" />
@@ -156,7 +150,6 @@ export const AttendeeDashboard = ({
               </button>
             </div>
 
-            {/* Quick Sample Prompts */}
             <div className="flex flex-wrap gap-1.5">
               <button
                 onClick={() => handleTriggerMatchmaker("I want edge computing hardware and IoT sensors")}
@@ -182,9 +175,8 @@ export const AttendeeDashboard = ({
         </div>
       </div>
 
-      {/* 4 Summary Stat Cards using MetricCard */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {/* Card 1: Registered Passes */}
+
         <MetricCard
           id="metric-attendee-passes"
           title="Digital Passes"
@@ -204,7 +196,6 @@ export const AttendeeDashboard = ({
           actionLabel={myRegistrations.length > 0 ? "Show QR" : "Get Pass"}
         />
 
-        {/* Card 2: Bookmarked Sessions */}
         <MetricCard
           id="metric-attendee-schedule"
           title="Starred Sessions"
@@ -221,7 +212,6 @@ export const AttendeeDashboard = ({
           actionLabel="My Agenda"
         />
 
-        {/* Card 3: Exhibitors & Summits */}
         <MetricCard
           id="metric-attendee-expos"
           title="Upcoming Summits"
@@ -237,7 +227,6 @@ export const AttendeeDashboard = ({
           actionLabel="Browse"
         />
 
-        {/* Card 4: Vendor Messages */}
         <MetricCard
           id="metric-attendee-messages"
           title="Booth Inquiries"
@@ -255,9 +244,8 @@ export const AttendeeDashboard = ({
         />
       </div>
 
-      {/* Main Content Split: Digital Passes + Agenda Timetable */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: My Digital Passes */}
+
         <div className="lg:col-span-6 bg-white dark:bg-[#1A202C] p-6 sm:p-7 rounded-2xl border border-[#E5E7EB] dark:border-white/10 shadow-xs space-y-5">
           <div className="flex items-center justify-between">
             <div>

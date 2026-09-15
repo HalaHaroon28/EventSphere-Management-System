@@ -90,7 +90,6 @@ export const MetricCard = ({
   const chosenColor = accentColor || color || "teal";
   const c = colorMap[chosenColor] || colorMap.teal;
 
-  // Process trend properly
   let trendVal = null;
   let trendLabel = null;
   let isPos = true;

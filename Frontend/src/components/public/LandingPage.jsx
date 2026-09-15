@@ -40,13 +40,10 @@ export const LandingPage = ({
 }) => {
   const { expos = [], loginAs, setActiveView, showToast, submitFeedback } = useApp();
 
-  // Active Hero Featured Expo Index
   const [activeHeroIndex, setActiveHeroIndex] = useState(0);
 
-  // FAQ Accordion State
   const [openFaq, setOpenFaq] = useState(0);
 
-  // Contact Form State
   const [contactForm, setContactForm] = useState({
     name: "",
     email: "",
@@ -58,7 +55,6 @@ export const LandingPage = ({
   const [isSubmittingContact, setIsSubmittingContact] = useState(false);
   const [contactSubmitted, setContactSubmitted] = useState(false);
 
-  // Curated hero showcase list
   const heroShowcaseList = expos.length > 0
     ? expos.slice(0, 4).map((e, i) => ({
       id: e._id || e.id,
@@ -85,7 +81,6 @@ export const LandingPage = ({
 
   const activeHero = heroShowcaseList[activeHeroIndex] || heroShowcaseList[0];
 
-  // Auto-cycle hero showcase every 6 seconds
   useEffect(() => {
     if (heroShowcaseList.length <= 1) return;
     const interval = setInterval(() => {
@@ -94,7 +89,6 @@ export const LandingPage = ({
     return () => clearInterval(interval);
   }, [heroShowcaseList.length]);
 
-  // Sync first expo in contact form if available
   useEffect(() => {
     if (expos.length > 0 && !contactForm.expo_id) {
       setContactForm((prev) => ({ ...prev, expo_id: expos[0]._id }));
@@ -205,180 +199,58 @@ export const LandingPage = ({
 
   return (
     <div id="landing-page-root" className="space-y-20 sm:space-y-28 pb-20 font-body">
-      {/* 1. ULTRA-PREMIUM HERO SECTION */}
+
       <section id="hero-section" className="relative pt-6 sm:pt-10 pb-12 sm:pb-20 overflow-hidden">
-        {/* Dynamic Glowing Halo Backdrops */}
+
         <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[600px] sm:w-[900px] h-[350px] bg-gradient-to-r from-[#1488A6]/20 via-[#38B2AC]/15 to-[#F97316]/10 dark:from-[#1488A6]/25 dark:via-[#38B2AC]/20 dark:to-[#F97316]/15 rounded-full blur-3xl pointer-events-none -z-10" />
         <div className="absolute top-40 right-10 w-72 h-72 bg-[#38B2AC]/10 rounded-full blur-2xl pointer-events-none -z-10" />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
-            {/* Left Column: Command Headline & Calls to Action */}
-            <div className="lg:col-span-7 space-y-6 sm:space-y-8 text-center lg:text-left">
-              {/* Pill Badge */}
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-teal-50 dark:bg-[#1A202C] text-[#1488A6] dark:text-[#38B2AC] border border-[#1488A6]/20 dark:border-[#38B2AC]/30 shadow-xs">
-                <span className="w-2 h-2 rounded-full bg-[#38B2AC] animate-ping" />
-                <Sparkles className="w-3.5 h-3.5 text-[#1488A6] dark:text-[#38B2AC]" />
-                <span className="font-mono uppercase tracking-wider text-[11px]">The Enterprise Exhibition Operating System</span>
-              </div>
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6 sm:space-y-8">
+          <br /> <br />
 
-              {/* Main Headline */}
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight leading-[1.12] font-heading">
-                Orchestrate, Exhibit & Attend{" "}
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#1488A6] via-[#0D9488] to-[#38B2AC]">
-                  World-Class Global Expos
-                </span>
-              </h1>
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight leading-[1.15] font-heading max-w-4xl mx-auto">
 
-              {/* Subtitle */}
-              <p className="text-sm sm:text-base lg:text-lg text-[#6B7280] dark:text-[#CBD5E1]/90 leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                The all-in-one platform for international conventions, technology summits, and trade exhibitions.
-                Experience real-time interactive floor plan matrices, cryptographic QR turnstiles, and synchronized keynote agendas.
-              </p>
+            Orchestrate, Exhibit & Attend{" "}
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#1488A6] via-[#0D9488] to-[#38B2AC]">
+              World-Class <br /> Global Expos
+            </span>
+          </h1>
 
-              {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
-                <button
-                  id="hero-explore-expos-btn"
-                  onClick={() => setActiveView("expos")}
-                  className="w-full sm:w-auto py-3.5 px-8 rounded-2xl btn-teal-primary text-white font-black tracking-wide text-sm sm:text-base shadow-xl shadow-[#1488A6]/25 hover:shadow-2xl hover:scale-[1.02] transition-all duration-200 cursor-pointer flex items-center justify-center gap-3 group"
-                >
-                  <span>EXPLORE LIVE EXPOS</span>
-                  <ArrowRight className="w-4 h-4 text-teal-200 group-hover:translate-x-1 transition-transform" />
-                </button>
+          <p className="text-sm sm:text-base lg:text-lg text-[#6B7280] dark:text-[#CBD5E1]/90 leading-relaxed max-w-2xl mx-auto">
+            The all-in-one platform for international conventions, technology summits, and trade exhibitions.
+            Experience real-time interactive floor plan matrices, cryptographic QR turnstiles, and synchronized keynote agendas.
+          </p>
 
-                <button
-                  onClick={() => {
-                    if (onSelectExpo && activeHero?.id && !activeHero.id.startsWith("featured_")) {
-                      onSelectExpo(activeHero.id);
-                    } else {
-                      setActiveView("expos");
-                    }
-                  }}
-                  className="w-full sm:w-auto py-3.5 px-6 rounded-2xl bg-white dark:bg-[#1A202C] hover:bg-slate-50 dark:hover:bg-[#203748] text-[#1F2937] dark:text-white font-bold text-sm border border-[#E5E7EB] dark:border-white/10 shadow-xs hover:border-[#38B2AC]/40 transition-all cursor-pointer flex items-center justify-center gap-2"
-                >
-                  <Ticket className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC]" />
-                  <span>Get Pass / Floor Plan</span>
-                </button>
-              </div>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+            <button
+              id="hero-explore-expos-btn"
+              onClick={() => setActiveView("expos")}
+              className="w-full sm:w-auto py-3.5 px-8 rounded-2xl btn-teal-primary text-white font-black tracking-wide text-sm sm:text-base shadow-xl shadow-[#1488A6]/25 hover:shadow-2xl hover:scale-[1.02] transition-all duration-200 cursor-pointer flex items-center justify-center gap-3 group"
+            >
+              <span>EXPLORE LIVE EXPOS</span>
+              <ArrowRight className="w-4 h-4 text-teal-200 group-hover:translate-x-1 transition-transform" />
+            </button>
 
-              {/* Feature Micro-Badges */}
-              <div className="pt-4 border-t border-[#E5E7EB] dark:border-white/10 grid grid-cols-3 gap-3 text-left">
-                <div className="space-y-0.5">
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-[#1F2937] dark:text-white">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-[#38B2AC] shrink-0" />
-                    <span>Spatial Matrix</span>
-                  </div>
-                  <p className="text-[11px] text-[#6B7280] dark:text-[#CBD5E1]/60 font-mono">Live Booth Mapping</p>
-                </div>
-                <div className="space-y-0.5">
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-[#1F2937] dark:text-white">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-[#38B2AC] shrink-0" />
-                    <span>Holographic QR</span>
-                  </div>
-                  <p className="text-[11px] text-[#6B7280] dark:text-[#CBD5E1]/60 font-mono">Turnstile Wallet Pass</p>
-                </div>
-                <div className="space-y-0.5">
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-[#1F2937] dark:text-white">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-[#38B2AC] shrink-0" />
-                    <span>Multi-Track</span>
-                  </div>
-                  <p className="text-[11px] text-[#6B7280] dark:text-[#CBD5E1]/60 font-mono">Keynote Agenda Sync</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Column: Visual Centerpiece Showcase Card with Real Expo Photography */}
-            <div className="lg:col-span-5 relative">
-              {/* Outer Glow Frame */}
-              <div className="relative rounded-3xl p-2 bg-gradient-to-b from-[#1488A6]/40 via-teal-500/10 to-slate-800/50 shadow-2xl border border-white/20 dark:border-white/10">
-                <div className="relative rounded-2xl overflow-hidden bg-slate-950 aspect-[4/3] sm:aspect-[16/11]">
-                  {/* Hero Showcase Photography */}
-                  <img
-                    src={activeHero?.image}
-                    alt={activeHero?.title}
-                    key={activeHero?.image}
-                    className="w-full h-full object-cover transition-all duration-700 hover:scale-105"
-                  />
-                  {/* Gradients */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
-                  <div className="absolute inset-0 bg-gradient-to-r from-slate-950/60 via-transparent to-transparent" />
-
-                  {/* Top Badges */}
-                  <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none">
-                    <span className="px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-slate-950/80 backdrop-blur-md text-[#38B2AC] border border-[#38B2AC]/40 flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                      {activeHero?.category || "Flagship Expo"}
-                    </span>
-                    <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-slate-950/80 backdrop-blur-md text-amber-300 border border-amber-500/30">
-                      {activeHero?.booths} Booths Grid
-                    </span>
-                  </div>
-
-                  {/* Floating Telemetry Glass Chip (Top Right offset) */}
-                  <div className="absolute bottom-20 right-4 hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/90 backdrop-blur-md border border-white/15 text-[11px] text-slate-200 shadow-lg">
-                    <QrCode className="w-3.5 h-3.5 text-[#38B2AC]" />
-                    <span className="font-mono">Instant QR Validation</span>
-                  </div>
-
-                  {/* Bottom Content Overlay */}
-                  <div className="absolute bottom-4 left-4 right-4 text-white space-y-2">
-                    <div className="flex items-center gap-2 text-[11px] text-teal-300 font-mono">
-                      <Calendar className="w-3.5 h-3.5 text-[#38B2AC]" />
-                      <span>{activeHero?.date}</span>
-                      <span>·</span>
-                      <MapPin className="w-3.5 h-3.5 text-[#38B2AC]" />
-                      <span className="truncate">{activeHero?.location}</span>
-                    </div>
-
-                    <h3 className="text-base sm:text-lg font-bold font-heading text-white line-clamp-1">
-                      {activeHero?.title}
-                    </h3>
-
-                    <div className="pt-2 flex items-center justify-between gap-3">
-                      <button
-                        onClick={() => {
-                          if (onSelectExpo && activeHero?.id && !activeHero.id.startsWith("featured_")) {
-                            onSelectExpo(activeHero.id);
-                          } else {
-                            setActiveView("expos");
-                          }
-                        }}
-                        className="px-4 py-1.5 rounded-xl bg-[#38B2AC] hover:bg-[#2C7A7B] text-slate-950 font-extrabold text-xs tracking-wide transition-colors cursor-pointer flex items-center gap-1.5 shadow-md"
-                      >
-                        <span>View Expo Details</span>
-                        <ArrowUpRight className="w-3.5 h-3.5" />
-                      </button>
-
-                      {/* Showcase switcher dots */}
-                      <div className="flex items-center gap-1.5">
-                        {heroShowcaseList.map((_, idx) => (
-                          <button
-                            key={idx}
-                            onClick={() => setActiveHeroIndex(idx)}
-                            aria-label={`Select showcase ${idx + 1}`}
-                            className={`h-2 rounded-full transition-all cursor-pointer ${activeHeroIndex === idx ? "w-6 bg-[#38B2AC]" : "w-2 bg-slate-600 hover:bg-slate-400"
-                              }`}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <button
+              onClick={() => {
+                if (onSelectExpo && activeHero?.id && !activeHero.id.startsWith("featured_")) {
+                  onSelectExpo(activeHero.id);
+                } else {
+                  setActiveView("expos");
+                }
+              }}
+              className="w-full sm:w-auto py-3.5 px-6 rounded-2xl bg-white dark:bg-[#1A202C] hover:bg-slate-50 dark:hover:bg-[#203748] text-[#1F2937] dark:text-white font-bold text-sm border border-[#E5E7EB] dark:border-white/10 shadow-xs hover:border-[#38B2AC]/40 transition-all cursor-pointer flex items-center justify-center gap-2"
+            >
+              <Ticket className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC]" />
+              <span>Get Pass / Floor Plan</span>
+            </button>
           </div>
         </div>
       </section>
 
-      {/* 2. FEATURED GLOBAL SUMMITS & EXHIBITIONS (Dynamic Image Cards) */}
       <section id="featured-expos-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 sm:mb-10">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold teal-badge font-mono mb-2">
-              <Compass className="w-3.5 h-3.5 text-[#1488A6] dark:text-[#38B2AC]" />
-              <span>Flagship Exhibitions</span>
-            </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight font-heading">
               Featured Global Summits
             </h2>
@@ -396,7 +268,6 @@ export const LandingPage = ({
           </button>
         </div>
 
-        {/* 3-Column Visual Expo Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           {(expos.length > 0 ? expos.slice(0, 3) : heroShowcaseList.slice(0, 3)).map((expo, idx) => {
             const expoId = expo._id || expo.id;
@@ -409,7 +280,7 @@ export const LandingPage = ({
                 className="saas-card saas-card-hover rounded-3xl overflow-hidden flex flex-col justify-between group border border-[#E5E7EB] dark:border-white/10 shadow-sm"
               >
                 <div>
-                  {/* Image Banner */}
+
                   <div className="relative h-48 sm:h-52 w-full overflow-hidden bg-slate-900">
                     <img
                       src={imgSrc}
@@ -418,7 +289,6 @@ export const LandingPage = ({
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
 
-                    {/* Category pill */}
                     <div className="absolute top-3 left-3">
                       <span className="px-2.5 py-1 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider bg-slate-950/80 backdrop-blur-md text-[#38B2AC] border border-[#38B2AC]/40">
                         {expo.category || "Technology"}
@@ -437,7 +307,6 @@ export const LandingPage = ({
                     </div>
                   </div>
 
-                  {/* Body Info */}
                   <div className="p-5 sm:p-6 space-y-3">
                     <h3
                       onClick={() => onSelectExpo && expoId && onSelectExpo(expoId)}
@@ -463,7 +332,6 @@ export const LandingPage = ({
                   </div>
                 </div>
 
-                {/* Card Footer Actions */}
                 <div className="p-5 sm:p-6 pt-0 flex items-center justify-between border-t border-[#E5E7EB] dark:border-white/10 mt-auto">
                   <span className="px-2.5 py-1 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                     Free Attendee Pass
@@ -499,13 +367,8 @@ export const LandingPage = ({
         </div>
       </section>
 
-      {/* 3. THREE-PILLAR PLATFORM ARCHITECTURE */}
       <section id="pillars-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16 space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold teal-badge font-mono">
-            <Layers className="w-3.5 h-3.5 text-[#1488A6] dark:text-[#38B2AC]" />
-            <span>Built for Every Stakeholder</span>
-          </div>
           <h2 className="text-2xl sm:text-4xl font-extrabold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight font-heading">
             Tailored Experiences Across The Convention Lifecycle
           </h2>
@@ -515,7 +378,7 @@ export const LandingPage = ({
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-          {/* Organizers */}
+
           <div className="saas-card rounded-3xl p-6 sm:p-8 space-y-5 saas-card-hover flex flex-col justify-between border border-[#E5E7EB] dark:border-white/10">
             <div className="space-y-4">
               <div className="w-12 h-12 rounded-2xl bg-[#1488A6]/10 text-[#1488A6] dark:bg-slate-800 dark:text-[#38B2AC] flex items-center justify-center shadow-xs">
@@ -553,7 +416,6 @@ export const LandingPage = ({
             </div>
           </div>
 
-          {/* Exhibitors */}
           <div className="saas-card rounded-3xl p-6 sm:p-8 space-y-5 saas-card-hover flex flex-col justify-between border-2 border-[#1488A6] dark:border-[#38B2AC] relative shadow-lg">
             <div className="absolute -top-3 left-6">
             </div>
@@ -593,7 +455,6 @@ export const LandingPage = ({
             </div>
           </div>
 
-          {/* Attendees */}
           <div className="saas-card rounded-3xl p-6 sm:p-8 space-y-5 saas-card-hover flex flex-col justify-between border border-[#E5E7EB] dark:border-white/10">
             <div className="space-y-4">
               <div className="w-12 h-12 rounded-2xl bg-[#1488A6]/10 text-[#1488A6] dark:bg-slate-800 dark:text-[#38B2AC] flex items-center justify-center shadow-xs">
@@ -633,7 +494,6 @@ export const LandingPage = ({
         </div>
       </section>
 
-      {/* 4. KEY METRICS & TRUST COUNTER */}
       <section id="statistics-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="saas-card rounded-3xl p-8 sm:p-12 border border-[#E5E7EB] dark:border-white/10 shadow-sm">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center divide-y sm:divide-y-0 sm:divide-x divide-[#E5E7EB] dark:divide-white/10">
@@ -660,13 +520,8 @@ export const LandingPage = ({
         </div>
       </section>
 
-      {/* 5. TESTIMONIALS */}
       <section id="testimonials-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14 space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold teal-badge font-mono">
-            <Award className="w-3.5 h-3.5 text-[#1488A6] dark:text-[#38B2AC]" />
-            <span>Proven Reliability</span>
-          </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight font-heading">
             Trusted by Commercial Organizers Worldwide
           </h2>
@@ -708,7 +563,6 @@ export const LandingPage = ({
         </div>
       </section>
 
-      {/* 6. FAQ SECTION */}
       <section id="faq-section" className="max-w-4xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-10 sm:mb-12 space-y-3">
           <h2 className="text-2xl sm:text-3xl font-extrabold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight font-heading">
@@ -750,17 +604,12 @@ export const LandingPage = ({
         </div>
       </section>
 
-      {/* 7. ENTERPRISE CONTACT & INQUIRIES */}
       <section id="contact-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="saas-card rounded-3xl p-8 sm:p-12 border border-[#E5E7EB] dark:border-white/10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
-            {/* Left: Business Info */}
+
             <div className="lg:col-span-5 space-y-6">
               <div className="space-y-3">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold teal-badge font-mono">
-                  <Mail className="w-3.5 h-3.5 text-[#1488A6] dark:text-[#38B2AC]" />
-                  <span>Enterprise Concierge</span>
-                </div>
                 <h2 className="text-2xl sm:text-3xl font-extrabold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight font-heading">
                   Speak with an Event Specialist
                 </h2>
@@ -802,7 +651,6 @@ export const LandingPage = ({
               </div>
             </div>
 
-            {/* Right: Contact Form */}
             <div className="lg:col-span-7 bg-slate-50 dark:bg-[#0F172A]/60 p-6 sm:p-8 rounded-2xl border border-[#E5E7EB] dark:border-white/10">
               {contactSubmitted ? (
                 <div className="text-center py-8 space-y-3">

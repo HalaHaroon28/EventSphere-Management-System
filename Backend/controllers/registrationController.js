@@ -1,6 +1,5 @@
 import Registration from '../models/Registration.js';
 
-// POST: Register for Expo or Session (Pass Claiming)
 export const registerForExpoOrSession = async (req, res) => {
   try {
     const { expo_id, session_id, pass_tier, user_name, user_email, user_phone } = req.body;
@@ -43,7 +42,6 @@ export const registerForExpoOrSession = async (req, res) => {
   }
 };
 
-// GET: List logged in user's registrations
 export const listMyRegistrations = async (req, res) => {
   try {
     const user_id = req.user.user_id;
@@ -62,7 +60,6 @@ export const listMyRegistrations = async (req, res) => {
   }
 };
 
-// GET: List all registrations across the platform for Dashboard Analytics (Organizer role)
 export const getAllRegistrations = async (req, res) => {
   try {
     const registrations = await Registration.find()

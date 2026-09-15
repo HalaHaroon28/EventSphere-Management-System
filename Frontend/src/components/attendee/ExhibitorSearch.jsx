@@ -53,7 +53,6 @@ export const ExhibitorSearch = ({
     return `http://localhost:5000${cleanPath}`;
   };
 
-  // Helper function to strictly filter out mock test exhibitors
   const isTestExhibitor = (exhId, companyName, description) => {
     if (!exhId) return true;
     const strId = String(exhId).toLowerCase();
@@ -83,15 +82,12 @@ export const ExhibitorSearch = ({
     return false;
   };
 
-  // Filter out static test data from showcases array
   const realDbShowcases = [...(showcases || []), ...(showcase || [])].filter(
     (s) => !isTestExhibitor(s.exhibitor_id, s.company_name, s.description)
   );
 
-  // Map to hold unique real exhibitors from MongoDB
   const exhibitorsMap = {};
 
-  // 1. Process Real Booths from MongoDB (populated with details.products, details.description, details.staff)
   (booths || []).forEach((b) => {
     const isBookedOrReserved = b.status === "booked" || b.status === "reserved" || (b.exhibitor_id && b.exhibitor_id !== null);
     const exhId = typeof b.exhibitor_id === "object" ? b.exhibitor_id?._id : b.exhibitor_id;
@@ -151,7 +147,6 @@ export const ExhibitorSearch = ({
     }
   });
 
-  // 2. Process Approved Exhibitor Applications from MongoDB
   (applications || []).forEach((app) => {
     if (app.status === "approved") {
       const exhId = app.exhibitor_id?._id || app.exhibitor_id;
@@ -200,7 +195,6 @@ export const ExhibitorSearch = ({
     }
   });
 
-  // 3. Process DB Showcase Records
   realDbShowcases.forEach((sc) => {
     const exhId = sc.exhibitor_id;
     if (!exhId || isTestExhibitor(exhId, sc.company_name, sc.description)) return;
@@ -236,7 +230,6 @@ export const ExhibitorSearch = ({
 
   const dynamicExhibitorsList = Object.values(exhibitorsMap);
 
-  // Extract unique categories from exhibitors list
   const availableCategories = Array.from(
     new Set(
       dynamicExhibitorsList
@@ -245,20 +238,19 @@ export const ExhibitorSearch = ({
     )
   );
 
-  // Filter by selected expo, category, and search query
   const filteredShowcases = dynamicExhibitorsList.filter((s) => {
-    // Expo Filter
+
     if (selectedExpoId !== "all") {
       const sExpoId = s.expo_id?._id || s.expo_id;
       if (String(sExpoId) !== String(selectedExpoId)) return false;
     }
-    // Category Filter
+
     if (selectedCategory !== "all") {
       const sCat = (s.category || "").toLowerCase();
       const targetCat = selectedCategory.toLowerCase();
       if (!sCat.includes(targetCat) && !targetCat.includes(sCat)) return false;
     }
-    // Search Query Filter (Matches Company Name, Description, Category, Product Name, or Staff)
+
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       const matchComp = (s.company_name || "").toLowerCase().includes(q);
@@ -306,7 +298,7 @@ export const ExhibitorSearch = ({
 
   return (
     <div id="exhibitor-search-view" className="space-y-8 font-body">
-      {/* Header */}
+
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#E5E7EB] dark:border-white/10 pb-6">
         <div>
           <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#1488A6] dark:text-[#38B2AC]">
@@ -320,7 +312,6 @@ export const ExhibitorSearch = ({
           </p>
         </div>
 
-        {/* Actions & Count Tab */}
         <div className="flex items-center gap-2.5 self-start md:self-auto">
           {onOpenAIMatchmaker && (
             <button
@@ -340,10 +331,8 @@ export const ExhibitorSearch = ({
         </div>
       </div>
 
-      {/* Filter Bar: Search Input + Category Selector + Dynamic Expo Selector */}
       <div className="bg-white dark:bg-[#1A202C] p-4 rounded-2xl border border-[#E5E7EB] dark:border-white/10 shadow-xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
-        
-        {/* Search Query Input */}
+
         <div className="relative flex-1 max-w-md">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7280] dark:text-[#CBD5E1]/60" />
           <input
@@ -355,9 +344,8 @@ export const ExhibitorSearch = ({
           />
         </div>
 
-        {/* Dropdowns: Category Filter & Dynamic Expo Selector */}
         <div className="flex flex-wrap items-center gap-3">
-          {/* Category Dropdown */}
+
           <div className="flex items-center gap-1.5">
             <label className="text-xs font-semibold text-[#6B7280] dark:text-[#CBD5E1]/80 shrink-0">
               Category:
@@ -379,7 +367,6 @@ export const ExhibitorSearch = ({
             </div>
           </div>
 
-          {/* Expo Dropdown */}
           <div className="flex items-center gap-1.5">
             <label className="text-xs font-semibold text-[#6B7280] dark:text-[#CBD5E1]/80 shrink-0 flex items-center gap-1">
               <Calendar className="w-3.5 h-3.5 text-[#1488A6] dark:text-[#38B2AC]" />
@@ -408,7 +395,6 @@ export const ExhibitorSearch = ({
         </div>
       </div>
 
-      {/* Exhibitor Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredShowcases.length === 0 ? (
           <div className="col-span-full py-12 text-center bg-white dark:bg-[#1A202C] rounded-3xl border border-[#E5E7EB] dark:border-white/10 p-6 space-y-2">
@@ -481,7 +467,6 @@ export const ExhibitorSearch = ({
                     {sc.description || "Leading innovation & industry solution vendor."}
                   </p>
 
-                  {/* Showcased Products Badges */}
                   {sc.products && sc.products.length > 0 ? (
                     <div className="space-y-1.5 pt-2 border-t border-[#E5E7EB] dark:border-white/10">
                       <span className="text-[10px] font-mono font-bold uppercase text-[#6B7280] dark:text-[#CBD5E1]/60 flex items-center gap-1">
@@ -510,7 +495,6 @@ export const ExhibitorSearch = ({
                   )}
                 </div>
 
-                {/* Action Buttons */}
                 <div className="pt-3 border-t border-[#E5E7EB] dark:border-white/10 flex items-center justify-between gap-2">
                   <button
                     onClick={() => setActiveShowcaseModal(sc)}
@@ -535,12 +519,10 @@ export const ExhibitorSearch = ({
         )}
       </div>
 
-      {/* CATALOG & FULL SHOWCASE MODAL */}
       {activeShowcaseModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/80 backdrop-blur-xs animate-in fade-in duration-200 font-body">
           <div className="bg-white dark:bg-[#1A202C] rounded-3xl shadow-2xl border border-[#E5E7EB] dark:border-white/10 max-w-2xl w-full flex flex-col max-h-[90vh] overflow-hidden text-[#1F2937] dark:text-[#F8FAFC]">
-            
-            {/* Modal Header */}
+
             <div className="bg-gradient-to-r from-slate-900 via-[#1488A6] to-slate-900 text-white p-5 sm:p-6 flex items-center justify-between shrink-0 relative">
               <div className="flex items-center gap-3">
                 {activeShowcaseModal.logo_url && getMediaUrl(activeShowcaseModal.logo_url) ? (
@@ -590,18 +572,16 @@ export const ExhibitorSearch = ({
               </button>
             </div>
 
-            {/* Modal Body */}
             <div className="p-5 sm:p-6 overflow-y-auto space-y-5 flex-1">
               <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#CBD5E1] leading-relaxed">
                 {activeShowcaseModal.description}
               </p>
 
-            {/* Products Catalog List */}
             <div className="space-y-3">
               <h4 className="text-xs font-bold text-[#1F2937] dark:text-[#F8FAFC] uppercase tracking-wider font-heading flex items-center gap-1.5">
                 <PackageCheck className="w-4 h-4 text-[#38B2AC]" /> Showcased Product Catalog
               </h4>
-              
+
               {activeShowcaseModal.products && activeShowcaseModal.products.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {activeShowcaseModal.products.map((p, idx) => (
@@ -642,7 +622,6 @@ export const ExhibitorSearch = ({
               )}
             </div>
 
-            {/* Staff Attendants */}
             {activeShowcaseModal.staff && activeShowcaseModal.staff.length > 0 && (
               <div className="space-y-2 pt-2 border-t border-[#E5E7EB] dark:border-white/10">
                 <h4 className="text-xs font-bold text-[#1F2937] dark:text-[#F8FAFC] uppercase tracking-wider font-heading flex items-center gap-1.5">
@@ -663,7 +642,6 @@ export const ExhibitorSearch = ({
               </div>
             )}
 
-            {/* Modal Bottom Actions */}
             <div className="pt-4 border-t border-[#E5E7EB] dark:border-white/10 flex items-center justify-between gap-3">
               {activeShowcaseModal.expo_id && (
                 <button

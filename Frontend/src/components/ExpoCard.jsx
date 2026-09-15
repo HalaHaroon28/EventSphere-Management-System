@@ -22,7 +22,7 @@ export const ExpoCard = ({
   return (
     <div className="saas-card saas-card-hover rounded-2xl overflow-hidden flex flex-col justify-between group">
       <div>
-        {/* Banner with overlay */}
+
         <div className="relative h-44 w-full overflow-hidden bg-gradient-to-br from-slate-900 via-[#1488A6]/30 to-slate-950">
           <img
             src={bannerSrc}
@@ -34,14 +34,12 @@ export const ExpoCard = ({
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
 
-          {/* Category badge */}
           <div className="absolute top-3 left-3">
             <span className="px-2.5 py-1 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider bg-slate-950/80 backdrop-blur-md text-[#38B2AC] border border-[#38B2AC]/40">
               {expo.category || "Exhibition"}
             </span>
           </div>
 
-          {/* Status Badge */}
           <div className="absolute top-3 right-3">
             <span
               className={`px-2.5 py-1 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider backdrop-blur-md ${
@@ -56,7 +54,6 @@ export const ExpoCard = ({
             </span>
           </div>
 
-          {/* Date Stamp */}
           <div className="absolute bottom-3 left-3 text-xs font-mono font-medium text-slate-200 flex items-center gap-1.5">
             <Calendar className="w-3.5 h-3.5 text-[#38B2AC]" />
             <span>
@@ -69,7 +66,6 @@ export const ExpoCard = ({
           </div>
         </div>
 
-        {/* Content */}
         <div className="p-5 space-y-3">
           <h3
             onClick={() => onSelect(expo._id)}

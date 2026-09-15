@@ -25,7 +25,6 @@ export const FloorPlanManager = () => {
     fetchBoothsForExpo
   } = useApp();
 
-  // Filter expos for logged-in organizer
   const myExpos = expos.filter((e) => {
     if (!currentUser) return true;
     const orgId = typeof e.organizer_id === "object" ? e.organizer_id?._id : e.organizer_id;
@@ -61,7 +60,6 @@ export const FloorPlanManager = () => {
       String(b.expo_id?._id) === String(selectedExpoId)
   );
 
-  // List approved exhibitors for assignment (only exhibitors with approved applications for this expo)
   const approvedExhibitors = applications
     .filter((app) => {
       const appExpoId = typeof app.expo_id === "object" ? app.expo_id?._id : app.expo_id;
@@ -89,11 +87,10 @@ export const FloorPlanManager = () => {
   const openAddBoothModal = () => {
     setEditingBooth(null);
     const count = expoBooths.length;
-    const rowChar = String.fromCharCode(65 + Math.floor(count / 5)); // A, B, C...
+    const rowChar = String.fromCharCode(65 + Math.floor(count / 5));
     const colNum = String((count % 5) + 1).padStart(2, "0");
     setBoothNumber(`${rowChar}-${colNum}`);
 
-    // Auto-calculate position on blueprint grid
     const col = count % 5;
     const row = Math.floor(count / 5);
     const autoX = Math.min(88, Math.max(12, 15 + col * 18));
@@ -173,7 +170,7 @@ export const FloorPlanManager = () => {
 
   return (
     <div id="floorplan-manager-view" className="space-y-6 font-body">
-      {/* Top Header */}
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight font-heading">
@@ -185,13 +182,13 @@ export const FloorPlanManager = () => {
         </div>
 
         <div className="flex items-center gap-2.5 shrink-0 flex-nowrap">
-          {/* Expo Selector */}
-          <div className="relative">
-            <Calendar className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#1488A6] dark:text-[#38B2AC] pointer-events-none" />
+
+          <div className="relative w-52 sm:w-64 md:w-72 shrink-0">
+            <Calendar className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#1488A6] dark:text-[#38B2AC] pointer-events-none z-10" />
             <select
               value={selectedExpoId}
               onChange={(e) => setSelectedExpoId(e.target.value)}
-              className="pl-9 pr-8 py-2 text-xs sm:text-sm bg-white dark:bg-[#1A202C] border border-[#E5E7EB] dark:border-white/10 rounded-xl font-bold text-[#1F2937] dark:text-[#F8FAFC] shadow-xs focus:outline-none focus:ring-2 focus:ring-[#38B2AC] cursor-pointer max-w-[240px] truncate"
+              className="w-full pl-9 pr-8 py-2 text-xs sm:text-sm bg-white dark:bg-[#1A202C] border border-[#E5E7EB] dark:border-white/10 rounded-xl font-bold text-[#1F2937] dark:text-[#F8FAFC] shadow-xs focus:outline-none focus:ring-2 focus:ring-[#38B2AC] cursor-pointer truncate"
             >
               {displayExpos.map((e) => (
                 <option key={e._id} value={e._id}>
@@ -210,7 +207,6 @@ export const FloorPlanManager = () => {
         </div>
       </div>
 
-      {/* Summary Occupancy Bar */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-white dark:bg-[#1A202C] p-4 sm:p-5 rounded-2xl border border-[#E5E7EB] dark:border-white/10 shadow-xs text-xs sm:text-sm">
         <div>
           <span className="text-[10px] sm:text-xs uppercase font-bold text-[#6B7280] dark:text-[#CBD5E1]/70 block font-mono">Total Mapped</span>
@@ -232,7 +228,6 @@ export const FloorPlanManager = () => {
         </div>
       </div>
 
-      {/* Interactive Blueprint Canvas View */}
       <div className="space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs text-[#6B7280] dark:text-[#CBD5E1]/80 gap-1.5 font-mono">
           <span>Active Venue: <strong className="text-[#1F2937] dark:text-[#F8FAFC]">{currentExpo?.location || "Main Convention Center"}</strong></span>
@@ -245,7 +240,6 @@ export const FloorPlanManager = () => {
         />
       </div>
 
-      {/* Add / Edit Booth Modal */}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
           <div className="bg-white dark:bg-[#1A202C] rounded-3xl shadow-2xl border border-[#E5E7EB] dark:border-white/10 max-w-md w-full p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150 max-h-[90vh] overflow-y-auto">
@@ -268,7 +262,7 @@ export const FloorPlanManager = () => {
 
             <form onSubmit={handleFormSubmit} className="space-y-3.5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {/* Booth Number */}
+
                 <div>
                   <label className="block text-xs font-bold text-[#1F2937] dark:text-[#CBD5E1] uppercase tracking-wider font-mono mb-1">
                     Booth Number *
@@ -283,7 +277,6 @@ export const FloorPlanManager = () => {
                   />
                 </div>
 
-                {/* Booth Tier (Size) */}
                 <div>
                   <label className="block text-xs font-bold text-[#1F2937] dark:text-[#CBD5E1] uppercase tracking-wider font-mono mb-1">
                     Booth Tier (Size) *
@@ -299,7 +292,6 @@ export const FloorPlanManager = () => {
                   </select>
                 </div>
 
-                {/* Booth Fee */}
                 <div>
                   <label className="block text-xs font-bold text-[#1F2937] dark:text-[#CBD5E1] uppercase tracking-wider font-mono mb-1">
                     Booth Fee (PKR) *
@@ -314,7 +306,6 @@ export const FloorPlanManager = () => {
                   />
                 </div>
 
-                {/* Status */}
                 <div>
                   <label className="block text-xs font-bold text-[#1F2937] dark:text-[#CBD5E1] uppercase tracking-wider font-mono mb-1">
                     Status
@@ -330,7 +321,6 @@ export const FloorPlanManager = () => {
                   </select>
                 </div>
 
-                {/* Position X */}
                 <div>
                   <label className="block text-xs font-bold text-[#1F2937] dark:text-[#CBD5E1] uppercase tracking-wider font-mono mb-1">
                     X-Position (% 10-90)
@@ -346,7 +336,6 @@ export const FloorPlanManager = () => {
                   />
                 </div>
 
-                {/* Position Y */}
                 <div>
                   <label className="block text-xs font-bold text-[#1F2937] dark:text-[#CBD5E1] uppercase tracking-wider font-mono mb-1">
                     Y-Position (% 10-90)
@@ -362,7 +351,6 @@ export const FloorPlanManager = () => {
                   />
                 </div>
 
-                {/* Assign Approved Exhibitor Dropdown */}
                 <div className="sm:col-span-2">
                   <label className="block text-xs font-bold text-[#1F2937] dark:text-[#CBD5E1] uppercase tracking-wider font-mono mb-1 flex items-center justify-between">
                     <span>Assign Approved Exhibitor</span>
@@ -405,17 +393,17 @@ export const FloorPlanManager = () => {
                   <div />
                 )}
 
-                <div className="flex gap-2">
+                <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2 w-full sm:w-auto">
                   <button
                     type="button"
                     onClick={() => setIsAddModalOpen(false)}
-                    className="px-3 py-1.5 rounded-xl text-xs font-semibold text-[#6B7280] dark:text-[#CBD5E1] hover:bg-slate-100 dark:hover:bg-[#0F172A] cursor-pointer"
+                    className="w-full sm:w-auto px-4 py-2 rounded-xl text-xs font-semibold text-[#6B7280] dark:text-[#CBD5E1] hover:bg-slate-100 dark:hover:bg-[#0F172A] cursor-pointer text-center"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 btn-teal-primary text-xs sm:text-sm font-bold rounded-xl shadow-xs cursor-pointer"
+                    className="w-full sm:w-auto px-5 py-2 btn-teal-primary text-xs sm:text-sm font-bold rounded-xl shadow-xs cursor-pointer flex items-center justify-center"
                   >
                     {editingBooth ? "Save Changes" : "Place Booth"}
                   </button>

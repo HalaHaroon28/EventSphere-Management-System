@@ -17,8 +17,8 @@ export const AuthModal = ({ isOpen, onClose, initialMode = "login" }) => {
   const { login, register, resetPassword } = useAuth();
   const { showToast } = useApp();
 
-  const [mode, setMode] = useState(initialMode); // 'login' | 'register' | 'forgot'
-  const [selectedRole, setSelectedRole] = useState("organizer"); // 'organizer' | 'exhibitor' | 'attendee'
+  const [mode, setMode] = useState(initialMode);
+  const [selectedRole, setSelectedRole] = useState("organizer");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -79,7 +79,7 @@ export const AuthModal = ({ isOpen, onClose, initialMode = "login" }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/75 backdrop-blur-xs">
       <div className="bg-white dark:bg-[#1A202C] rounded-2xl sm:rounded-3xl shadow-2xl border border-[#E5E7EB] dark:border-white/10 max-w-md w-full overflow-hidden animate-in fade-in zoom-in-95 duration-200 font-body">
-        {/* Modal Header */}
+
         <div className="bg-gradient-to-r from-slate-900 via-[#1488A6] to-slate-900 text-white p-5 sm:p-6 relative">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -104,7 +104,6 @@ export const AuthModal = ({ isOpen, onClose, initialMode = "login" }) => {
             {mode === "login" ? "Select your role or click any demo preset below for instant login." : mode === "register" ? "One unified registration flow with role-specific panel assignment." : "Simulated password recovery link generator."}
           </p>
 
-          {/* Quick 1-Click Persona Pre-fill Bar */}
           {mode === "login" && (
             <div className="mt-4 pt-3 border-t border-white/10 flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
               <span className="text-[10px] text-[#CBD5E1]/70 font-medium shrink-0">Demo Profiles:</span>
@@ -145,9 +144,8 @@ export const AuthModal = ({ isOpen, onClose, initialMode = "login" }) => {
           )}
         </div>
 
-        {/* Modal Body */}
         <div className="p-5 sm:p-6 space-y-4 sm:space-y-5">
-          {/* Role Selector Tabs (Organizer / Exhibitor / Attendee) */}
+
           {mode !== "forgot" && (
             <div>
               <label className="block text-xs font-bold uppercase font-mono tracking-wider text-[#6B7280] dark:text-[#CBD5E1]/70 mb-2">
@@ -196,7 +194,6 @@ export const AuthModal = ({ isOpen, onClose, initialMode = "login" }) => {
             </div>
           )}
 
-          {/* Login Form */}
           {mode === "login" && (
             <form onSubmit={handleLogin} className="space-y-3.5">
               <div>
@@ -248,7 +245,6 @@ export const AuthModal = ({ isOpen, onClose, initialMode = "login" }) => {
             </form>
           )}
 
-          {/* Register Form */}
           {mode === "register" && (
             <form onSubmit={handleRegister} className="space-y-3">
               <div>
@@ -323,7 +319,6 @@ export const AuthModal = ({ isOpen, onClose, initialMode = "login" }) => {
             </form>
           )}
 
-          {/* Simulated Forgot Password */}
           {mode === "forgot" && (
             <form onSubmit={handleForgotPassword} className="space-y-3.5">
               <div>
@@ -361,7 +356,6 @@ export const AuthModal = ({ isOpen, onClose, initialMode = "login" }) => {
             </form>
           )}
 
-          {/* Footer toggle */}
           <div className="pt-3 border-t border-[#E5E7EB] dark:border-white/10 text-center text-xs text-[#6B7280] dark:text-[#CBD5E1]">
             {mode === "login" ? (
               <span>

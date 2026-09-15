@@ -26,7 +26,7 @@ const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const response = await authService.login(email, password);
-    
+
     if (response.otpRequired) {
       return {
         otpRequired: true,
@@ -38,25 +38,25 @@ const AuthProvider = ({ children }) => {
         message: response.message,
       };
     }
-    
+
     if (response.token) {
       authService.setToken(response.token);
       authService.setUser(response.user);
       setUser(response.user);
     }
-    
+
     return { success: true, user: response.user };
   };
 
   const verifyOtp = async (userId, otpCode) => {
     const response = await authService.verifyOtp(userId, otpCode);
-    
+
     if (response.token) {
       authService.setToken(response.token);
       authService.setUser(response.user);
       setUser(response.user);
     }
-    
+
     return { success: true, user: response.user };
   };
 

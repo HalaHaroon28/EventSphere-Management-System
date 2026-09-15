@@ -2,10 +2,8 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 
-// Target directory set to uploads/documents
 const uploadDir = 'uploads/documents';
 
-// Ensure the folder exists before saving files
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
@@ -23,10 +21,9 @@ const storage = multer.diskStorage({
 
 export const uploadDocument = multer({
   storage,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+  limits: { fileSize: 10 * 1024 * 1024 },
 });
 
-// Target directory for expo images
 const expoUploadDir = 'uploads/expos';
 if (!fs.existsSync(expoUploadDir)) {
   fs.mkdirSync(expoUploadDir, { recursive: true });

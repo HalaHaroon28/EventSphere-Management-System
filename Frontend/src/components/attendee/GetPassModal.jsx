@@ -35,7 +35,7 @@ export const GetPassModal = ({ expo, onClose, onSuccess }) => {
 
     setIsSubmitting(true);
     try {
-      // Register for expo and get registration details
+
       const registrationData = {
         name,
         email,
@@ -45,7 +45,6 @@ export const GetPassModal = ({ expo, onClose, onSuccess }) => {
 
       const newRegistration = await registerForExpo(expo._id, passTier, registrationData);
 
-      // Construct complete registration object
       const passInfo = {
         ...newRegistration,
         user_name: name,
@@ -56,7 +55,6 @@ export const GetPassModal = ({ expo, onClose, onSuccess }) => {
         ticket_number: newRegistration?.ticket_number || `EVT-${Math.floor(100000 + Math.random() * 900000)}`
       };
 
-      // Generate PNG image & trigger download
       generatePassImage(passInfo, expo);
 
       if (onSuccess) onSuccess(passInfo);
@@ -72,8 +70,7 @@ export const GetPassModal = ({ expo, onClose, onSuccess }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs animate-in fade-in duration-200">
       <div className="bg-white dark:bg-[#1A202C] rounded-3xl shadow-2xl border border-[#E5E7EB] dark:border-white/10 max-w-lg w-full overflow-hidden flex flex-col max-h-[90vh]">
-        
-        {/* Modal Header */}
+
         <div className="bg-gradient-to-r from-slate-900 via-[#1488A6] to-slate-900 text-white p-5 sm:p-6 flex items-center justify-between shrink-0 relative">
           <div className="flex items-center gap-3">
             <div className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-[#38B2AC] flex items-center justify-center shrink-0">
@@ -114,7 +111,6 @@ export const GetPassModal = ({ expo, onClose, onSuccess }) => {
           </button>
         </div>
 
-        {/* Prefilled Form Content */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto flex-1 font-body">
           <div className="bg-slate-50 dark:bg-[#0F172A] p-4 rounded-2xl border border-[#E5E7EB] dark:border-white/10 flex items-center justify-between">
             <div>
@@ -134,7 +130,6 @@ export const GetPassModal = ({ expo, onClose, onSuccess }) => {
               Passholder Information
             </h4>
 
-            {/* Name Field */}
             <div>
               <label className="block text-xs font-semibold text-[#1F2937] dark:text-[#CBD5E1] mb-1">
                 Full Name
@@ -152,7 +147,6 @@ export const GetPassModal = ({ expo, onClose, onSuccess }) => {
               </div>
             </div>
 
-            {/* Email Field */}
             <div>
               <label className="block text-xs font-semibold text-[#1F2937] dark:text-[#CBD5E1] mb-1">
                 Email Address
@@ -170,7 +164,6 @@ export const GetPassModal = ({ expo, onClose, onSuccess }) => {
               </div>
             </div>
 
-            {/* Phone Number Field */}
             <div>
               <label className="block text-xs font-semibold text-[#1F2937] dark:text-[#CBD5E1] mb-1">
                 Contact Phone Number
@@ -188,7 +181,6 @@ export const GetPassModal = ({ expo, onClose, onSuccess }) => {
               </div>
             </div>
 
-            {/* Pass Tier Selector */}
             <div>
               <label className="block text-xs font-semibold text-[#1F2937] dark:text-[#CBD5E1] mb-1">
                 Select Pass Category
@@ -205,12 +197,11 @@ export const GetPassModal = ({ expo, onClose, onSuccess }) => {
             </div>
           </div>
 
-          {/* Actions */}
-          <div className="pt-4 flex items-center justify-end gap-3 border-t border-[#E5E7EB] dark:border-white/10">
+          <div className="pt-4 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2.5 sm:gap-3 border-t border-[#E5E7EB] dark:border-white/10 shrink-0">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl border border-[#E5E7EB] dark:border-white/10 text-xs font-bold text-[#6B7280] dark:text-[#CBD5E1] hover:bg-slate-100 dark:hover:bg-[#203748] transition-colors cursor-pointer"
+              className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-[#E5E7EB] dark:border-white/10 text-xs font-bold text-[#6B7280] dark:text-[#CBD5E1] hover:bg-slate-100 dark:hover:bg-[#203748] transition-colors cursor-pointer text-center"
             >
               Cancel
             </button>
@@ -218,7 +209,7 @@ export const GetPassModal = ({ expo, onClose, onSuccess }) => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2.5 rounded-xl btn-teal-primary text-white text-xs sm:text-sm font-bold shadow-md flex items-center gap-2 transition-all cursor-pointer disabled:opacity-50"
+              className="w-full sm:w-auto px-5 py-2.5 rounded-xl btn-teal-primary text-white text-xs sm:text-sm font-bold shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-50"
             >
               {isSubmitting ? (
                 <>Generating Pass...</>

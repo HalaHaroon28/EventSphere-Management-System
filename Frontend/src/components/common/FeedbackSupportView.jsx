@@ -25,14 +25,12 @@ export const FeedbackSupportView = () => {
   const [submittedSuccess, setSubmittedSuccess] = useState(false);
   const [filterStatus, setFilterStatus] = useState("all");
 
-  // Sync selectedExpoId if expos load asynchronously
   useEffect(() => {
     if (expos.length > 0 && (!selectedExpoId || !expos.some((e) => e._id === selectedExpoId || String(e._id) === String(selectedExpoId)))) {
       setSelectedExpoId(expos[0]._id);
     }
   }, [expos, selectedExpoId]);
 
-  // Fetch feedback list from MongoDB on mount
   useEffect(() => {
     if (typeof fetchFeedbackList === "function") {
       fetchFeedbackList();
@@ -42,7 +40,6 @@ export const FeedbackSupportView = () => {
   const selectedExpo = expos.find((e) => e._id === selectedExpoId || String(e._id) === String(selectedExpoId)) || expos[0];
   const userIdStr = String(currentUser?._id || currentUser?.user_id || "");
 
-  // Filter feedback entries to ONLY show the logged in user's own submissions
   const myFeedback = (feedbackList || []).filter((f) => {
     const fUserId = typeof f.user_id === "object" ? f.user_id?._id : f.user_id;
     if (fUserId) return String(fUserId) === userIdStr;
@@ -84,7 +81,7 @@ export const FeedbackSupportView = () => {
 
   return (
     <div id="feedback-support-view" className="space-y-6 font-body">
-      {/* Top Standard Header (matching My Schedule page) */}
+
       <div>
         <h2 className="text-xl sm:text-2xl font-bold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight font-heading">
           Feedback & Support
@@ -94,7 +91,6 @@ export const FeedbackSupportView = () => {
         </p>
       </div>
 
-      {/* Main Ticket Submission Form */}
       <div className="bg-white dark:bg-[#1A202C] p-6 rounded-2xl border border-[#E5E7EB] dark:border-white/10 shadow-xs space-y-5">
         <div className="flex items-center justify-between border-b border-[#E5E7EB] dark:border-white/10 pb-3">
           <h3 className="text-base font-bold text-[#1F2937] dark:text-[#F8FAFC] font-heading flex items-center gap-2">
@@ -114,7 +110,7 @@ export const FeedbackSupportView = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Category Selector */}
+
             <div className="space-y-1">
               <label className="text-xs font-bold text-[#1F2937] dark:text-[#F8FAFC] block font-heading">
                 Category
@@ -131,7 +127,6 @@ export const FeedbackSupportView = () => {
               </select>
             </div>
 
-            {/* Related Expo Selector */}
             <div className="space-y-1">
               <label className="text-xs font-bold text-[#1F2937] dark:text-[#F8FAFC] block font-heading">
                 Related Expo / Event
@@ -150,7 +145,6 @@ export const FeedbackSupportView = () => {
             </div>
           </div>
 
-          {/* Text Area */}
           <div className="space-y-1">
             <label className="text-xs font-bold text-[#1F2937] dark:text-[#F8FAFC] block font-heading">
               Your Message
@@ -165,7 +159,6 @@ export const FeedbackSupportView = () => {
             />
           </div>
 
-          {/* Submit Action */}
           <div className="flex justify-end pt-1">
             <button
               type="submit"
@@ -186,7 +179,6 @@ export const FeedbackSupportView = () => {
         </form>
       </div>
 
-      {/* Past Sent Feedback Notes */}
       <div className="bg-white dark:bg-[#1A202C] p-6 rounded-2xl border border-[#E5E7EB] dark:border-white/10 shadow-xs space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E5E7EB] dark:border-white/10 pb-3">
           <h3 className="text-base font-bold text-[#1F2937] dark:text-[#F8FAFC] font-heading flex items-center gap-2">

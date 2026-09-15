@@ -171,7 +171,7 @@ export const Sidebar = ({
 
   const sidebarContent = (
     <div className="h-full flex flex-col justify-between select-none bg-white dark:bg-[#0F172A] text-[#1F2937] dark:text-[#F8FAFC]">
-      {/* Top Header & Navigation */}
+
       <div className="flex-1 overflow-y-auto">
         <div className={`h-16 sm:h-20 px-3 sm:px-4 border-b border-[#E5E7EB] dark:border-white/10 flex items-center ${isCollapsed ? "justify-center" : "justify-between"}`}>
           <div
@@ -195,7 +195,7 @@ export const Sidebar = ({
 
           {!isCollapsed && (
             <div className="flex items-center gap-1 shrink-0">
-              {/* Mobile Close Button */}
+
               <button
                 onClick={onCloseMobile}
                 className="md:hidden p-2 rounded-xl text-[#6B7280] dark:text-[#CBD5E1] hover:text-[#1F2937] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#1A202C] transition-colors cursor-pointer"
@@ -204,7 +204,6 @@ export const Sidebar = ({
                 <X className="w-5 h-5" />
               </button>
 
-              {/* Desktop Collapse Toggle (Shown only when expanded) */}
               <button
                 id="sidebar-toggle-collapse-btn"
                 onClick={onToggleCollapse}
@@ -218,7 +217,6 @@ export const Sidebar = ({
           )}
         </div>
 
-        {/* User Identity */}
         {!isCollapsed ? (
           <div className="m-3 p-3.5 rounded-2xl bg-[#F8FAFC] dark:bg-[#1A202C] border border-[#E5E7EB] dark:border-white/10 space-y-3 shadow-xs">
             <div className="flex items-center justify-between">
@@ -274,7 +272,6 @@ export const Sidebar = ({
           </div>
         )}
 
-        {/* Navigation Section Items */}
         <div className="px-3 py-2 space-y-5">
           {sections.map((section, idx) => (
             <div key={idx} className="space-y-1.5">
@@ -327,7 +324,7 @@ export const Sidebar = ({
 
   return (
     <>
-      {/* Desktop Persistent Sidebar */}
+
       <aside
         id="persistent-desktop-sidebar"
         onClick={() => {
@@ -340,7 +337,6 @@ export const Sidebar = ({
         {sidebarContent}
       </aside>
 
-      {/* Mobile Drawer Backdrop & Drawer */}
       {mobileOpen && (
         <div
           id="mobile-sidebar-backdrop"

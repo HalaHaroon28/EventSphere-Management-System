@@ -39,7 +39,6 @@ export const RegisterPage = ({ initialRole = "organizer" }) => {
   const [pfpPreview, setPfpPreview] = useState(null);
   const fileInputRef = useRef(null);
 
-  // OTP Verification Modal State
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [pendingUserId, setPendingUserId] = useState(null);
   const [devOtpCode, setDevOtpCode] = useState(null);
@@ -147,7 +146,7 @@ export const RegisterPage = ({ initialRole = "organizer" }) => {
 
   return (
     <div id="register-page-root" className="min-h-[calc(100vh-140px)] flex flex-col justify-center py-4 sm:py-8 md:py-12 px-3 sm:px-6 font-body">
-      {/* Back button */}
+
       <div className="max-w-5xl w-full mx-auto mb-4 sm:mb-6">
         <button
           onClick={() => setActiveView("landing")}
@@ -160,7 +159,7 @@ export const RegisterPage = ({ initialRole = "organizer" }) => {
 
       <div className="max-w-5xl w-full mx-auto">
         <div className="bg-white dark:bg-[#1A202C] rounded-2xl sm:rounded-3xl border border-[#E5E7EB] dark:border-white/10 shadow-xl overflow-hidden grid grid-cols-1 lg:grid-cols-12">
-          {/* Left Brand Panel */}
+
           <div className="lg:col-span-5 bg-gradient-to-br from-[#0F172A] via-[#1A202C] to-[#203748] text-white p-6 sm:p-8 lg:p-12 flex flex-col justify-between relative overflow-hidden order-last lg:order-first">
             <div
               className="absolute inset-0 opacity-10 pointer-events-none"
@@ -226,10 +225,9 @@ export const RegisterPage = ({ initialRole = "organizer" }) => {
             </div>
           </div>
 
-          {/* Right Form Area */}
           <div className="lg:col-span-7 p-5 sm:p-8 md:p-10 lg:p-12 flex flex-col justify-between space-y-6">
             <div className="space-y-5 sm:space-y-6">
-              {/* Header */}
+
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-[#1488A6] dark:bg-[#38B2AC]" />
@@ -245,7 +243,6 @@ export const RegisterPage = ({ initialRole = "organizer" }) => {
                 </p>
               </div>
 
-              {/* Role Selector Tabs */}
               <div className="space-y-2">
                 <label className="text-[11px] sm:text-xs font-bold text-[#1F2937] dark:text-[#CBD5E1] uppercase tracking-wider font-mono block">
                   Choose Workspace Role
@@ -289,9 +286,8 @@ export const RegisterPage = ({ initialRole = "organizer" }) => {
                 </div>
               </div>
 
-              {/* Registration Form */}
               <form onSubmit={handleRegister} className="space-y-3.5 sm:space-y-4">
-                {/* Profile Picture Upload Section */}
+
                 <div className="flex items-center gap-3.5 sm:gap-4 p-3 bg-slate-50 dark:bg-[#0F172A] rounded-2xl border border-[#E5E7EB] dark:border-white/10">
                   <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden shrink-0 bg-slate-200 dark:bg-[#203748] border-2 border-[#1488A6] dark:border-[#38B2AC] flex items-center justify-center">
                     {pfpPreview ? (
@@ -375,7 +371,6 @@ export const RegisterPage = ({ initialRole = "organizer" }) => {
                   </div>
                 </div>
 
-                {/* Phone */}
                 <div>
                   <label className="block text-xs font-bold text-[#1F2937] dark:text-[#CBD5E1] uppercase tracking-wider font-mono mb-1.5">
                     Mobile Phone *
@@ -394,7 +389,6 @@ export const RegisterPage = ({ initialRole = "organizer" }) => {
                   </div>
                 </div>
 
-                {/* Password Fields */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="block text-xs font-bold text-[#1F2937] dark:text-[#CBD5E1] uppercase tracking-wider font-mono mb-1.5">
@@ -472,7 +466,6 @@ export const RegisterPage = ({ initialRole = "organizer" }) => {
               </form>
             </div>
 
-            {/* Switch to Login */}
             <div className="pt-4 sm:pt-6 border-t border-[#E5E7EB] dark:border-white/10 text-center text-xs sm:text-sm text-[#6B7280] dark:text-[#CBD5E1]/70">
               <span>Already registered? </span>
               <button
@@ -487,7 +480,6 @@ export const RegisterPage = ({ initialRole = "organizer" }) => {
         </div>
       </div>
 
-      {/* Verification OTP Modal on Sign Up */}
       <OTPVerificationModal
         isOpen={showOtpModal}
         onClose={() => setShowOtpModal(false)}

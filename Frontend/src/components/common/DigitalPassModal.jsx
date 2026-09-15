@@ -32,10 +32,9 @@ export const DigitalPassModal = ({ registrationId, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/85 backdrop-blur-md animate-in fade-in zoom-in-95 duration-200">
-      <div className="max-w-md w-full flex flex-col space-y-4">
-        
-        {/* Top Actions */}
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/85 backdrop-blur-md overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+      <div className="max-w-md w-full flex flex-col space-y-4 my-auto max-h-[95dvh] overflow-y-auto no-scrollbar">
+
         <div className="flex items-center justify-between px-1 text-white">
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-[#38B2AC] animate-pulse" />
@@ -51,20 +50,16 @@ export const DigitalPassModal = ({ registrationId, onClose }) => {
           </button>
         </div>
 
-        {/* VERTICAL CONFERENCE LANYARD BADGE (MATCHING REFERENCE DESIGN) */}
         <div className="relative bg-gradient-to-b from-[#0F0C20] via-[#1D1035] to-[#070E1B] rounded-3xl border border-white/20 shadow-2xl overflow-hidden text-white flex flex-col">
-          
-          {/* Lanyard Top Acrylic Slot Bar */}
+
           <div className="bg-white/5 border-b border-white/10 h-10 flex items-center justify-center relative">
             <div className="w-24 h-4 rounded-full bg-[#090614] border border-white/20 flex items-center justify-center">
               <div className="w-16 h-1.5 rounded-full bg-slate-800" />
             </div>
           </div>
 
-          {/* Badge Main Body */}
           <div className="p-6 sm:p-7 text-center space-y-5 relative flex-1">
-            
-            {/* Top Brand Logo */}
+
             <div className="flex flex-col items-center space-y-1">
               <div className="grid grid-cols-3 gap-1">
                 {[...Array(9)].map((_, i) => (
@@ -79,7 +74,6 @@ export const DigitalPassModal = ({ registrationId, onClose }) => {
               </span>
             </div>
 
-            {/* Event Category & Title */}
             <div className="space-y-1.5 pt-2">
               <span className="text-[11px] font-bold text-slate-300 uppercase tracking-wider block">
                 {expo?.category || "PRECISION MEDICINE"}
@@ -89,13 +83,11 @@ export const DigitalPassModal = ({ registrationId, onClose }) => {
               </h2>
             </div>
 
-            {/* Date Pill Badge */}
             <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white/10 border border-[#00D2FF]/40 text-[#00D2FF] text-xs font-mono font-bold">
               <Calendar className="w-3.5 h-3.5" />
               {expo?.date ? new Date(expo.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "20 Sep - 22 Sep 2026"}
             </div>
 
-            {/* Passholder Name Section */}
             <div className="pt-2 space-y-1">
               <span className="text-xs font-medium text-slate-400 block">Passholder</span>
               <h3 className="text-2xl font-black text-white font-heading tracking-tight">
@@ -104,7 +96,6 @@ export const DigitalPassModal = ({ registrationId, onClose }) => {
               <p className="text-xs font-mono text-slate-300">{registration.user_email}</p>
             </div>
 
-            {/* High Contrast Vector QR Code */}
             <div className="flex flex-col items-center pt-2">
               <div className="p-3 bg-white rounded-2xl border-2 border-[#38B2AC]/40 shadow-xl flex flex-col items-center">
                 <QrCode className="w-28 h-28 text-slate-900" />
@@ -118,13 +109,11 @@ export const DigitalPassModal = ({ registrationId, onClose }) => {
             </div>
           </div>
 
-          {/* SOLID WHITE BOTTOM PARTICIPANT BANNER (EXACT TO REFERENCE) */}
           <div className="bg-white py-4 px-6 text-center text-slate-950 font-black text-xl tracking-[0.2em] font-heading uppercase border-t border-white/20">
             {passTier}
           </div>
         </div>
 
-        {/* BOTTOM DOWNLOAD PNG BUTTON */}
         <div className="flex items-center justify-between gap-3 pt-1">
           <button
             onClick={handleDownloadImage}

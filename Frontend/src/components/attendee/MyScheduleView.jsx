@@ -27,21 +27,18 @@ export const MyScheduleView = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTopic, setSelectedTopic] = useState("all");
 
-  // Sync selectedExpoId when expos load
   useEffect(() => {
     if (expos.length > 0 && (!selectedExpoId || !expos.some((e) => e._id === selectedExpoId || String(e._id) === String(selectedExpoId)))) {
       setSelectedExpoId(expos[0]._id);
     }
   }, [expos, selectedExpoId]);
 
-  // Fetch bookmarks from MongoDB on mount
   useEffect(() => {
     if (fetchBookmarksApi) {
       fetchBookmarksApi();
     }
   }, []);
 
-  // Fetch sessions from MongoDB when selected expo changes
   useEffect(() => {
     if (selectedExpoId && fetchSessionsForExpo) {
       fetchSessionsForExpo(selectedExpoId);
@@ -50,7 +47,6 @@ export const MyScheduleView = () => {
 
   const currentUserId = currentUser?._id || currentUser?.user_id;
 
-  // Helper to check if session is bookmarked in MongoDB state
   const isBookmarked = (sessionId) => {
     return (bookmarks || []).some((b) => {
       const bSessId = typeof b.session_id === "object" ? b.session_id?._id : b.session_id;
@@ -88,7 +84,7 @@ export const MyScheduleView = () => {
 
   return (
     <div id="my-schedule-view" className="space-y-6 font-body">
-      {/* Header */}
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight font-heading">
@@ -99,7 +95,6 @@ export const MyScheduleView = () => {
           </p>
         </div>
 
-        {/* Dynamic Expo Selector */}
         <div className="flex items-center gap-2">
           <Calendar className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC] shrink-0" />
           <select
@@ -119,7 +114,6 @@ export const MyScheduleView = () => {
         </div>
       </div>
 
-      {/* Filter Bar & Topic Badges */}
       <div className="bg-white dark:bg-[#1A202C] p-4 rounded-2xl border border-[#E5E7EB] dark:border-white/10 shadow-xs space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
@@ -157,7 +151,6 @@ export const MyScheduleView = () => {
           </div>
         </div>
 
-        {/* Dynamic Topic Badges Filter */}
         {topics.length > 1 && (
           <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-[#E5E7EB] dark:border-white/10 text-xs">
             <span className="text-[11px] font-bold text-[#6B7280] dark:text-[#CBD5E1]/70 uppercase tracking-wider font-mono mr-1">
@@ -179,7 +172,6 @@ export const MyScheduleView = () => {
         )}
       </div>
 
-      {/* Sessions Timeline List */}
       <div className="space-y-3">
         {filteredSessions.length === 0 ? (
           <div className="py-12 bg-white dark:bg-[#1A202C] rounded-2xl border border-[#E5E7EB] dark:border-white/10 text-center text-xs sm:text-sm text-[#6B7280] dark:text-[#CBD5E1]/70 p-6 space-y-2">
@@ -271,4 +263,3 @@ export const MyScheduleView = () => {
 };
 
 export default MyScheduleView;
-

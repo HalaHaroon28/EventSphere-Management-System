@@ -5,7 +5,6 @@ import Registration from '../models/Registration.js';
 import Bookmark from '../models/Bookmark.js';
 import Session from '../models/Session.js';
 
-// GET /api/expos/:expoId/analytics
 export const getExpoAnalytics = async (req, res) => {
   try {
     const { expoId } = req.params;
@@ -16,7 +15,6 @@ export const getExpoAnalytics = async (req, res) => {
 
     const expoObjectId = new mongoose.Types.ObjectId(expoId);
 
-    // Verify Expo existence and authorization
     const expo = await Expo.findById(expoObjectId);
     if (!expo) {
       return res.status(404).json({ message: 'Expo not found' });
@@ -26,7 +24,6 @@ export const getExpoAnalytics = async (req, res) => {
       return res.status(403).json({ message: 'Not authorized to view analytics for this Expo' });
     }
 
-    // 1. Booth Traffic & Occupancy Metrics
     const boothMetrics = await Booth.aggregate([
       { $match: { expo_id: expoObjectId } },
       {
@@ -46,7 +43,6 @@ export const getExpoAnalytics = async (req, res) => {
       },
     ]);
 
-    // 2. Attendee Engagement Metrics
     const totalExpoRegistrations = await Registration.countDocuments({
       expo_id: expoObjectId,
       session_id: null,
@@ -57,7 +53,6 @@ export const getExpoAnalytics = async (req, res) => {
       session_id: { $ne: null },
     });
 
-    // 3. Session Popularity Metrics (Registrations & Bookmarks per Session)
     const sessionAnalytics = await Session.aggregate([
       { $match: { expo_id: expoObjectId } },
       {

@@ -36,7 +36,6 @@ export const OrganizerDashboard = ({
     fetchNotifications
   } = useApp();
 
-  // Fetch live organizer data on mount
   useEffect(() => {
     if (typeof fetchExpos === "function") fetchExpos();
     if (typeof fetchApplications === "function") fetchApplications();
@@ -52,7 +51,7 @@ export const OrganizerDashboard = ({
 
   return (
     <div id="organizer-dashboard" className="space-y-8">
-      {/* Top Banner / Metrics Overview */}
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2.5">
@@ -66,9 +65,8 @@ export const OrganizerDashboard = ({
         </div>
       </div>
 
-      {/* 4 Primary KPI Cards using MetricCard */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {/* Card 1: Active Expos */}
+
         <MetricCard
           id="metric-active-expos"
           title="Total Expos"
@@ -86,7 +84,6 @@ export const OrganizerDashboard = ({
           actionLabel="Manage"
         />
 
-        {/* Card 2: Live Applications */}
         <MetricCard
           id="metric-live-applications"
           title="Exhibitor Applications"
@@ -105,7 +102,6 @@ export const OrganizerDashboard = ({
           actionLabel="Review"
         />
 
-        {/* Card 3: Total Booths & Occupancy */}
         <MetricCard
           id="metric-total-booths"
           title="Booth Spaces"
@@ -123,7 +119,6 @@ export const OrganizerDashboard = ({
           actionLabel="View Map"
         />
 
-        {/* Card 4: Registration Count & Revenue */}
         <MetricCard
           id="metric-registration-count"
           title="Total Attendees"
@@ -142,9 +137,8 @@ export const OrganizerDashboard = ({
         />
       </div>
 
-      {/* Main Grid: Pending Applications Triage + Active Expos Quick List */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: Pending Exhibitor Applications */}
+
         <div className="lg:col-span-7 bg-white dark:bg-[#1A202C] p-6 sm:p-7 rounded-2xl border border-[#E5E7EB] dark:border-white/10 shadow-xs space-y-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-slate-100 dark:border-white/5">
             <div>
@@ -220,7 +214,7 @@ export const OrganizerDashboard = ({
                     key={app._id}
                     className="p-4 sm:p-5 rounded-2xl border border-slate-200/90 dark:border-white/10 bg-slate-50/50 dark:bg-[#0F172A]/60 hover:bg-white dark:hover:bg-[#0F172A] hover:border-[#38B2AC]/60 hover:shadow-md transition-all duration-200 space-y-3.5 font-body"
                   >
-                    {/* Top Row: Company Avatar, Name, Tier Badge, Action Buttons */}
+
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <div className="flex items-center gap-3 min-w-0">
                         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1488A6] to-[#0B5A6F] text-white font-bold font-heading flex items-center justify-center text-xs shadow-xs shrink-0 tracking-wider">
@@ -242,7 +236,6 @@ export const OrganizerDashboard = ({
                         </div>
                       </div>
 
-                      {/* Action buttons */}
                       <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
                         <button
                           onClick={() => rejectApplication(app._id, "Does not match current exhibition scope.")}
@@ -262,14 +255,12 @@ export const OrganizerDashboard = ({
                       </div>
                     </div>
 
-                    {/* Products / Services description */}
                     {app.products_services && (
                       <p className="text-xs sm:text-sm text-[#4B5563] dark:text-[#CBD5E1] leading-relaxed line-clamp-2 bg-white/80 dark:bg-slate-900/50 p-2.5 rounded-xl border border-slate-100 dark:border-white/5">
                         {app.products_services}
                       </p>
                     )}
 
-                    {/* Meta Bar */}
                     <div className="flex flex-wrap items-center gap-4 text-xs text-[#6B7280] dark:text-[#CBD5E1]/70 pt-1 border-t border-slate-100 dark:border-white/5">
                       <div className="flex items-center gap-1.5">
                         <Mail className="w-3.5 h-3.5 text-[#1488A6] dark:text-[#38B2AC]" />
@@ -289,9 +280,8 @@ export const OrganizerDashboard = ({
           </div>
         </div>
 
-        {/* Right Column: Active Expos & Quick Operations */}
         <div className="lg:col-span-5 space-y-6">
-          {/* Active Expos Summary */}
+
           <div className="bg-white dark:bg-[#1A202C] p-6 rounded-2xl border border-[#E5E7EB] dark:border-white/10 shadow-xs space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-base font-bold text-[#1F2937] dark:text-[#F8FAFC] font-heading">Current Expos</h3>
@@ -326,7 +316,6 @@ export const OrganizerDashboard = ({
             </div>
           </div>
 
-          {/* Quick Shortcuts */}
           <div className="bg-[#0F172A] border border-white/10 text-white p-6 rounded-2xl space-y-4 shadow-md font-body">
             <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-[#38B2AC]">
               Operations Shortcuts

@@ -86,7 +86,7 @@ const ExhibitorApplicationsManager = ({
 
   return (
     <div id="exhibitor-applications-view" className="space-y-6 font-body">
-      {/* Top Header */}
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight font-heading">
@@ -97,7 +97,6 @@ const ExhibitorApplicationsManager = ({
           </p>
         </div>
 
-        {/* Status Filter Buttons */}
         <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-[#1A202C] p-1 rounded-xl text-xs overflow-x-auto no-scrollbar border border-[#E5E7EB] dark:border-white/10">
           <button
             onClick={() => setFilterStatus("all")}
@@ -139,7 +138,6 @@ const ExhibitorApplicationsManager = ({
         </div>
       </div>
 
-      {/* Search Bar */}
       <div className="bg-white dark:bg-[#1A202C] p-4 rounded-2xl border border-[#E5E7EB] dark:border-white/10 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="relative w-full max-w-sm">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7280] dark:text-[#CBD5E1]/60" />
@@ -153,7 +151,6 @@ const ExhibitorApplicationsManager = ({
         </div>
       </div>
 
-      {/* Applications Cards Grid */}
       <div className="space-y-4">
         {filteredApps.length === 0 ? (
           <div className="py-12 bg-white dark:bg-[#1A202C] rounded-2xl border border-[#E5E7EB] dark:border-white/10 text-center text-xs sm:text-sm text-[#6B7280] dark:text-[#CBD5E1]/60">
@@ -170,7 +167,7 @@ const ExhibitorApplicationsManager = ({
                 key={app._id}
                 className="bg-white dark:bg-[#1A202C] p-4 sm:p-6 rounded-2xl border border-[#E5E7EB] dark:border-white/10 hover:border-[#38B2AC]/50 shadow-xs transition-all flex flex-col md:flex-row md:items-start justify-between gap-4"
               >
-                {/* Left: Applicant details */}
+
                 <div className="space-y-2.5 flex-1 min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <h3 className="text-sm sm:text-base font-bold text-[#1F2937] dark:text-[#F8FAFC] font-heading truncate">
@@ -212,7 +209,6 @@ const ExhibitorApplicationsManager = ({
                     )}
                   </div>
 
-                  {/* Documents attachment chips */}
                   {app.documents && app.documents.length > 0 && (
                     <div className="flex flex-wrap items-center gap-2 pt-1">
                       <span className="text-[10px] font-bold uppercase font-mono text-[#6B7280] dark:text-[#CBD5E1]/60">Attached Docs:</span>
@@ -256,7 +252,6 @@ const ExhibitorApplicationsManager = ({
                   )}
                 </div>
 
-                {/* Right: Actions */}
                 <div className="flex flex-wrap items-center gap-2 shrink-0 self-stretch sm:self-auto justify-end pt-2 sm:pt-0">
                   {app.status === "pending" && (
                     <>
@@ -303,7 +298,6 @@ const ExhibitorApplicationsManager = ({
         )}
       </div>
 
-      {/* Accept Application Modal */}
       {activeAppModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-xs">
           <div className="bg-white dark:bg-[#1A202C] rounded-2xl sm:rounded-3xl shadow-2xl border border-[#E5E7EB] dark:border-white/10 max-w-md w-full p-5 sm:p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150 font-body">
@@ -338,18 +332,18 @@ const ExhibitorApplicationsManager = ({
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-2 border-t border-[#E5E7EB] dark:border-white/10">
+              <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-2 border-t border-[#E5E7EB] dark:border-white/10">
                 <button
                   type="button"
                   onClick={() => setActiveAppModal(null)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-[#6B7280] dark:text-[#CBD5E1] hover:bg-slate-100 dark:hover:bg-[#203748] cursor-pointer"
+                  className="w-full sm:w-auto px-4 py-2 rounded-xl text-xs font-semibold text-[#6B7280] dark:text-[#CBD5E1] hover:bg-slate-100 dark:hover:bg-[#203748] cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="button"
                   onClick={handleConfirmApproval}
-                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1 cursor-pointer"
+                  className="w-full sm:w-auto px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl shadow-xs flex items-center justify-center gap-1 cursor-pointer"
                 >
                   <Check className="w-4 h-4" /> Accept Application
                 </button>
@@ -359,7 +353,6 @@ const ExhibitorApplicationsManager = ({
         </div>
       )}
 
-      {/* Reject Modal */}
       {rejectingAppId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-xs">
           <div className="bg-white dark:bg-[#1A202C] rounded-2xl sm:rounded-3xl shadow-2xl border border-[#E5E7EB] dark:border-white/10 max-w-md w-full p-5 sm:p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150 font-body">
@@ -379,16 +372,16 @@ const ExhibitorApplicationsManager = ({
               className="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 dark:bg-[#0F172A] border border-[#E5E7EB] dark:border-white/10 rounded-xl text-[#1F2937] dark:text-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-[#38B2AC]"
             />
 
-            <div className="flex justify-end gap-2">
+            <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
               <button
                 onClick={() => setRejectingAppId(null)}
-                className="px-4 py-2 rounded-xl text-xs font-semibold text-[#6B7280] dark:text-[#CBD5E1] hover:bg-slate-100 dark:hover:bg-[#203748] cursor-pointer"
+                className="w-full sm:w-auto px-4 py-2 rounded-xl text-xs font-semibold text-[#6B7280] dark:text-[#CBD5E1] hover:bg-slate-100 dark:hover:bg-[#203748] cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={() => handleConfirmRejection(rejectingAppId)}
-                className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold rounded-xl shadow-xs cursor-pointer"
+                className="w-full sm:w-auto px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold rounded-xl shadow-xs cursor-pointer"
               >
                 Confirm Decline
               </button>

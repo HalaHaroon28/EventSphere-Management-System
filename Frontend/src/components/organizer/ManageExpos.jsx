@@ -46,7 +46,6 @@ export const ManageExpos = () => {
   const [bannerFile, setBannerFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
 
-  // Filter expos created by logged-in organizer
   const myExpos = expos.filter((e) => {
     if (!currentUser) return true;
     const orgId = typeof e.organizer_id === "object" ? e.organizer_id?._id : e.organizer_id;
@@ -177,7 +176,7 @@ export const ManageExpos = () => {
 
   return (
     <div id="manage-expos-view" className="space-y-6 font-body">
-      {/* Top Header */}
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight font-heading">
@@ -196,8 +195,6 @@ export const ManageExpos = () => {
         </button>
       </div>
 
-
-      {/* Search & Filter bar */}
       <div className="bg-white dark:bg-[#1A202C] p-4 rounded-2xl border border-[#E5E7EB] dark:border-white/10 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="relative w-full max-w-sm">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7280] dark:text-[#CBD5E1]/60" />
@@ -211,7 +208,6 @@ export const ManageExpos = () => {
         </div>
       </div>
 
-      {/* Mobile Card List (hidden on md and larger) */}
       <div className="md:hidden space-y-3">
         {filteredExpos.map((expo) => {
           const expoBooths = booths.filter((b) => b.expo_id === expo._id);
@@ -280,7 +276,6 @@ export const ManageExpos = () => {
         })}
       </div>
 
-      {/* Expos Table (hidden on mobile, shown on md and larger) */}
       <div className="hidden md:block bg-white dark:bg-[#1A202C] rounded-2xl border border-[#E5E7EB] dark:border-white/10 shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs sm:text-sm text-[#6B7280] dark:text-[#CBD5E1]">
@@ -372,7 +367,6 @@ export const ManageExpos = () => {
         </div>
       </div>
 
-      {/* Create / Edit Expo Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs overflow-y-auto">
           <div className="bg-white dark:bg-[#1A202C] rounded-3xl shadow-2xl border border-[#E5E7EB] dark:border-white/10 max-w-xl w-full p-6 space-y-5 animate-in fade-in zoom-in-95 duration-150 my-auto max-h-[90vh] overflow-y-auto">
@@ -395,7 +389,7 @@ export const ManageExpos = () => {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Title */}
+
                 <div className="sm:col-span-2">
                   <label className="block text-xs font-bold text-[#1F2937] dark:text-[#CBD5E1] uppercase tracking-wider font-mono mb-1">
                     Exhibition Title *
@@ -410,7 +404,6 @@ export const ManageExpos = () => {
                   />
                 </div>
 
-                {/* Theme */}
                 <div className="sm:col-span-2">
                   <label className="block text-xs font-bold text-[#1F2937] dark:text-[#CBD5E1] uppercase tracking-wider font-mono mb-1">
                     Theme / Tagline
@@ -424,7 +417,6 @@ export const ManageExpos = () => {
                   />
                 </div>
 
-                {/* Description */}
                 <div className="sm:col-span-2">
                   <label className="block text-xs font-bold text-[#1F2937] dark:text-[#CBD5E1] uppercase tracking-wider font-mono mb-1">
                     Full Description
@@ -438,7 +430,6 @@ export const ManageExpos = () => {
                   />
                 </div>
 
-                {/* Exhibition Banner Image */}
                 <div className="sm:col-span-2 space-y-2">
                   <label className="block text-xs font-bold text-[#1F2937] dark:text-[#CBD5E1] uppercase tracking-wider font-mono">
                     Exhibition Banner Image
@@ -465,7 +456,6 @@ export const ManageExpos = () => {
                   </div>
                 </div>
 
-                {/* Date Input - 1 Column only with min constraint */}
                 <div className="sm:col-span-2">
                   <div className="flex items-center justify-between mb-1">
                     <label className="text-xs font-bold text-[#1F2937] dark:text-[#CBD5E1] uppercase tracking-wider font-mono">
@@ -491,7 +481,6 @@ export const ManageExpos = () => {
                   </p>
                 </div>
 
-                {/* Location / Hall Dropdown */}
                 <div className="sm:col-span-2">
                   <label className="block text-xs font-bold text-[#1F2937] dark:text-[#CBD5E1] uppercase tracking-wider font-mono mb-1">
                     Location / Hall *
@@ -521,7 +510,6 @@ export const ManageExpos = () => {
                   )}
                 </div>
 
-                {/* Category */}
                 <div>
                   <label className="block text-xs font-bold text-[#1F2937] dark:text-[#CBD5E1] uppercase tracking-wider font-mono mb-1">
                     Category *
@@ -536,7 +524,6 @@ export const ManageExpos = () => {
                   />
                 </div>
 
-                {/* Status */}
                 <div>
                   <label className="block text-xs font-bold text-[#1F2937] dark:text-[#CBD5E1] uppercase tracking-wider font-mono mb-1">
                     Status
@@ -552,7 +539,6 @@ export const ManageExpos = () => {
                   </select>
                 </div>
 
-                {/* Total Booths */}
                 <div className="sm:col-span-2">
                   <label className="block text-xs font-bold text-[#1F2937] dark:text-[#CBD5E1] uppercase tracking-wider font-mono mb-1">
                     Total Planned Booths *
@@ -572,23 +558,22 @@ export const ManageExpos = () => {
                 </div>
               </div>
 
-              {/* Permanent Blueprint note */}
               <div className="p-3 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-[#E5E7EB] dark:border-white/10 text-xs text-[#6B7280] dark:text-[#CBD5E1]/70 flex items-center gap-2">
                 <Layers className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC] shrink-0" />
                 <span>Blueprint floor plan image (`/blueprint-floorplan.jpg`) is permanently enabled for all booth layouts.</span>
               </div>
 
-              <div className="flex justify-end gap-2 pt-3 border-t border-[#E5E7EB] dark:border-white/10">
+              <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-3 border-t border-[#E5E7EB] dark:border-white/10 shrink-0">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-[#6B7280] dark:text-[#CBD5E1] hover:bg-slate-100 dark:hover:bg-[#0F172A] cursor-pointer"
+                  className="w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-[#6B7280] dark:text-[#CBD5E1] hover:bg-slate-100 dark:hover:bg-[#0F172A] cursor-pointer text-center"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 btn-teal-primary text-xs sm:text-sm font-bold rounded-xl shadow-xs flex items-center gap-1 cursor-pointer"
+                  className="w-full sm:w-auto px-5 py-2.5 btn-teal-primary text-xs sm:text-sm font-bold rounded-xl shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <Check className="w-4 h-4" /> {editingExpo ? "Update Exhibition" : "Publish Exhibition"}
                 </button>

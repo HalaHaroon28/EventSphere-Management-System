@@ -88,7 +88,6 @@ export const AttendeeInquiriesDrawer = ({
     }
   }, [isOpen, initialExhibitorId]);
 
-  // Load live message thread
   useEffect(() => {
     const loadThread = async () => {
       if (!activePartnerId) return;
@@ -97,7 +96,7 @@ export const AttendeeInquiriesDrawer = ({
           const msgs = await fetchThreadApi(activePartnerId);
           setActiveThreadMessages(msgs || []);
         } else {
-          // Fallback to local messages
+
           const filtered = (messages || []).filter((m) => {
             const sender = String(m.sender_id?._id || m.sender_id || "");
             const receiver = String(m.receiver_id?._id || m.receiver_id || "");
@@ -124,7 +123,6 @@ export const AttendeeInquiriesDrawer = ({
 
   if (!isOpen) return null;
 
-  // Compile all unique exhibitors available to contact from registered contacts
   const allExhibitorCandidates = (contacts || []).filter(
     (c) => c.role === "exhibitor" || (!c.role && c.company_profile)
   );
@@ -156,7 +154,7 @@ export const AttendeeInquiriesDrawer = ({
         const sent = await sendMessageApi(activePartnerId, text);
         if (sent) {
           setReplyText("");
-          // Refresh thread & inbox
+
           if (fetchThreadApi) {
             const updated = await fetchThreadApi(activePartnerId);
             setActiveThreadMessages(updated || []);
@@ -189,7 +187,6 @@ export const AttendeeInquiriesDrawer = ({
     return String(msg);
   };
 
-  // Derive active partner display name
   const currentPartnerInfo =
     activePartnerObj ||
     contacts.find((c) => String(c._id) === String(activePartnerId)) ||
@@ -208,7 +205,6 @@ export const AttendeeInquiriesDrawer = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/80 backdrop-blur-xs overflow-y-auto animate-in fade-in duration-200 font-body">
       <div className="bg-white dark:bg-[#1A202C] rounded-3xl shadow-2xl border border-[#E5E7EB] dark:border-white/10 max-w-4xl w-full h-[85vh] max-h-[750px] flex flex-col overflow-hidden text-[#1F2937] dark:text-[#F8FAFC] my-auto">
 
-        {/* Modal Top Header */}
         <div className="bg-gradient-to-r from-slate-900 via-[#1488A6] to-slate-900 text-white p-5 sm:p-6 flex items-center justify-between shrink-0 relative">
           <div className="flex items-center gap-3">
             <div className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-[#38B2AC] flex items-center justify-center shrink-0">
@@ -248,12 +244,10 @@ export const AttendeeInquiriesDrawer = ({
           </div>
         </div>
 
-        {/* Modal Split View Body */}
         <div className="flex-1 flex flex-col md:flex-row min-h-0 overflow-hidden">
 
-          {/* LEFT SIDEBAR: Active Threads & New Inquiry Picker */}
           <div className="w-full md:w-80 border-r border-[#E5E7EB] dark:border-white/10 flex flex-col bg-slate-50 dark:bg-[#0F172A] shrink-0">
-            {/* Action Bar: New Inquiry button + Search */}
+
             <div className="p-3.5 border-b border-[#E5E7EB] dark:border-white/10 space-y-2.5">
               <button
                 onClick={() => setShowNewInquiryList(!showNewInquiryList)}
@@ -275,10 +269,9 @@ export const AttendeeInquiriesDrawer = ({
               </div>
             </div>
 
-            {/* List area */}
             <div className="flex-1 overflow-y-auto p-2 space-y-1">
               {showNewInquiryList ? (
-                /* NEW INQUIRY CANDIDATES */
+
                 filteredCandidates.length === 0 ? (
                   <div className="py-12 text-center text-xs text-[#6B7280] dark:text-[#CBD5E1]/60 px-4 space-y-2">
                     <Building2 className="w-8 h-8 mx-auto text-[#6B7280] dark:text-[#CBD5E1]/40" />
@@ -323,7 +316,7 @@ export const AttendeeInquiriesDrawer = ({
                   })
                 )
               ) : (
-                /* ACTIVE THREADS LIST */
+
                 threads.length === 0 ? (
                   <div className="py-10 text-center text-xs text-[#6B7280] dark:text-[#CBD5E1]/60 px-4 space-y-2">
                     <Building2 className="w-8 h-8 mx-auto text-[#6B7280] dark:text-[#CBD5E1]/40" />
@@ -371,11 +364,10 @@ export const AttendeeInquiriesDrawer = ({
             </div>
           </div>
 
-          {/* RIGHT MAIN: Active Message Stream */}
           <div className="flex-1 flex flex-col bg-white dark:bg-[#1A202C] min-w-0">
             {activePartnerId ? (
               <>
-                {/* Conversation Header */}
+
                 <div className="px-5 py-3 border-b border-[#E5E7EB] dark:border-white/10 flex items-center justify-between bg-white dark:bg-[#1A202C] shrink-0">
                   <div className="flex items-center gap-2.5 min-w-0">
                     <div className="w-8 h-8 rounded-xl bg-slate-900 text-white flex items-center justify-center font-mono font-bold text-xs">
@@ -398,7 +390,6 @@ export const AttendeeInquiriesDrawer = ({
                   </span>
                 </div>
 
-                {/* Messages Stream */}
                 <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3.5 bg-slate-50/50 dark:bg-[#0F172A]/40">
                   {activeThreadMessages.length === 0 ? (
                     <div className="py-16 text-center text-xs text-[#6B7280] dark:text-[#CBD5E1]/60 space-y-1">
@@ -442,7 +433,6 @@ export const AttendeeInquiriesDrawer = ({
                   <div ref={messagesEndRef} />
                 </div>
 
-                {/* Reply Form */}
                 <form
                   onSubmit={handleSendReply}
                   className="p-3 sm:p-4 bg-white dark:bg-[#1A202C] border-t border-[#E5E7EB] dark:border-white/10 flex items-center gap-2 shrink-0"
@@ -465,7 +455,7 @@ export const AttendeeInquiriesDrawer = ({
                 </form>
               </>
             ) : (
-              /* Empty Selection State */
+
               <div className="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-3">
                 <div className="w-14 h-14 rounded-3xl bg-[#1488A6]/10 dark:bg-[#38B2AC]/15 flex items-center justify-center text-[#1488A6] dark:text-[#38B2AC]">
                   <MessageSquare className="w-7 h-7" />

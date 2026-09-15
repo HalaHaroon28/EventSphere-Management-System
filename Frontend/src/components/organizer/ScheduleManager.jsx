@@ -18,7 +18,6 @@ import {
 export const ScheduleManager = () => {
   const { sessions, expos, createSession, updateSession, deleteSession, currentUser, setActiveView } = useApp();
 
-  // Filter expos created by logged-in organizer
   const myExpos = expos.filter((e) => {
     if (!currentUser) return true;
     const orgId = typeof e.organizer_id === "object" ? e.organizer_id?._id : e.organizer_id;
@@ -145,7 +144,7 @@ export const ScheduleManager = () => {
 
   return (
     <div id="schedule-manager-view" className="space-y-6 font-body">
-      {/* Top Header */}
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight font-heading">
@@ -157,13 +156,13 @@ export const ScheduleManager = () => {
         </div>
 
         <div className="flex items-center gap-2.5 shrink-0 flex-nowrap">
-          {/* Expo Selector */}
-          <div className="relative">
-            <Calendar className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#1488A6] dark:text-[#38B2AC] pointer-events-none" />
+
+          <div className="relative w-52 sm:w-64 md:w-72 shrink-0">
+            <Calendar className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#1488A6] dark:text-[#38B2AC] pointer-events-none z-10" />
             <select
               value={selectedExpoId}
               onChange={(e) => setSelectedExpoId(e.target.value)}
-              className="pl-9 pr-8 py-2 text-xs sm:text-sm bg-white dark:bg-[#1A202C] border border-[#E5E7EB] dark:border-white/10 rounded-xl font-bold text-[#1F2937] dark:text-[#F8FAFC] shadow-xs focus:outline-none focus:ring-2 focus:ring-[#38B2AC] cursor-pointer max-w-[240px] truncate"
+              className="w-full pl-9 pr-8 py-2 text-xs sm:text-sm bg-white dark:bg-[#1A202C] border border-[#E5E7EB] dark:border-white/10 rounded-xl font-bold text-[#1F2937] dark:text-[#F8FAFC] shadow-xs focus:outline-none focus:ring-2 focus:ring-[#38B2AC] cursor-pointer truncate"
             >
               {displayExpos.map((e) => (
                 <option key={e._id} value={e._id}>
@@ -182,7 +181,6 @@ export const ScheduleManager = () => {
         </div>
       </div>
 
-      {/* Search Bar */}
       <div className="bg-white dark:bg-[#1A202C] p-4 rounded-2xl border border-[#E5E7EB] dark:border-white/10 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="relative w-full max-w-sm">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7280] dark:text-[#CBD5E1]/60" />
@@ -196,7 +194,6 @@ export const ScheduleManager = () => {
         </div>
       </div>
 
-      {/* Sessions List */}
       <div className="space-y-3">
         {filteredSessions.length === 0 ? (
           <div className="py-12 bg-white dark:bg-[#1A202C] rounded-2xl border border-[#E5E7EB] dark:border-white/10 text-center text-xs sm:text-sm text-[#6B7280] dark:text-[#CBD5E1]/70 space-y-3 p-6">
@@ -278,12 +275,10 @@ export const ScheduleManager = () => {
         )}
       </div>
 
-      {/* Add / Edit Session Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/80 backdrop-blur-xs animate-in fade-in duration-200 font-body">
           <div className="bg-white dark:bg-[#1A202C] rounded-3xl shadow-2xl border border-[#E5E7EB] dark:border-white/10 max-w-lg w-full flex flex-col max-h-[90vh] overflow-hidden text-[#1F2937] dark:text-[#F8FAFC]">
-            
-            {/* Modal Header */}
+
             <div className="bg-gradient-to-r from-slate-900 via-[#1488A6] to-slate-900 text-white p-5 sm:p-6 flex items-center justify-between shrink-0 relative">
               <div className="flex items-center gap-3">
                 <div className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-[#38B2AC] flex items-center justify-center shrink-0">
@@ -317,7 +312,7 @@ export const ScheduleManager = () => {
             </div>
 
             <form onSubmit={handleFormSubmit} className="p-5 sm:p-6 space-y-4 overflow-y-auto flex-1">
-              {/* Session Title */}
+
               <div>
                 <label className="block text-xs font-bold text-[#1F2937] dark:text-[#CBD5E1] uppercase tracking-wider font-mono mb-1">
                   Session Title *
@@ -333,7 +328,7 @@ export const ScheduleManager = () => {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Speaker Name */}
+
                 <div>
                   <label className="block text-xs font-bold text-[#1F2937] dark:text-[#CBD5E1] uppercase tracking-wider font-mono mb-1">
                     Speaker Name
@@ -347,7 +342,6 @@ export const ScheduleManager = () => {
                   />
                 </div>
 
-                {/* Topic / Track */}
                 <div>
                   <label className="block text-xs font-bold text-[#1F2937] dark:text-[#CBD5E1] uppercase tracking-wider font-mono mb-1">
                     Topic / Track
@@ -361,7 +355,6 @@ export const ScheduleManager = () => {
                   />
                 </div>
 
-                {/* Location / Hall Stage (Locked & Prefilled) */}
                 <div className="sm:col-span-2">
                   <div className="flex items-center justify-between mb-1">
                     <label className="text-xs font-bold text-[#1F2937] dark:text-[#CBD5E1] uppercase tracking-wider font-mono">
@@ -380,7 +373,6 @@ export const ScheduleManager = () => {
                   </div>
                 </div>
 
-                {/* Event Date (Locked & Prefilled from Expo Date) */}
                 <div className="sm:col-span-2">
                   <div className="flex items-center justify-between mb-1">
                     <label className="text-xs font-bold text-[#1F2937] dark:text-[#CBD5E1] uppercase tracking-wider font-mono">
@@ -399,7 +391,6 @@ export const ScheduleManager = () => {
                   </div>
                 </div>
 
-                {/* Start Time (Editable) */}
                 <div>
                   <label className="block text-xs font-bold text-[#1F2937] dark:text-[#CBD5E1] uppercase tracking-wider font-mono mb-1">
                     Start Time *
@@ -416,7 +407,6 @@ export const ScheduleManager = () => {
                   </div>
                 </div>
 
-                {/* End Time (Editable) */}
                 <div>
                   <label className="block text-xs font-bold text-[#1F2937] dark:text-[#CBD5E1] uppercase tracking-wider font-mono mb-1">
                     End Time *
@@ -434,17 +424,17 @@ export const ScheduleManager = () => {
                 </div>
               </div>
 
-              <div className="flex justify-end gap-2 pt-3 border-t border-[#E5E7EB] dark:border-white/10">
+              <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-3 border-t border-[#E5E7EB] dark:border-white/10 shrink-0">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-[#6B7280] dark:text-[#CBD5E1] hover:bg-slate-100 dark:hover:bg-[#0F172A] cursor-pointer"
+                  className="w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-[#6B7280] dark:text-[#CBD5E1] hover:bg-slate-100 dark:hover:bg-[#0F172A] cursor-pointer text-center"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 btn-teal-primary text-xs sm:text-sm font-bold rounded-xl shadow-xs flex items-center gap-1 cursor-pointer"
+                  className="w-full sm:w-auto px-5 py-2.5 btn-teal-primary text-xs sm:text-sm font-bold rounded-xl shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <Check className="w-4 h-4" /> {editingSession ? "Save Changes" : "Publish Session"}
                 </button>

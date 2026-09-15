@@ -14,14 +14,12 @@ const FeedbackInbox = () => {
 
   const currentUserIdStr = String(currentUser?._id || currentUser?.user_id || "");
 
-  // Strictly filter expos belonging to the logged-in organizer
   const myExpoIds = expos.filter((e) => {
     if (!currentUser) return false;
     const orgId = typeof e.organizer_id === "object" ? String(e.organizer_id?._id || "") : String(e.organizer_id || "");
     return orgId === currentUserIdStr || (e.organizer_name && e.organizer_name === currentUser.name);
   }).map((e) => String(e._id));
 
-  // Strictly filter feedback belonging to this organizer's expos
   const myFeedbackList = feedbackList.filter((f) => {
     if (!currentUser) return false;
     const fExpoId = typeof f.expo_id === "object" ? String(f.expo_id?._id || "") : String(f.expo_id || "");
@@ -48,7 +46,7 @@ const FeedbackInbox = () => {
 
   return (
     <div id="feedback-inbox-view" className="space-y-6 font-body">
-      {/* Top Header */}
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight font-heading">
@@ -90,7 +88,6 @@ const FeedbackInbox = () => {
         </div>
       </div>
 
-      {/* Feedback List */}
       <div className="space-y-3">
         {filteredFeedback.length === 0 ? (
           <div className="py-12 bg-white dark:bg-[#1A202C] rounded-2xl border border-[#E5E7EB] dark:border-white/10 text-center text-xs text-[#6B7280] dark:text-[#CBD5E1]/60">
@@ -189,10 +186,9 @@ const FeedbackInbox = () => {
         )}
       </div>
 
-      {/* Reply Modal */}
       {replyingFeedback && (() => {
-        const modalUserName = replyingFeedback.name || (typeof replyingFeedback.user_id === "object" && replyingFeedback.user_id !== null 
-          ? replyingFeedback.user_id.name 
+        const modalUserName = replyingFeedback.name || (typeof replyingFeedback.user_id === "object" && replyingFeedback.user_id !== null
+          ? replyingFeedback.user_id.name
           : (replyingFeedback.user_name || "User"));
         const modalMessage = replyingFeedback.content || replyingFeedback.comments || replyingFeedback.message || "";
 

@@ -12,7 +12,6 @@ const app = express();
 const PORT = 3000;
 app.use(express.json({ limit: '10mb' }));
 
-// Lazy initialization of Gemini client
 let genAIClient = null;
 let lastUsedApiKey = null;
 
@@ -34,11 +33,11 @@ function getGeminiClient() {
     }
     return genAIClient;
 }
-// Health check endpoint
+
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', time: new Date().toISOString() });
 });
-// Gemini Multi-turn Chat Endpoint
+
 app.post('/api/chat', async (req, res) => {
     try {
         const { messages, userRole, contextData, model } = req.body;
@@ -46,7 +45,7 @@ app.post('/api/chat', async (req, res) => {
             return res.status(400).json({ error: 'Messages array is required' });
         }
         const ai = getGeminiClient();
-        // Context-rich system instruction tailored for EventSphere Expo Platform
+
         const systemInstruction = `You are the EventSphere AI Intelligence Concierge & Event Operations Strategist.
 EventSphere is an enterprise-grade Expo & Convention Management Platform.
 The current user interacting with you is in the role: "${userRole || 'attendee'}".
@@ -64,7 +63,7 @@ Guidelines:
 - If asked to recommend keynotes or booths, reference specific details from the context or provide realistic high-tech industry recommendations.
 - Use markdown formatting with bullet points and bold highlights for readability.
 - Maintain a welcoming, proactive, enterprise-grade concierge tone.`;
-        // Intelligent Fallback if API key is not yet set in environment
+
         if (!ai) {
             const lastUserMsg = messages[messages.length - 1]?.content || 'Hello';
             const lowerMsg = lastUserMsg.toLowerCase();
@@ -92,7 +91,7 @@ Guidelines:
             });
         }
         const selectedModel = model || 'gemini-2.5-flash';
-        // Format chat history into contents format
+
         const contents = messages.map((m) => ({
             role: m.role === 'user' ? 'user' : 'model',
             parts: [{ text: m.content }],
@@ -148,7 +147,6 @@ Guidelines:
     }
 });
 
-// Gemini Smart AI Booth Matchmaker Endpoint
 app.post('/api/ai/match-booths', async (req, res) => {
     try {
         const { query, expoId, expoTitle, catalog, model } = req.body;
@@ -255,7 +253,7 @@ Please return the Top 3 Booth Recommendations in exact JSON format.`;
                 }
 
                 const rawText = response?.text || '{}';
-                // Clean markdown blocks if present
+
                 const cleaned = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
                 const parsed = JSON.parse(cleaned);
 
@@ -272,7 +270,6 @@ Please return the Top 3 Booth Recommendations in exact JSON format.`;
             }
         }
 
-        // Smart catalog matcher (used when offline, missing API key, or on API auth error)
         const lower = attendeeQuery.toLowerCase();
         const scored = activeCatalog.map((item) => {
             let score = 75;
@@ -310,7 +307,6 @@ Please return the Top 3 Booth Recommendations in exact JSON format.`;
     }
 });
 
-// Vite middleware & Static serving
 async function startServer() {
     if (process.env.NODE_ENV !== 'production') {
         const vite = await createViteServer({

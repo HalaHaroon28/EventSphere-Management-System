@@ -1,7 +1,6 @@
 import ExhibitorApplication from '../models/ExhibitorApplication.js';
 import User from '../models/User.js';
 
-// GET
 export const searchExhibitors = async (req, res) => {
   try {
     const { expoId } = req.params;
@@ -33,7 +32,6 @@ export const searchExhibitors = async (req, res) => {
   }
 };
 
-// GET
 export const getExhibitorProfile = async (req, res) => {
   try {
     const { id } = req.params;

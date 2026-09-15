@@ -11,8 +11,6 @@ const router = express.Router();
 router.get('/me', protect, getMyProfile);
 router.patch('/me', protect, handlePfpUpload, updateMyProfile);
 router.patch('/change-password', protect, changePassword);
-
-// 4.5 Update company profile (Supports single image file named "logo")
 router.patch(
   '/company',
   protect,

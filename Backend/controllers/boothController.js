@@ -54,30 +54,28 @@ export function generateBoothsForExpo(expoId, totalCount = 24) {
   const booths = [];
   const halls = ['A', 'B', 'C', 'D'];
   const count = Math.max(Number(totalCount) || 24, 1);
-  
-  // Distribute across 3 or 4 hall rows
+
   const numHalls = count <= 12 ? 3 : (count <= 24 ? 3 : 4);
   const boothsPerHall = Math.ceil(count / numHalls);
-  
+
   let createdCount = 0;
 
   for (let h = 0; h < numHalls && createdCount < count; h++) {
     const hallLetter = halls[h] || `H${h + 1}`;
-    const yPos = numHalls === 3 
+    const yPos = numHalls === 3
       ? (h === 0 ? 25 : h === 1 ? 52 : 78)
       : Math.round(18 + h * 23);
 
     const remaining = count - createdCount;
     const thisHallCount = Math.min(boothsPerHall, remaining);
-    
+
     for (let b = 1; b <= thisHallCount; b++) {
       createdCount++;
       const booth_number = `${hallLetter}-${String(b).padStart(2, '0')}`;
-      
-      // Calculate x position evenly across canvas (14% to 86%)
+
       const xSpacing = thisHallCount > 1 ? 72 / (thisHallCount - 1) : 0;
       const xPos = thisHallCount === 1 ? 50 : Math.round(14 + (b - 1) * xSpacing);
-      
+
       // Tiered sizing & pricing
       let size = 'medium';
       let price = 2200;
@@ -129,7 +127,6 @@ export const listBoothsForExpo = async (req, res) => {
         .populate('exhibitor_id', 'name email phone profile_photo_url company_name')
         .sort({ booth_number: 1 });
     } else if (booths.length < targetTotal) {
-      // If the expo had fewer booths than configured total_booths, top up missing booths
       const existingNumbers = new Set(booths.map((b) => b.booth_number));
       const fullSet = generateBoothsForExpo(expoId, targetTotal);
       const missingBooths = fullSet.filter((b) => !existingNumbers.has(b.booth_number));
@@ -204,18 +201,15 @@ export const reserveBooth = async (req, res) => {
     const { id: boothId } = req.params;
     const userId = req.user.user_id || req.user._id;
 
-    // 1. Find booth
     const booth = await Booth.findById(boothId);
     if (!booth) {
       return res.status(404).json({ message: 'Booth not found.' });
     }
 
-    // 2. Check if booth is available
     if (booth.status === 'booked' || booth.status === 'reserved') {
       return res.status(400).json({ message: 'Booth is already booked or reserved.' });
     }
 
-    // 3. Check for an approved application for this expo by this exhibitor
     const approvedApplication = await ExhibitorApplication.findOne({
       expo_id: booth.expo_id,
       exhibitor_id: userId,
@@ -228,7 +222,6 @@ export const reserveBooth = async (req, res) => {
       });
     }
 
-    // 4. Reserve booth and update both records
     booth.status = 'booked';
     booth.exhibitor_id = userId;
     await booth.save();
@@ -236,7 +229,6 @@ export const reserveBooth = async (req, res) => {
     approvedApplication.booth_id = booth._id;
     await approvedApplication.save();
 
-    // 🔔 NOTIFICATION HOOK: Send notification to Organizer and Exhibitor
     try {
       const expo = await Expo.findById(booth.expo_id);
       const expoTitle = expo?.title || 'the expo';
@@ -296,7 +288,6 @@ export const updateMyBoothDetails = async (req, res) => {
       return res.status(404).json({ message: 'Booth not found.' });
     }
 
-    // Ownership Verification: Ensure only assigned exhibitor can edit
     const boothExhId = typeof booth.exhibitor_id === 'object' && booth.exhibitor_id !== null
       ? (booth.exhibitor_id._id ? booth.exhibitor_id._id.toString() : booth.exhibitor_id.toString())
       : String(booth.exhibitor_id || '');
@@ -307,13 +298,11 @@ export const updateMyBoothDetails = async (req, res) => {
       return res.status(403).json({ message: 'Access denied. You are not assigned to this booth.' });
     }
 
-    // Automatically ensure booth status is booked if assigned to exhibitor
     if (booth.status === 'available') {
       booth.status = 'booked';
       await booth.save();
     }
 
-    // Product & Staff Validation Rules
     if (products !== undefined && Array.isArray(products)) {
       if (products.length < 1) {
         return res.status(400).json({ message: 'At least 1 product is required (min 1, max 3).' });
