@@ -29,12 +29,12 @@ export const MySessionsModal = ({ isOpen, onClose, onSelectExpo }) => {
   const userBookmarkedSessions = (!currentUser || !currentUserId)
     ? []
     : sessions.filter((s) => {
-        return (bookmarks || []).some((b) => {
-          const bSessId = typeof b.session_id === "object" ? b.session_id?._id : b.session_id;
-          const bUserId = typeof b.user_id === "object" ? b.user_id?._id : b.user_id;
-          return String(bUserId) === currentUserId && String(bSessId) === String(s._id || s.id);
-        });
+      return (bookmarks || []).some((b) => {
+        const bSessId = typeof b.session_id === "object" ? b.session_id?._id : b.session_id;
+        const bUserId = typeof b.user_id === "object" ? b.user_id?._id : b.user_id;
+        return String(bUserId) === currentUserId && String(bSessId) === String(s._id || s.id);
       });
+    });
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/80 backdrop-blur-xs animate-in fade-in duration-200 font-body">
@@ -49,9 +49,6 @@ export const MySessionsModal = ({ isOpen, onClose, onSelectExpo }) => {
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#38B2AC]">
                   Personal Agenda
-                </span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#38B2AC]/20 text-[#38B2AC] border border-[#38B2AC]/30 font-mono">
-                  {userBookmarkedSessions.length} {userBookmarkedSessions.length === 1 ? "Session" : "Sessions"}
                 </span>
               </div>
               <h3 className="text-lg sm:text-xl font-bold tracking-tight text-white font-heading">
@@ -132,11 +129,6 @@ export const MySessionsModal = ({ isOpen, onClose, onSelectExpo }) => {
                       </h4>
 
                       <div className="flex items-center gap-2 text-xs text-[#6B7280] dark:text-[#CBD5E1]/80">
-                        <img
-                          src={session.speaker_avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"}
-                          alt={session.speaker}
-                          className="w-5 h-5 rounded-full object-cover"
-                        />
                         <span className="font-medium text-[#1F2937] dark:text-[#F8FAFC]">{session.speaker}</span>
                         {session.speaker_title && (
                           <span className="text-[11px] text-[#6B7280] dark:text-[#CBD5E1]/50">({session.speaker_title})</span>

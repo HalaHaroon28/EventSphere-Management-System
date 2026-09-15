@@ -36,7 +36,8 @@ export const Navbar = ({
   onOpenMyPasses,
   onOpenInquiries,
   onOpenProfile,
-  onOpenMySessions
+  onOpenMySessions,
+  onOpenAIMatchmaker
 }) => {
   const {
     theme,
@@ -363,6 +364,24 @@ export const Navbar = ({
                             <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
                           )}
                         </button>
+
+                        {onOpenAIMatchmaker && (
+                          <button
+                            onClick={() => {
+                              setShowUserMenu(false);
+                              onOpenAIMatchmaker("I want edge computing hardware and IoT sensors");
+                            }}
+                            className="w-full px-4 py-2 text-xs font-semibold text-[#1488A6] dark:text-[#38B2AC] hover:bg-slate-50 dark:hover:bg-[#203748] flex items-center justify-between cursor-pointer"
+                          >
+                            <div className="flex items-center gap-2">
+                              <Sparkles className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC]" />
+                              <span>AI Booth Matchmaker</span>
+                            </div>
+                            <span className="text-[10px] font-mono font-bold bg-[#38B2AC]/20 text-[#38B2AC] px-1.5 py-0.5 rounded">
+                              Gemini
+                            </span>
+                          </button>
+                        )}
                       </div>
                     )}
 

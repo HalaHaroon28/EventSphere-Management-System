@@ -146,8 +146,8 @@ export const OTPVerificationModal = ({
     setIsResending(true);
     setIsVerifying(false);
     try {
-      if (effectiveUserId) {
-        await resendOtp(effectiveUserId);
+      if (effectiveUserId || emailDisplay) {
+        await resendOtp(effectiveUserId || emailDisplay);
       }
       setCountdown(60);
       setCanResend(false);

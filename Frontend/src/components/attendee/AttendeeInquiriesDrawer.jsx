@@ -124,24 +124,18 @@ export const AttendeeInquiriesDrawer = ({
 
   if (!isOpen) return null;
 
-  // Compile all unique exhibitors available to contact
-  const allExhibitorCandidates = contacts.length > 0 ? contacts : (booths || [])
-    .filter((b) => b.exhibitor_name || b.exhibitor_id)
-    .map((b) => ({
-      _id: b.exhibitor_id?._id || b.exhibitor_id || b._id,
-      name: b.exhibitor_name || b.details?.company_name || "Exhibitor Booth",
-      company_name: b.exhibitor_name || "Exhibitor",
-      booth_number: b.booth_number,
-      category: b.category || "Technology"
-    }));
+  // Compile all unique exhibitors available to contact from registered contacts
+  const allExhibitorCandidates = (contacts || []).filter(
+    (c) => c.role === "exhibitor" || (!c.role && c.company_profile)
+  );
 
   const filteredCandidates = allExhibitorCandidates.filter((c) => {
     if (!searchContactQuery.trim()) return true;
     const q = searchContactQuery.toLowerCase();
-    const name = (c.name || c.company_name || "").toLowerCase();
-    const cat = (c.category || "").toLowerCase();
-    const booth = (c.booth_number || "").toLowerCase();
-    return name.includes(q) || cat.includes(q) || booth.includes(q);
+    const name = (c.company_profile?.company_name || c.name || "").toLowerCase();
+    const email = (c.email || "").toLowerCase();
+    const phone = (c.phone || "").toLowerCase();
+    return name.includes(q) || email.includes(q) || phone.includes(q);
   });
 
   const handleSelectPartner = (partnerId, partnerObj = null) => {
@@ -156,23 +150,30 @@ export const AttendeeInquiriesDrawer = ({
 
     setIsSending(true);
     const text = replyText.trim();
-    setReplyText("");
 
     try {
       if (sendMessageApi) {
-        await sendMessageApi(activePartnerId, text);
-        // Refresh thread
-        if (fetchThreadApi) {
-          const updated = await fetchThreadApi(activePartnerId);
-          setActiveThreadMessages(updated || []);
+        const sent = await sendMessageApi(activePartnerId, text);
+        if (sent) {
+          setReplyText("");
+          // Refresh thread & inbox
+          if (fetchThreadApi) {
+            const updated = await fetchThreadApi(activePartnerId);
+            setActiveThreadMessages(updated || []);
+          }
+          if (fetchInboxApi) {
+            const updatedInbox = await fetchInboxApi();
+            setThreads(updatedInbox || []);
+          }
+        } else {
+          setReplyText(text);
         }
       } else if (sendMessage) {
         sendMessage(activePartnerId, text);
+        setReplyText("");
       }
-      showToast("Message Sent", "Your inquiry was transmitted directly to the exhibitor.");
     } catch (err) {
       console.error("Failed to send message:", err);
-      showToast("Error", "Could not send message. Please try again.", "error");
       setReplyText(text);
     } finally {
       setIsSending(false);
@@ -206,21 +207,23 @@ export const AttendeeInquiriesDrawer = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/80 backdrop-blur-xs overflow-y-auto animate-in fade-in duration-200 font-body">
       <div className="bg-white dark:bg-[#1A202C] rounded-3xl shadow-2xl border border-[#E5E7EB] dark:border-white/10 max-w-4xl w-full h-[85vh] max-h-[750px] flex flex-col overflow-hidden text-[#1F2937] dark:text-[#F8FAFC] my-auto">
-        
+
         {/* Modal Top Header */}
-        <div className="px-6 py-4 border-b border-[#E5E7EB] dark:border-white/10 flex items-center justify-between bg-white dark:bg-[#1A202C] shrink-0">
+        <div className="bg-gradient-to-r from-slate-900 via-[#1488A6] to-slate-900 text-white p-5 sm:p-6 flex items-center justify-between shrink-0 relative">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#1488A6]/10 dark:bg-[#38B2AC]/15 flex items-center justify-center text-[#1488A6] dark:text-[#38B2AC] border border-[#1488A6]/20">
-              <MessageSquare className="w-5 h-5" />
+            <div className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-[#38B2AC] flex items-center justify-center shrink-0">
+              <MessageSquare className="w-5 h-5 text-[#38B2AC]" />
             </div>
             <div>
-              <h3 className="text-base sm:text-lg font-bold text-[#1F2937] dark:text-[#F8FAFC] font-heading flex items-center gap-2">
-                <span>My Inquiries & Direct Messages</span>
-                <span className="text-[10px] font-mono uppercase font-bold teal-badge px-2 py-0.5 rounded-full hidden sm:inline-block">
-                  Live Channel
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#38B2AC]">
+                  Direct Messaging
                 </span>
+              </div>
+              <h3 className="text-lg sm:text-xl font-bold tracking-tight text-white font-heading">
+                My Inquiries & Direct Messages
               </h3>
-              <p className="text-xs text-[#6B7280] dark:text-[#CBD5E1]/70">
+              <p className="text-xs text-slate-300 mt-0.5">
                 Contact and chat directly with verified exhibition booth attendants.
               </p>
             </div>
@@ -231,13 +234,13 @@ export const AttendeeInquiriesDrawer = ({
               onClick={loadData}
               disabled={isLoading}
               title="Refresh messages"
-              className="p-2 rounded-xl text-[#6B7280] dark:text-[#CBD5E1] hover:bg-slate-100 dark:hover:bg-[#203748] transition-colors cursor-pointer disabled:opacity-50"
+              className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer disabled:opacity-50"
             >
               <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
             </button>
             <button
               onClick={onClose}
-              className="p-2 rounded-xl text-[#6B7280] dark:text-[#CBD5E1] hover:bg-slate-100 dark:hover:bg-[#203748] transition-colors cursor-pointer"
+              className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
               aria-label="Close modal"
             >
               <X className="w-5 h-5" />
@@ -247,7 +250,7 @@ export const AttendeeInquiriesDrawer = ({
 
         {/* Modal Split View Body */}
         <div className="flex-1 flex flex-col md:flex-row min-h-0 overflow-hidden">
-          
+
           {/* LEFT SIDEBAR: Active Threads & New Inquiry Picker */}
           <div className="w-full md:w-80 border-r border-[#E5E7EB] dark:border-white/10 flex flex-col bg-slate-50 dark:bg-[#0F172A] shrink-0">
             {/* Action Bar: New Inquiry button + Search */}
@@ -257,7 +260,7 @@ export const AttendeeInquiriesDrawer = ({
                 className="w-full py-2 px-3 rounded-xl btn-teal-primary text-white text-xs font-bold shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
-                <span>{showNewInquiryList ? "View Active Chats" : "+ New Direct Inquiry"}</span>
+                <span>{showNewInquiryList ? "View Active Chats" : "New Direct Inquiry"}</span>
               </button>
 
               <div className="relative">
@@ -277,38 +280,41 @@ export const AttendeeInquiriesDrawer = ({
               {showNewInquiryList ? (
                 /* NEW INQUIRY CANDIDATES */
                 filteredCandidates.length === 0 ? (
-                  <div className="py-8 text-center text-xs text-[#6B7280] dark:text-[#CBD5E1]/60 px-4">
-                    No matching exhibitors found.
+                  <div className="py-12 text-center text-xs text-[#6B7280] dark:text-[#CBD5E1]/60 px-4 space-y-2">
+                    <Building2 className="w-8 h-8 mx-auto text-[#6B7280] dark:text-[#CBD5E1]/40" />
+                    <p className="font-bold text-sm text-[#1F2937] dark:text-[#F8FAFC]">No exhibitors found</p>
+                    <p className="text-[11px] text-[#6B7280] dark:text-[#CBD5E1]/60">
+                      No registered exhibitors are currently available.
+                    </p>
                   </div>
                 ) : (
                   filteredCandidates.map((cand) => {
                     const cId = cand._id;
-                    const cName = cand.company_name || cand.name || "Corporate Vendor";
+                    const cName = cand.company_profile?.company_name || cand.name || "Exhibitor";
                     const isSelected = String(activePartnerId) === String(cId);
 
                     return (
                       <button
                         key={cId}
                         onClick={() => handleSelectPartner(cId, cand)}
-                        className={`w-full p-3 rounded-2xl text-left transition-all flex items-center justify-between gap-2 cursor-pointer border ${
-                          isSelected
-                            ? "bg-[#1488A6]/10 dark:bg-[#38B2AC]/15 border-[#1488A6]/30 dark:border-[#38B2AC]/40"
-                            : "bg-white dark:bg-[#1A202C] border-transparent hover:border-[#E5E7EB] dark:hover:border-white/10 shadow-2xs"
-                        }`}
+                        className={`w-full p-3 rounded-2xl text-left transition-all flex items-center justify-between gap-2 cursor-pointer border ${isSelected
+                          ? "bg-[#1488A6]/10 dark:bg-[#38B2AC]/15 border-[#1488A6]/30 dark:border-[#38B2AC]/40"
+                          : "bg-white dark:bg-[#1A202C] border-transparent hover:border-[#E5E7EB] dark:hover:border-white/10 shadow-2xs"
+                          }`}
                       >
                         <div className="min-w-0 flex-1">
                           <h4 className="text-xs font-bold text-[#1F2937] dark:text-[#F8FAFC] truncate font-heading">
                             {cName}
                           </h4>
                           <div className="flex items-center gap-1.5 mt-0.5">
-                            {cand.booth_number && (
-                              <span className="text-[10px] font-mono font-bold teal-badge px-1.5 py-0.2 rounded">
-                                Booth {cand.booth_number}
+                            <span className="text-[10px] font-mono font-bold teal-badge px-1.5 py-0.2 rounded">
+                              Exhibitor
+                            </span>
+                            {cand.email && (
+                              <span className="text-[10px] text-[#6B7280] dark:text-[#CBD5E1]/60 truncate">
+                                {cand.email}
                               </span>
                             )}
-                            <span className="text-[10px] text-[#6B7280] dark:text-[#CBD5E1]/60 truncate">
-                              {cand.category || "Exhibitor"}
-                            </span>
                           </div>
                         </div>
                         <ChevronRight className="w-4 h-4 text-[#6B7280] dark:text-[#CBD5E1]/40 shrink-0" />
@@ -341,11 +347,10 @@ export const AttendeeInquiriesDrawer = ({
                       <button
                         key={t._id || partnerId}
                         onClick={() => handleSelectPartner(partnerId, partner)}
-                        className={`w-full p-3 rounded-2xl text-left transition-all flex items-start justify-between gap-2 cursor-pointer border ${
-                          isSelected
-                            ? "bg-[#1488A6]/10 dark:bg-[#38B2AC]/15 border-[#1488A6]/30 dark:border-[#38B2AC]/40"
-                            : "bg-white dark:bg-[#1A202C] border-transparent hover:border-[#E5E7EB] dark:hover:border-white/10 shadow-2xs"
-                        }`}
+                        className={`w-full p-3 rounded-2xl text-left transition-all flex items-start justify-between gap-2 cursor-pointer border ${isSelected
+                          ? "bg-[#1488A6]/10 dark:bg-[#38B2AC]/15 border-[#1488A6]/30 dark:border-[#38B2AC]/40"
+                          : "bg-white dark:bg-[#1A202C] border-transparent hover:border-[#E5E7EB] dark:hover:border-white/10 shadow-2xs"
+                          }`}
                       >
                         <div className="min-w-0 flex-1 space-y-0.5">
                           <h4 className="text-xs font-bold text-[#1F2937] dark:text-[#F8FAFC] truncate font-heading">
@@ -417,11 +422,10 @@ export const AttendeeInquiriesDrawer = ({
                           className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}
                         >
                           <div
-                            className={`max-w-[85%] sm:max-w-[70%] rounded-2xl p-3.5 text-xs sm:text-sm shadow-xs leading-relaxed ${
-                              isMe
-                                ? "btn-teal-primary text-white rounded-br-xs"
-                                : "bg-white dark:bg-[#1A202C] text-[#1F2937] dark:text-[#F8FAFC] border border-[#E5E7EB] dark:border-white/10 rounded-bl-xs"
-                            }`}
+                            className={`max-w-[85%] sm:max-w-[70%] rounded-2xl p-3.5 text-xs sm:text-sm shadow-xs leading-relaxed ${isMe
+                              ? "btn-teal-primary text-white rounded-br-xs"
+                              : "bg-white dark:bg-[#1A202C] text-[#1F2937] dark:text-[#F8FAFC] border border-[#E5E7EB] dark:border-white/10 rounded-bl-xs"
+                              }`}
                           >
                             <p className="whitespace-pre-wrap">{text}</p>
                           </div>

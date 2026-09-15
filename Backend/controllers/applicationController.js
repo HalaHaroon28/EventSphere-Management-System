@@ -3,6 +3,7 @@ import ExhibitorApplication from '../models/ExhibitorApplication.js';
 import Notification from '../models/Notification.js';
 import Booth from '../models/Booth.js';
 import User from '../models/User.js';
+import Expo from '../models/Expo.js';
 
 // @desc    4.1 Apply to Expo
 // @route   POST /api/expos/:expoId/applications
@@ -54,13 +55,26 @@ export const applyToExpo = async (req, res) => {
 
     await application.save();
 
-    // 🔔 NOTIFICATION HOOK: Send receipt notification to Exhibitor upon submission
+    // 🔔 NOTIFICATION HOOK: Send receipt notification to Exhibitor and alert Organizer
     try {
       await Notification.create({
         user_id: userId,
+        target_role: 'exhibitor',
+        title: 'Application Received',
         type: 'application_status',
         message: `Your application for "${company_name}" has been received and is currently under review.`,
       });
+
+      const expo = await Expo.findById(expoId);
+      if (expo) {
+        await Notification.create({
+          user_id: expo.organizer_id || null,
+          target_role: 'organizer',
+          title: 'New Exhibitor Application',
+          type: 'application_status',
+          message: `New exhibitor application received from "${company_name}" for "${expo.title || 'your expo'}".`,
+        });
+      }
     } catch (notifErr) {
       console.error('Failed to create submit notification:', notifErr.message);
     }
@@ -306,6 +320,25 @@ export const selectBoothForApplication = async (req, res) => {
         booth.exhibitor_id = userId;
         booth.exhibitor_name = application.company_name;
         await booth.save();
+      }
+
+      // 🔔 NOTIFICATION HOOK: Alert Organizer about booth selection request
+      try {
+        const expo = await Expo.findById(application.expo_id?._id || application.expo_id);
+        const expoTitle = expo?.title || application.expo_id?.title || 'the expo';
+        const boothNum = booth ? booth.booth_number : 'a booth';
+
+        if (expo?.organizer_id) {
+          await Notification.create({
+            user_id: expo.organizer_id,
+            target_role: 'organizer',
+            title: 'Booth Selection Requested',
+            type: 'booth_update',
+            message: `Exhibitor "${application.company_name}" has selected Booth ${boothNum} for "${expoTitle}". Awaiting your review & confirmation.`,
+          });
+        }
+      } catch (notifErr) {
+        console.error('Failed to create booth selection notification:', notifErr.message);
       }
     }
 

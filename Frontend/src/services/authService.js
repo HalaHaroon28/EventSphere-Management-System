@@ -48,13 +48,19 @@ class AuthService {
     return response.json();
   }
 
-  async resendOtp(userId) {
+  async resendOtp(userIdOrEmail) {
+    const body = typeof userIdOrEmail === 'object' && userIdOrEmail !== null
+      ? userIdOrEmail
+      : typeof userIdOrEmail === 'string' && userIdOrEmail.includes('@')
+        ? { email: userIdOrEmail }
+        : { user_id: userIdOrEmail };
+
     const response = await fetch(`${API_BASE_URL}/auth/resend-otp`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ user_id: userId }),
+      body: JSON.stringify(body),
     });
 
     if (!response.ok) {

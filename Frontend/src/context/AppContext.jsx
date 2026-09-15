@@ -40,7 +40,7 @@ function saveToStorage(key, value) {
 }
 
 export const AppProvider = ({ children }) => {
-  const [theme, setTheme] = useState(() => loadFromStorage("theme", "dark"));
+  const [theme, setTheme] = useState(() => loadFromStorage("theme", "light"));
   const [currentUser, setCurrentUser] = useState(() => {
     const token = authService.getToken();
     if (!token) return null;
@@ -208,8 +208,8 @@ export const AppProvider = ({ children }) => {
     try {
       localStorage.removeItem("eventsphere_bookmarks");
       localStorage.removeItem("bookmarks");
-    } catch (e) {}
-    showToast("Logged Out Successfully", "You have been returned to the public home page.", "info");
+    } catch (e) { }
+    showToast("Logged Out Successfully", "You have been returned to the home page.", "info");
   };
 
   const loginAs = (roleOrUser) => {

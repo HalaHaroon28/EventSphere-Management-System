@@ -76,45 +76,23 @@ export const ExhibitorDashboard = ({
   const myShowcase = allShowcases.find((s) => {
     const exhId = typeof s?.exhibitor_id === "object" ? s?.exhibitor_id?._id : s?.exhibitor_id;
     return exhId && String(exhId) === userIdStr;
-  }) || allShowcases[0] || {};
+  }) || null;
+
+  const productCount = myShowcase?.products?.length || 0;
 
   return (
-    <div id="exhibitor-dashboard-view" className="space-y-8">
+    <div id="exhibitor-dashboard-view" className="space-y-6">
       {/* Top Banner */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-3">
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight font-heading">
+          <div className="flex items-center gap-2.5">
+            <h2 className="text-xl sm:text-2xl font-bold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight font-heading">
               Exhibitor Dashboard
             </h2>
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold teal-badge font-mono">
-              Exhibitor
-            </span>
           </div>
-          <p className="text-sm sm:text-base text-[#6B7280] dark:text-[#CBD5E1]/80 mt-1">
-            {currentUser?.company_name || "Your Company"} • Track your booth applications, reserved spaces, and visitor messages.
+          <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#94A3B8] mt-1 font-normal">
+            {currentUser?.company_name || currentUser?.company_profile?.company_name || userName || "Your Company"} • Track your booth applications, reserved spaces, and visitor messages.
           </p>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <button
-            onClick={onOpenApply}
-            className="px-5 py-2.5 btn-teal-primary text-white text-sm font-bold rounded-xl shadow-md flex items-center gap-2 transition-all cursor-pointer"
-          >
-            <Plus className="w-4.5 h-4.5" /> Apply for New Expo
-          </button>
-        </div>
-      </div>
-
-      {/* Helpful explanation box */}
-      <div className="bg-slate-50 dark:bg-[#1A202C] p-4 rounded-2xl border border-[#E5E7EB] dark:border-white/10 text-xs text-[#6B7280] dark:text-[#CBD5E1] space-y-1.5 font-body">
-        <div className="flex items-start gap-2">
-          <span className="font-bold text-[#1F2937] dark:text-white shrink-0">What this page is for:</span>
-          <span>Your company home base to manage event participations, booth setups, and visitor leads.</span>
-        </div>
-        <div className="flex items-start gap-2">
-          <span className="font-bold text-[#1F2937] dark:text-white shrink-0">What you can do here:</span>
-          <span>Click &ldquo;+ Apply for New Expo&rdquo; to join an event, reserve your booth spot on the floor map, or view incoming messages from attendees.</span>
         </div>
       </div>
 
@@ -179,17 +157,19 @@ export const ExhibitorDashboard = ({
         <MetricCard
           id="metric-exhibitor-showcase"
           title="Showcase Products"
-          value={myShowcase?.products?.length || 3}
-          subtitle="Specs, demo videos & PDF specs live"
+          value={productCount}
+          subtitle={productCount > 0 ? "Specs, demo videos & digital catalog live" : "No products added yet"}
           icon={Store}
-          accentColor="emerald"
+          accentColor={productCount > 0 ? "emerald" : "slate"}
+          badge={productCount > 0 ? "Published" : "Draft"}
           trend={{
-            value: "Published",
-            label: "online catalog",
-            isPositive: true
+            value: productCount > 0 ? `${productCount} Live` : "Not Published",
+            label: "catalog",
+            neutral: productCount === 0,
+            isPositive: productCount > 0
           }}
           onClick={() => onNavigate("my-booth")}
-          actionLabel="Edit Deck"
+          actionLabel={productCount > 0 ? "Edit Deck" : "Add Products"}
         />
       </div>
 
@@ -233,13 +213,12 @@ export const ExhibitorDashboard = ({
                           {app.expo_title}
                         </span>
                         <span
-                          className={`text-xs font-mono font-bold px-2.5 py-0.5 rounded-full border uppercase ${
-                            app.status === "approved"
-                              ? "bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800"
-                              : app.status === "pending"
+                          className={`text-xs font-mono font-bold px-2.5 py-0.5 rounded-full border uppercase ${app.status === "approved"
+                            ? "bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800"
+                            : app.status === "pending"
                               ? "bg-teal-50 dark:bg-[#203748] text-[#1488A6] dark:text-[#38B2AC] border border-[#1488A6]/30 dark:border-[#38B2AC]/40"
                               : "bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border-rose-200 dark:border-rose-800"
-                          }`}
+                            }`}
                         >
                           {app.status}
                         </span>

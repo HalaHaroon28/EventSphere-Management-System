@@ -85,6 +85,16 @@ const MyBoothManager = () => {
   const [newStaffRole, setNewStaffRole] = useState("");
   const [newStaffEmail, setNewStaffEmail] = useState("");
 
+  const getMediaUrl = (url, fallback = "https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&auto=format&fit=crop&q=80") => {
+    if (!url || typeof url !== "string" || !url.trim()) return fallback;
+    const clean = url.trim();
+    if (clean.startsWith("http://") || clean.startsWith("https://") || clean.startsWith("data:") || clean.startsWith("blob:")) {
+      return clean;
+    }
+    const cleanPath = clean.startsWith("/") ? clean : `/${clean}`;
+    return `http://localhost:5000${cleanPath}`;
+  };
+
   const handleProductImageUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -92,10 +102,9 @@ const MyBoothManager = () => {
     setUploadingImg(true);
     const uploadedUrl = await uploadBoothProductImage(file);
     setUploadingImg(false);
-
     if (uploadedUrl) {
       setNewProdImg(uploadedUrl);
-      showToast("Image Uploaded", "Product image saved to uploads/boothproducts.", "success");
+      showToast("Image Uploaded", "Product image uploaded successfully.", "success");
     }
   };
 
@@ -204,7 +213,7 @@ const MyBoothManager = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2.5">
-            <h2 className="text-xl sm:text-2xl font-extrabold text-[#1F2937] dark:text-[#F8FAFC] font-heading tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-bold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight font-heading">
               My Booth & Catalog Manager
             </h2>
             {myBooth && (
@@ -213,7 +222,7 @@ const MyBoothManager = () => {
               </span>
             )}
           </div>
-          <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#CBD5E1] mt-1">
+          <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#94A3B8] mt-1 font-normal">
             Configure your company booth description, products catalog (1-3 items), and registered attendants (1-3 staff).
           </p>
         </div>
@@ -245,24 +254,55 @@ const MyBoothManager = () => {
 
       {/* Access Lock Banner if No Booked Booth */}
       {!myBooth ? (
-        <div className="py-16 px-6 bg-white dark:bg-[#1A202C] rounded-3xl border border-[#E5E7EB] dark:border-white/10 shadow-sm text-center space-y-4 font-body">
-          <div className="w-14 h-14 rounded-2xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto shadow-xs">
-            <Lock className="w-7 h-7" />
+        <div className="bg-white dark:bg-[#1A202C] rounded-3xl border border-[#E5E7EB] dark:border-white/10 shadow-sm p-6 sm:p-10 font-body space-y-8">
+          <div className="max-w-xl mx-auto text-center space-y-4">
+            <div className="w-14 h-14 rounded-2xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto shadow-xs">
+              <Lock className="w-7 h-7" />
+            </div>
+            
+            <div className="space-y-2">
+              <h3 className="text-xl font-bold text-[#1F2937] dark:text-[#F8FAFC] font-heading">
+                No Booked Booth for {selectedExpo?.title || "this Expo"}
+              </h3>
+              <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#CBD5E1]/80 leading-relaxed">
+                Exhibitor catalog and staff manager is locked until you select and reserve an available booth space on the interactive floor plan.
+              </p>
+            </div>
+
+            <button
+              onClick={() => setActiveView("booth-selection")}
+              className="px-6 py-3 btn-teal-primary text-white text-xs sm:text-sm font-bold rounded-xl shadow-md inline-flex items-center gap-2 cursor-pointer transition-transform hover:scale-105"
+            >
+              Go to Choose a Booth Map <ArrowRight className="w-4 h-4" />
+            </button>
           </div>
-          <div className="space-y-1.5 max-w-md mx-auto">
-            <h3 className="text-lg font-bold text-[#1F2937] dark:text-[#F8FAFC] font-heading">
-              No Booked/Reserved Booth Found for {selectedExpo?.title || "this Expo"}
-            </h3>
-            <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#CBD5E1]/80 leading-relaxed">
-              Exhibitors can only configure booth description, product catalog, and staff attendants after selecting and reserving a booth spot on the floor plan map.
-            </p>
+
+          {/* Quick Steps Guide */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6 border-t border-[#E5E7EB] dark:border-white/10 text-left">
+            <div className="p-4 rounded-2xl bg-[#F8FAFC] dark:bg-[#0F172A] border border-[#E5E7EB] dark:border-white/5 space-y-1.5">
+              <div className="flex items-center gap-2">
+                <span className="w-5 h-5 rounded-full bg-[#1488A6]/10 text-[#1488A6] dark:text-[#38B2AC] font-mono font-bold text-xs flex items-center justify-center">1</span>
+                <span className="text-xs font-bold text-[#1F2937] dark:text-white">Submit Application</span>
+              </div>
+              <p className="text-[11px] text-[#6B7280] dark:text-[#CBD5E1]/70">Apply to exhibit at this summit and await organizer approval.</p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-[#F8FAFC] dark:bg-[#0F172A] border border-[#E5E7EB] dark:border-white/5 space-y-1.5">
+              <div className="flex items-center gap-2">
+                <span className="w-5 h-5 rounded-full bg-[#1488A6]/10 text-[#1488A6] dark:text-[#38B2AC] font-mono font-bold text-xs flex items-center justify-center">2</span>
+                <span className="text-xs font-bold text-[#1F2937] dark:text-white">Reserve Floor Spot</span>
+              </div>
+              <p className="text-[11px] text-[#6B7280] dark:text-[#CBD5E1]/70">Pick an available booth coordinate on the interactive blueprint floor plan.</p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-[#F8FAFC] dark:bg-[#0F172A] border border-[#E5E7EB] dark:border-white/5 space-y-1.5">
+              <div className="flex items-center gap-2">
+                <span className="w-5 h-5 rounded-full bg-[#1488A6]/10 text-[#1488A6] dark:text-[#38B2AC] font-mono font-bold text-xs flex items-center justify-center">3</span>
+                <span className="text-xs font-bold text-[#1F2937] dark:text-white">Build Catalog & Staff</span>
+              </div>
+              <p className="text-[11px] text-[#6B7280] dark:text-[#CBD5E1]/70">Upload 1-3 demo products and register booth attendants.</p>
+            </div>
           </div>
-          <button
-            onClick={() => setActiveView("exhibitor_booths")}
-            className="px-5 py-2.5 btn-teal-primary text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs inline-flex items-center gap-2 cursor-pointer transition-transform hover:scale-105"
-          >
-            Go to Choose a Booth Map <ArrowRight className="w-4 h-4" />
-          </button>
         </div>
       ) : (
         <>
@@ -334,9 +374,13 @@ const MyBoothManager = () => {
                 >
                   <div className="h-32 bg-[#E2E8F0] dark:bg-[#203748] overflow-hidden relative">
                     <img
-                      src={p.image_url}
+                      src={getMediaUrl(p.image_url)}
                       alt={p.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = "https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&auto=format&fit=crop&q=80";
+                      }}
                     />
                     <span className="absolute top-2 left-2 px-2 py-0.5 rounded text-[10px] font-bold bg-white/90 dark:bg-[#1A202C]/90 text-[#1F2937] dark:text-[#F8FAFC] border border-white/20 font-mono">
                       {p.category || "Hardware"}
@@ -538,9 +582,13 @@ const MyBoothManager = () => {
                   {newProdImg && (
                     <div className="w-12 h-12 rounded-xl border-2 border-[#1488A6] dark:border-[#38B2AC] overflow-hidden bg-slate-900 shrink-0 shadow-xs">
                       <img
-                        src={newProdImg}
+                        src={getMediaUrl(newProdImg)}
                         alt="Product Preview"
                         className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = "https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&auto=format&fit=crop&q=80";
+                        }}
                       />
                     </div>
                   )}

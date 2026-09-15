@@ -55,10 +55,12 @@ export const OrganizerDashboard = ({
       {/* Top Banner / Metrics Overview */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight font-heading">
-            Organizer Dashboard
-          </h2>
-          <p className="text-sm sm:text-base text-[#6B7280] dark:text-[#CBD5E1] mt-1 font-body">
+          <div className="flex items-center gap-2.5">
+            <h2 className="text-xl sm:text-2xl font-bold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight font-heading">
+              Organizer Dashboard
+            </h2>
+          </div>
+          <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#CBD5E1] mt-0.5 font-body">
             Welcome to your event manager center. Keep track of your expos, booth bookings, and applicant requests.
           </p>
         </div>

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useApp } from "../../context/AppContext";
 import { MetricCard } from "../common/MetricCard";
 import {
@@ -11,12 +11,16 @@ import {
   Sparkles,
   Bookmark,
   Compass,
-  MessageSquare
+  MessageSquare,
+  Search,
+  Zap,
+  Cpu
 } from "lucide-react";
 
 export const AttendeeDashboard = ({
   onNavigate,
   onOpenPass,
+  onOpenAIMatchmaker
 }) => {
   const {
     currentUser = {},
@@ -30,6 +34,15 @@ export const AttendeeDashboard = ({
     fetchExpos,
     fetchInboxApi
   } = useApp();
+
+  const [aiSearchInput, setAiSearchInput] = useState("");
+
+  const handleTriggerMatchmaker = (customQuery) => {
+    const q = customQuery !== undefined ? customQuery : aiSearchInput;
+    if (onOpenAIMatchmaker) {
+      onOpenAIMatchmaker(q);
+    }
+  };
 
   // Fetch live attendee data on mount
   useEffect(() => {
@@ -85,11 +98,87 @@ export const AttendeeDashboard = ({
 
         <div className="flex items-center gap-3">
           <button
+            onClick={() => handleTriggerMatchmaker("I want edge computing hardware and IoT sensors")}
+            className="px-4 py-2.5 bg-gradient-to-r from-[#1488A6] to-[#38B2AC] hover:from-[#117690] hover:to-[#2C9A93] text-white text-sm font-bold rounded-xl shadow-md flex items-center gap-2 transition-all cursor-pointer"
+          >
+            <Sparkles className="w-4.5 h-4.5" /> AI Booth Matchmaker
+          </button>
+          <button
             onClick={() => onNavigate("browse-expos")}
-            className="px-5 py-2.5 btn-teal-primary text-white text-sm font-bold rounded-xl shadow-md flex items-center gap-2 transition-all cursor-pointer"
+            className="px-5 py-2.5 border border-[#E5E7EB] dark:border-white/10 hover:bg-slate-100 dark:hover:bg-[#1E293B] text-[#1F2937] dark:text-[#F8FAFC] text-sm font-bold rounded-xl shadow-xs flex items-center gap-2 transition-all cursor-pointer"
           >
             <Compass className="w-4.5 h-4.5" /> Browse All Expos
           </button>
+        </div>
+      </div>
+
+      {/* Smart AI Booth Matchmaker Hero Widget */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-[#0C2A31] to-slate-900 text-white p-6 sm:p-7 border border-teal-500/30 shadow-xl shadow-teal-950/20">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+
+          <div className="space-y-2 max-w-xl">
+            <div className="flex items-center gap-2">
+              <span className="px-2.5 py-1 rounded-full text-xs font-mono font-bold bg-[#38B2AC]/20 text-[#38B2AC] border border-[#38B2AC]/30 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-[#38B2AC]" /> Gemini AI Matchmaker
+              </span>
+              <span className="text-xs text-slate-300 font-mono hidden sm:inline">
+                • Real-time Active Catalog Synthesis
+              </span>
+            </div>
+            <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight font-heading">
+              What are you looking for at this expo?
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+              Describe the specific technologies, hardware, or solutions you need. Gemini AI will cross-reference the live exhibitor floor to deliver your tailored <strong className="text-[#38B2AC]">"Top 3 Booths You Must Visit"</strong>.
+            </p>
+          </div>
+
+          {/* Quick Interactive Search Box */}
+          <div className="w-full lg:max-w-md space-y-3">
+            <div className="relative flex items-center">
+              <Search className="w-4.5 h-4.5 absolute left-3.5 text-slate-400" />
+              <input
+                type="text"
+                value={aiSearchInput}
+                onChange={(e) => setAiSearchInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleTriggerMatchmaker();
+                }}
+                placeholder="e.g. edge computing hardware and IoT sensors..."
+                className="w-full pl-10 pr-28 py-3 rounded-2xl bg-white/10 dark:bg-black/40 border border-white/20 text-white placeholder-slate-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#38B2AC] backdrop-blur-sm"
+              />
+              <button
+                onClick={() => handleTriggerMatchmaker()}
+                className="absolute right-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#1488A6] to-[#38B2AC] hover:from-[#117690] hover:to-[#2C9A93] text-white text-xs font-bold shadow-md flex items-center gap-1.5 transition-all cursor-pointer"
+              >
+                <Zap className="w-3.5 h-3.5" /> Match
+              </button>
+            </div>
+
+            {/* Quick Sample Prompts */}
+            <div className="flex flex-wrap gap-1.5">
+              <button
+                onClick={() => handleTriggerMatchmaker("I want edge computing hardware and IoT sensors")}
+                className="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-white/5 hover:bg-white/15 text-slate-300 hover:text-white border border-white/10 transition-all cursor-pointer"
+              >
+                Edge & IoT Hardware
+              </button>
+              <button
+                onClick={() => handleTriggerMatchmaker("Looking for computer vision and AI camera nodes")}
+                className="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-white/5 hover:bg-white/15 text-slate-300 hover:text-white border border-white/10 transition-all cursor-pointer"
+              >
+                AI & Computer Vision
+              </button>
+              <button
+                onClick={() => handleTriggerMatchmaker("Enterprise zero-trust network cybersecurity")}
+                className="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-white/5 hover:bg-white/15 text-slate-300 hover:text-white border border-white/10 transition-all cursor-pointer"
+              >
+                Zero-Trust Cybersecurity
+              </button>
+            </div>
+          </div>
+
         </div>
       </div>
 

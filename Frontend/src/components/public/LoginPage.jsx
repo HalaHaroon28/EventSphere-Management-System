@@ -18,16 +18,18 @@ import {
 
 export const LoginPage = ({ initialRole = "organizer" }) => {
   const { loginAs, showToast, setActiveView, setCurrentUser } = useApp();
-  const { login, verifyOtp } = useAuth();
+  const { login, verifyOtp, resendOtp } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [isVerifyingDirect, setIsVerifyingDirect] = useState(false);
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [pendingUserId, setPendingUserId] = useState(null);
   const [devOtpCode, setDevOtpCode] = useState(null);
   const [pendingUserRole, setPendingUserRole] = useState("attendee");
+  const [otpModalSubtitle, setOtpModalSubtitle] = useState(null);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -44,15 +46,37 @@ export const LoginPage = ({ initialRole = "organizer" }) => {
         setPendingUserId(response.userId);
         setDevOtpCode(response.devOtpCode);
         setPendingUserRole(response.role || "attendee");
+        setOtpModalSubtitle("Your email is not verified yet. Enter the 6-digit code sent to your email to verify and log in.");
         setShowOtpModal(true);
+        showToast("Email Verification Required", response.message || "Please verify your email before logging in. A 6-digit OTP code has been sent.", "info");
       } else if (response.success) {
         setCurrentUser(response.user);
         loginAs(response.user);
-        showToast("Access Granted", `Welcome back, ${response.user?.name || "User"}!`, "success");
       }
     } catch (error) {
       setIsLoading(false);
       showToast("Login Failed", error.message || "An error occurred during login.", "error");
+    }
+  };
+
+  const handleDirectVerifyRequest = async () => {
+    if (!email.trim()) {
+      showToast("Email Required", "Please enter your email address in the field above to verify your account.", "error");
+      return;
+    }
+    setIsVerifyingDirect(true);
+    try {
+      const res = await resendOtp(email.trim());
+      setIsVerifyingDirect(false);
+      setPendingUserId(res.user_id);
+      setDevOtpCode(res.dev_otp_code);
+      setPendingUserRole(res.role || "attendee");
+      setOtpModalSubtitle("Enter the 6-digit code sent to your email to complete your one-time verification.");
+      setShowOtpModal(true);
+      showToast("Verification Code Sent", "A fresh 6-digit OTP has been sent to your email address.", "info");
+    } catch (err) {
+      setIsVerifyingDirect(false);
+      showToast("Verification Request Failed", err.message || "Could not find an unverified account with this email.", "error");
     }
   };
 
@@ -63,6 +87,7 @@ export const LoginPage = ({ initialRole = "organizer" }) => {
       if (response.success) {
         setCurrentUser(response.user);
         loginAs(response.user);
+        showToast("Email Verified & Logged In", `Welcome back, ${response.user?.name || "User"}!`, "success");
       }
     } catch (error) {
       showToast("OTP Verification Failed", error.message || "Invalid OTP code.", "error");
@@ -192,16 +217,18 @@ export const LoginPage = ({ initialRole = "organizer" }) => {
 
             </div>
 
-            {/* Switch to Register */}
-            <div className="pt-4 sm:pt-6 border-t border-[#E5E7EB] dark:border-white/10 text-center text-xs sm:text-sm text-[#6B7280] dark:text-[#CBD5E1]/70">
-              <span>Don't have an account yet? </span>
-              <button
-                type="button"
-                onClick={() => setActiveView("register")}
-                className="font-bold text-[#1488A6] dark:text-[#38B2AC] hover:underline cursor-pointer"
-              >
-                Create an account
-              </button>
+            {/* Switch to Register & Verify Email Link */}
+            <div className="pt-4 sm:pt-6 border-t border-[#E5E7EB] dark:border-white/10 space-y-2 text-center text-xs sm:text-sm text-[#6B7280] dark:text-[#CBD5E1]/70">
+              <div>
+                <span>Don't have an account yet? </span>
+                <button
+                  type="button"
+                  onClick={() => setActiveView("register")}
+                  className="font-bold text-[#1488A6] dark:text-[#38B2AC] hover:underline cursor-pointer"
+                >
+                  Create an account
+                </button>
+              </div>
             </div>
           </div>
 
@@ -266,6 +293,8 @@ export const LoginPage = ({ initialRole = "organizer" }) => {
           email={email}
           pendingUserId={pendingUserId}
           userId={pendingUserId}
+          devOtpCode={devOtpCode}
+          subtitle={otpModalSubtitle}
           onSuccess={handleOtpSuccess}
           onClose={() => setShowOtpModal(false)}
         />

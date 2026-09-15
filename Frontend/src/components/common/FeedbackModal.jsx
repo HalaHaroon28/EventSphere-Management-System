@@ -23,29 +23,33 @@ const FeedbackModal = ({ onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-xs">
-      <div className="bg-white dark:bg-[#1A202C] rounded-2xl sm:rounded-3xl shadow-2xl border border-[#E5E7EB] dark:border-white/10 max-w-md w-full p-5 sm:p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150">
-        <div className="flex items-center justify-between border-b border-[#E5E7EB] dark:border-white/10 pb-3">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-[#1488A6]/10 dark:bg-[#38B2AC]/20 text-[#1488A6] dark:text-[#38B2AC] flex items-center justify-center shrink-0">
-              <MessageSquare className="w-4 h-4" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/80 backdrop-blur-xs animate-in fade-in duration-200 font-body">
+      <div className="bg-white dark:bg-[#1A202C] rounded-3xl shadow-2xl border border-[#E5E7EB] dark:border-white/10 max-w-md w-full flex flex-col overflow-hidden text-[#1F2937] dark:text-[#F8FAFC]">
+        {/* Modal Header */}
+        <div className="bg-gradient-to-r from-slate-900 via-[#1488A6] to-slate-900 text-white p-5 sm:p-6 flex items-center justify-between shrink-0 relative">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-[#38B2AC] flex items-center justify-center shrink-0">
+              <MessageSquare className="w-5 h-5 text-[#38B2AC]" />
             </div>
             <div>
-              <h3 className="text-sm sm:text-base font-bold text-[#1F2937] dark:text-[#F8FAFC] font-heading">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#38B2AC] block">
+                Direct Helpdesk
+              </span>
+              <h3 className="text-base sm:text-lg font-bold tracking-tight text-white font-heading">
                 Submit Feedback / Issue
               </h3>
-              <p className="text-xs text-[#6B7280] dark:text-[#CBD5E1]/70">Direct channel to operations team.</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-[#6B7280] dark:text-[#CBD5E1] hover:text-[#1F2937] dark:hover:text-white cursor-pointer"
+            className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer shrink-0"
+            aria-label="Close"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-3.5">
+        <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-3.5 flex-1">
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider font-mono text-[#6B7280] dark:text-[#CBD5E1]/70 mb-1.5">
               Feedback Type

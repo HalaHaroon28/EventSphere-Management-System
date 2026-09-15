@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useApp } from "../../context/AppContext";
+import { getExpoImage } from "../../utils/expoImages";
 import {
   Search,
   Calendar,
@@ -105,7 +106,7 @@ export const ExpoListing = ({
             </p>
           </div>
         ) : (
-          filteredExpos.map((expo) => {
+          filteredExpos.map((expo, idx) => {
             const expoId = expo._id || expo.id;
             const expoBooths = (booths || []).filter((b) => b && (b.expo_id === expo._id || b.expo_id === expo.id));
             const availableCount = expoBooths.filter((b) => b.status === "available").length;
@@ -125,12 +126,7 @@ export const ExpoListing = ({
             });
 
             const isRegistered = !!userReg;
-
-            const bannerSrc = expo.banner_image
-              ? expo.banner_image.startsWith("http") || expo.banner_image.startsWith("data:")
-                ? expo.banner_image
-                : `http://localhost:5000${expo.banner_image.startsWith("/") ? "" : "/"}${expo.banner_image}`
-              : null;
+            const bannerSrc = getExpoImage(expo, idx);
 
             return (
               <div
@@ -140,19 +136,14 @@ export const ExpoListing = ({
                 {/* Card Banner Image */}
                 <div>
                   <div className="relative h-48 bg-gradient-to-br from-slate-900 via-[#1488A6]/30 to-slate-950 overflow-hidden">
-                    {bannerSrc ? (
-                      <img
-                        src={bannerSrc}
-                        alt={expo.title || "Expo"}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-85"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-tr from-slate-900 via-[#1488A6]/20 to-[#203748] flex items-center justify-center p-6 text-center">
-                        <span className="text-sm font-bold text-[#38B2AC]/80 font-heading tracking-wider uppercase">
-                          {expo.category || "Convention Summit"}
-                        </span>
-                      </div>
-                    )}
+                    <img
+                      src={bannerSrc}
+                      alt={expo.title || "Expo"}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
+                      onError={(e) => {
+                        e.target.src = "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80";
+                      }}
+                    />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/40 to-transparent" />
 
                     <div className="absolute top-3 left-3 flex items-center gap-1.5">

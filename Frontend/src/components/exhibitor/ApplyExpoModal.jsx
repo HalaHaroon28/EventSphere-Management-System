@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useApp } from "../../context/AppContext";
-import { X, Upload, FileText, CheckCircle, Lock } from "lucide-react";
+import { X, Upload, FileText, CheckCircle, Lock, Building2 } from "lucide-react";
 
 const ApplyExpoModal = ({ initialExpoId, onClose, onSuccess }) => {
   const { expos = [], booths = [], applications = [], currentUser, submitApplication, applyForExpo, showToast } = useApp();
@@ -160,27 +160,41 @@ const ApplyExpoModal = ({ initialExpoId, onClose, onSuccess }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs overflow-y-auto font-body">
-      <div className="bg-white dark:bg-[#1A202C] rounded-3xl shadow-2xl border border-[#E5E7EB] dark:border-white/10 max-w-xl w-full p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150 my-auto max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-[#E5E7EB] dark:border-white/10 pb-3">
-          <div>
-            <h3 className="text-base sm:text-lg font-extrabold text-[#1F2937] dark:text-[#F8FAFC] font-heading">
-              Apply for Exhibition Booth Space
-            </h3>
-            <p className="text-xs text-[#6B7280] dark:text-[#CBD5E1]/80 mt-0.5">
-              Submit your vendor credentials, products outline, and requested floor tier.
-            </p>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/80 backdrop-blur-xs animate-in fade-in duration-200 font-body">
+      <div className="bg-white dark:bg-[#1A202C] rounded-3xl shadow-2xl border border-[#E5E7EB] dark:border-white/10 max-w-xl w-full flex flex-col max-h-[90vh] overflow-hidden text-[#1F2937] dark:text-[#F8FAFC]">
+        {/* Modal Header */}
+        <div className="bg-gradient-to-r from-slate-900 via-[#1488A6] to-slate-900 text-white p-5 sm:p-6 flex items-center justify-between shrink-0 relative">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-[#38B2AC] flex items-center justify-center shrink-0">
+              <Building2 className="w-5 h-5 text-[#38B2AC]" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#38B2AC]">
+                  Booth Application
+                </span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#38B2AC]/20 text-[#38B2AC] border border-[#38B2AC]/30">
+                  Vendor Portal
+                </span>
+              </div>
+              <h3 className="text-lg sm:text-xl font-bold tracking-tight text-white font-heading">
+                Apply for Booth Space
+              </h3>
+              <p className="text-xs text-slate-300 mt-0.5">
+                Submit credentials, products outline, and requested floor tier
+              </p>
+            </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-[#6B7280] hover:text-[#1F2937] dark:text-[#CBD5E1]/60 dark:hover:text-white cursor-pointer"
+            className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer shrink-0"
+            aria-label="Close"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4 overflow-y-auto flex-1">
           {/* Target Expo Select */}
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider font-mono text-[#6B7280] dark:text-[#CBD5E1]/70 mb-1.5">
@@ -285,42 +299,6 @@ const ApplyExpoModal = ({ initialExpoId, onClose, onSuccess }) => {
             />
           </div>
 
-          {/* Company / Product Showcase Image */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-bold uppercase tracking-wider font-mono text-[#6B7280] dark:text-[#CBD5E1]/70">
-              Company / Product Showcase Image
-            </label>
-            <div className="flex items-center gap-3">
-              {companyImage && (
-                <img
-                  src={companyImage}
-                  alt="Company Showcase"
-                  className="w-16 h-12 object-cover rounded-xl border border-[#E5E7EB] dark:border-white/10"
-                />
-              )}
-              <label className="flex-1 px-3.5 py-2 bg-slate-50 dark:bg-[#0F172A] border border-dashed border-[#1488A6]/40 dark:border-[#38B2AC]/40 rounded-xl flex items-center justify-center gap-2 cursor-pointer hover:bg-teal-50/50 dark:hover:bg-[#203748]/40 transition-colors">
-                <Upload className="w-3.5 h-3.5 text-[#1488A6] dark:text-[#38B2AC]" />
-                <span className="text-xs font-bold text-[#1488A6] dark:text-[#38B2AC]">
-                  {companyImage ? "Change Showcase Image" : "Upload Showcase Image"}
-                </span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      setCompanyImageFile(file);
-                      const reader = new FileReader();
-                      reader.onloadend = () => setCompanyImage(reader.result);
-                      reader.readAsDataURL(file);
-                    }
-                  }}
-                />
-              </label>
-            </div>
-          </div>
-
           {/* Supporting Credentials & Pitch Deck - FILE UPLOAD (PDFs, Docs, Images - Min 1, Max 3) */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
@@ -402,8 +380,8 @@ const ApplyExpoModal = ({ initialExpoId, onClose, onSuccess }) => {
               type="submit"
               disabled={Boolean(existingApp)}
               className={`px-4 py-2 text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all ${existingApp
-                  ? "bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed"
-                  : "btn-teal-primary text-white cursor-pointer"
+                ? "bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed"
+                : "btn-teal-primary text-white cursor-pointer"
                 }`}
             >
               <CheckCircle className="w-4 h-4" /> {existingApp ? "Already Applied" : "Submit Application"}

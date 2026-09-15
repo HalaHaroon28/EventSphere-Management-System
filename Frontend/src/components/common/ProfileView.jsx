@@ -3,8 +3,8 @@ import { useApp } from "../../context/AppContext";
 import { authService } from "../../services/authService";
 import { User, Phone, Mail, Lock, Shield, Camera, Check, Sparkles } from "lucide-react";
 
-export const ProfileView = () => {
-  const { currentUser, updateUserProfile, changePassword, showToast } = useApp();
+export const ProfileView = ({ isModal = false, onClose }) => {
+  const { currentUser = {}, updateUserProfile, changePassword, showToast } = useApp();
 
   const [name, setName] = useState(currentUser.name || "");
   const [phone, setPhone] = useState(currentUser.phone || "+1 (555) 234-5678");
@@ -82,24 +82,26 @@ export const ProfileView = () => {
   };
 
   return (
-    <div id="user-profile-view" className="space-y-6 max-w-4xl mx-auto font-body">
-      {/* Top Banner */}
-      <div className="bg-white dark:bg-[#1A202C] p-6 rounded-2xl border border-[#E5E7EB] dark:border-white/10 shadow-xs space-y-2">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <h2 className="text-xl sm:text-2xl font-bold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight font-heading flex items-center gap-2.5">
-              <User className="w-6 h-6 text-[#1488A6] dark:text-[#38B2AC]" />
-              My Profile & Account Settings
-            </h2>
-            <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#CBD5E1] mt-1 font-body">
-              View and manage your personal account details, contact information, profile photo, and password.
-            </p>
+    <div id="user-profile-view" className={`space-y-5 ${isModal ? "w-full" : "max-w-4xl mx-auto"} font-body`}>
+      {/* Top Banner (Shown only on standalone page) */}
+      {!isModal && (
+        <div className="bg-white dark:bg-[#1A202C] p-6 rounded-2xl border border-[#E5E7EB] dark:border-white/10 shadow-xs space-y-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-bold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight font-heading flex items-center gap-2.5">
+                <User className="w-6 h-6 text-[#1488A6] dark:text-[#38B2AC]" />
+                My Profile & Account Settings
+              </h2>
+              <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#CBD5E1] mt-0.5 font-body">
+                View and manage your personal account details, contact information, profile photo, and password.
+              </p>
+            </div>
+            <span className="self-start sm:self-auto px-3 py-1 rounded-full text-xs font-mono font-bold uppercase tracking-wider teal-badge">
+              Role: {currentUser.role}
+            </span>
           </div>
-          <span className="self-start sm:self-auto px-3 py-1 rounded-full text-xs font-mono font-bold uppercase tracking-wider teal-badge">
-            Role: {currentUser.role}
-          </span>
         </div>
-      </div>
+      )}
 
       {/* Main Details Form */}
       <div className="bg-white dark:bg-[#1A202C] p-6 rounded-2xl border border-[#E5E7EB] dark:border-white/10 shadow-xs space-y-6">

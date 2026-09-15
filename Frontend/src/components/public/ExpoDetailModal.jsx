@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useApp } from "../../context/AppContext";
+import { getExpoImage } from "../../utils/expoImages";
 import { FloorPlanView } from "../common/FloorPlanView";
 import { InContextFeedback } from "../common/InContextFeedback";
 import {
@@ -22,6 +23,7 @@ import {
 export const ExpoDetailModal = ({
   expoId,
   initialTab = "overview",
+  selectedBoothId = null,
   onClose,
   onOpenRegisterPass,
   onOpenApplyExhibitor,
@@ -102,11 +104,7 @@ export const ExpoDetailModal = ({
     }
   };
 
-  const bannerSrc = expo.banner_image
-    ? (expo.banner_image.startsWith("http") || expo.banner_image.startsWith("data:")
-        ? expo.banner_image
-        : `http://localhost:5000${expo.banner_image.startsWith("/") ? "" : "/"}${expo.banner_image}`)
-    : null;
+  const bannerSrc = getExpoImage(expo);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/80 backdrop-blur-xs overflow-y-auto font-body">
@@ -114,15 +112,14 @@ export const ExpoDetailModal = ({
         
         {/* Top Hero Banner */}
         <div className="relative h-48 sm:h-56 bg-gradient-to-br from-slate-900 via-[#1488A6]/30 to-slate-950 shrink-0 overflow-hidden">
-          {bannerSrc ? (
-            <img
-              src={bannerSrc}
-              alt={expo.title}
-              className="w-full h-full object-cover opacity-60"
-            />
-          ) : (
-            <div className="w-full h-full bg-gradient-to-r from-slate-950 via-[#1488A6]/20 to-slate-950" />
-          )}
+          <img
+            src={bannerSrc}
+            alt={expo.title}
+            onError={(e) => {
+              e.currentTarget.src = "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80";
+            }}
+            className="w-full h-full object-cover opacity-75"
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent" />
 
           {/* Close & Share Header Controls */}
@@ -340,7 +337,7 @@ export const ExpoDetailModal = ({
           {/* TAB 2: FLOOR PLAN */}
           {activeTab === "floorplan" && (
             <div className="space-y-4">
-              <FloorPlanView expoId={expo._id} />
+              <FloorPlanView expoId={expo._id} selectedBoothId={selectedBoothId} />
             </div>
           )}
 

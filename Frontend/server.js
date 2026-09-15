@@ -140,11 +140,172 @@ Guidelines:
             reply: replyText,
             modelUsed: usedModel,
         });
-    }
-    catch (error) {
+    } catch (error) {
         console.error('Error in /api/chat Gemini endpoint:', error);
         res.status(500).json({
             error: error?.message || 'Failed to generate response from Gemini AI',
+        });
+    }
+});
+
+// Gemini Smart AI Booth Matchmaker Endpoint
+app.post('/api/ai/match-booths', async (req, res) => {
+    try {
+        const { query, expoId, expoTitle, catalog, model } = req.body;
+        if (!query || typeof query !== 'string' || !query.trim()) {
+            return res.status(400).json({ error: 'Search query is required' });
+        }
+
+        const attendeeQuery = query.trim();
+        const activeCatalog = Array.isArray(catalog) ? catalog : [];
+
+        if (activeCatalog.length === 0) {
+            return res.json({
+                success: true,
+                ai_summary: `No active exhibitor booths found for this summit yet.`,
+                recommendations: [],
+                modelUsed: 'database-query'
+            });
+        }
+
+        const ai = getGeminiClient();
+
+        const systemInstruction = `You are the EventSphere Smart AI Booth Matchmaker & Expo Intelligence Engine.
+Your mission is to carefully analyze an attendee's inquiry ("What are you looking for at this expo?") and match it against the active exhibitor catalog to identify the "Top 3 Booths You Must Visit".
+
+Catalog of Active Exhibitors:
+${JSON.stringify(activeCatalog, null, 2)}
+
+Requirements for output:
+- Return ONLY valid JSON (no markdown formatting around the outer wrapper, or ensure valid JSON object).
+- Select the top 3 most relevant exhibitors/booths that best satisfy the attendee's query.
+- If fewer than 3 match closely, still recommend up to 3 best relevant booths from the catalog.
+- For each recommendation, provide:
+  - "booth_number": exact booth number from catalog
+  - "company_name": company name
+  - "match_score": integer from 75 to 99 representing relevance percentage
+  - "why_visit": 1-2 compelling sentences explaining specifically why this booth matches the attendee's inquiry
+  - "key_highlights": array of 2-3 specific products, hardware, or services they should see
+  - "suggested_questions": array of 1-2 smart technical/business ice-breaker questions for the attendee to ask the exhibitor staff
+  - "hall": hall location string (e.g., "Hall A", "Hall B")
+  - "category": primary category
+- Also provide "ai_summary": a 1-sentence personalized summary of the matchmaking result.
+
+JSON Output Schema:
+{
+  "ai_summary": "string",
+  "recommendations": [
+    {
+      "booth_number": "string",
+      "company_name": "string",
+      "match_score": 98,
+      "why_visit": "string",
+      "key_highlights": ["string"],
+      "suggested_questions": ["string"],
+      "hall": "string",
+      "category": "string"
+    }
+  ]
+}`;
+
+        if (ai) {
+            const selectedModel = model || 'gemini-2.5-flash';
+            const userPrompt = `Attendee Inquiry: "${attendeeQuery}"
+Expo Context: ${expoTitle || 'Global Technology Summit'}
+Please return the Top 3 Booth Recommendations in exact JSON format.`;
+
+            try {
+                try {
+                    response = await ai.models.generateContent({
+                        model: selectedModel,
+                        contents: userPrompt,
+                        config: {
+                            systemInstruction: systemInstruction,
+                            responseMimeType: "application/json",
+                            temperature: 0.3,
+                        },
+                    });
+                    usedModel = selectedModel;
+                } catch (genErr) {
+                    console.warn(`[Gemini Matchmaker] Call with ${selectedModel} failed (${genErr?.message}), trying fallback to gemini-2.5-flash...`);
+                    try {
+                        usedModel = 'gemini-2.5-flash';
+                        response = await ai.models.generateContent({
+                            model: 'gemini-2.5-flash',
+                            contents: userPrompt,
+                            config: {
+                                systemInstruction: systemInstruction,
+                                responseMimeType: "application/json",
+                                temperature: 0.3,
+                            },
+                        });
+                    } catch (fallbackErr) {
+                        console.warn(`[Gemini Matchmaker] Fallback to gemini-2.5-flash failed, trying gemini-2.0-flash...`);
+                        usedModel = 'gemini-2.0-flash';
+                        response = await ai.models.generateContent({
+                            model: 'gemini-2.0-flash',
+                            contents: userPrompt,
+                            config: {
+                                systemInstruction: systemInstruction,
+                                responseMimeType: "application/json",
+                                temperature: 0.3,
+                            },
+                        });
+                    }
+                }
+
+                const rawText = response?.text || '{}';
+                // Clean markdown blocks if present
+                const cleaned = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
+                const parsed = JSON.parse(cleaned);
+
+                if (parsed.recommendations && Array.isArray(parsed.recommendations) && parsed.recommendations.length > 0) {
+                    return res.json({
+                        success: true,
+                        ai_summary: parsed.ai_summary || `Top recommendations for "${attendeeQuery}"`,
+                        recommendations: parsed.recommendations || [],
+                        modelUsed: usedModel
+                    });
+                }
+            } catch (err) {
+                console.warn('[Gemini Matchmaker] Live generation encountered issue, seamlessly using smart catalog matcher:', err.message);
+            }
+        }
+
+        // Smart catalog matcher (used when offline, missing API key, or on API auth error)
+        const lower = attendeeQuery.toLowerCase();
+        const scored = activeCatalog.map((item) => {
+            let score = 75;
+            const text = `${item.company_name} ${item.category} ${item.description} ${(item.products || []).join(' ')}`.toLowerCase();
+            const keywords = lower.split(/\s+/).filter(k => k.length > 2);
+            keywords.forEach(kw => {
+                if (text.includes(kw)) score += 10;
+            });
+            return { item, score: Math.min(score, 98) };
+        });
+
+        scored.sort((a, b) => b.score - a.score);
+        const top3 = scored.slice(0, 3).map(({ item, score }, idx) => ({
+            booth_number: item.booth_number || `B-0${idx + 1}`,
+            company_name: item.company_name || 'Featured Exhibitor',
+            match_score: score || 95 - (idx * 4),
+            why_visit: `Specializes in ${item.category || 'tech solutions'} with focus on ${item.products?.[0] || 'advanced hardware'} tailored to "${attendeeQuery}".`,
+            key_highlights: item.products && item.products.length > 0 ? item.products.slice(0, 3) : ['Live Product Demo', 'Technical Specs Sheet', 'Engineer Q&A'],
+            suggested_questions: [`How does your ${item.products?.[0] || 'solution'} integrate into our deployment workflow?`],
+            hall: item.hall || 'Main Exhibition Floor',
+            category: item.category || 'Technology'
+        }));
+
+        return res.json({
+            success: true,
+            ai_summary: `Top 3 tailored booths for "${attendeeQuery}" matched across ${activeCatalog.length} active exhibitors.`,
+            recommendations: top3,
+            modelUsed: ai ? 'gemini-smart-fallback' : 'offline-smart-matcher'
+        });
+    } catch (error) {
+        console.error('Error in /api/ai/match-booths endpoint:', error);
+        res.status(500).json({
+            error: error?.message || 'Failed to generate booth matches from Gemini AI'
         });
     }
 });

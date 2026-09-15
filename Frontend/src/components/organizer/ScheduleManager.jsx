@@ -156,23 +156,26 @@ export const ScheduleManager = () => {
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex items-center gap-2.5 shrink-0 flex-nowrap">
           {/* Expo Selector */}
-          <select
-            value={selectedExpoId}
-            onChange={(e) => setSelectedExpoId(e.target.value)}
-            className="text-xs sm:text-sm bg-white dark:bg-[#1A202C] border border-[#E5E7EB] dark:border-white/10 rounded-xl px-3.5 py-2 font-bold text-[#1F2937] dark:text-[#F8FAFC] shadow-xs focus:outline-none focus:ring-2 focus:ring-[#38B2AC] cursor-pointer"
-          >
-            {displayExpos.map((e) => (
-              <option key={e._id} value={e._id}>
-                {e.title}
-              </option>
-            ))}
-          </select>
+          <div className="relative">
+            <Calendar className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#1488A6] dark:text-[#38B2AC] pointer-events-none" />
+            <select
+              value={selectedExpoId}
+              onChange={(e) => setSelectedExpoId(e.target.value)}
+              className="pl-9 pr-8 py-2 text-xs sm:text-sm bg-white dark:bg-[#1A202C] border border-[#E5E7EB] dark:border-white/10 rounded-xl font-bold text-[#1F2937] dark:text-[#F8FAFC] shadow-xs focus:outline-none focus:ring-2 focus:ring-[#38B2AC] cursor-pointer max-w-[240px] truncate"
+            >
+              {displayExpos.map((e) => (
+                <option key={e._id} value={e._id}>
+                  {e.title}
+                </option>
+              ))}
+            </select>
+          </div>
 
           <button
             onClick={openCreateModal}
-            className="px-4 py-2 btn-teal-primary text-xs sm:text-sm font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-colors shrink-0 cursor-pointer"
+            className="px-4 py-2 btn-teal-primary text-xs sm:text-sm font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
           >
             <Plus className="w-4 h-4" /> Program New Session
           </button>
@@ -198,62 +201,66 @@ export const ScheduleManager = () => {
         {filteredSessions.length === 0 ? (
           <div className="py-12 bg-white dark:bg-[#1A202C] rounded-2xl border border-[#E5E7EB] dark:border-white/10 text-center text-xs sm:text-sm text-[#6B7280] dark:text-[#CBD5E1]/70 space-y-3 p-6">
             <Clock className="w-10 h-10 text-[#1488A6] dark:text-[#38B2AC] mx-auto opacity-75" />
-            <p className="font-semibold text-sm text-[#1F2937] dark:text-[#F8FAFC]">No scheduled sessions for this exhibition yet.</p>
+            <div className="space-y-1">
+              <h4 className="font-bold text-sm text-[#1F2937] dark:text-[#F8FAFC] font-heading">
+                No sessions scheduled for this expo
+              </h4>
+              <p className="text-xs text-[#6B7280] dark:text-[#CBD5E1]/60 max-w-sm mx-auto">
+                Click &ldquo;Program New Session&rdquo; above to publish your first talk, keynote, or workshop.
+              </p>
+            </div>
             <button
               onClick={openCreateModal}
-              className="px-4 py-2 btn-teal-primary text-xs font-bold rounded-xl shadow-xs inline-flex items-center gap-1.5 cursor-pointer"
+              className="px-4 py-2 btn-teal-primary text-white text-xs font-bold rounded-xl shadow-xs inline-flex items-center gap-1.5 cursor-pointer"
             >
-              <Plus className="w-4 h-4" /> Add First Session
+              <Plus className="w-4 h-4" /> Program New Session
             </button>
           </div>
         ) : (
           filteredSessions.map((session) => (
             <div
               key={session._id}
-              className="bg-white dark:bg-[#1A202C] p-4 sm:p-5 rounded-2xl border border-[#E5E7EB] dark:border-white/10 hover:border-[#38B2AC]/50 dark:hover:border-[#38B2AC]/50 shadow-xs transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+              className="p-4 sm:p-5 bg-white dark:bg-[#1A202C] rounded-2xl border border-[#E5E7EB] dark:border-white/10 shadow-xs hover:border-[#1488A6]/40 dark:hover:border-[#38B2AC]/40 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
             >
-              <div className="space-y-2 flex-1 min-w-0">
-                <div className="flex flex-wrap items-center gap-2 text-xs text-[#6B7280] dark:text-[#CBD5E1]/80">
-                  <span className="font-mono font-bold text-[#1488A6] dark:text-[#38B2AC] bg-teal-50 dark:bg-[#0F172A] px-2.5 py-0.5 rounded border border-[#1488A6]/20 dark:border-white/5 flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
-                    {session.start_time ? new Date(session.start_time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "TBA"}
-                    {" – "}
-                    {session.end_time ? new Date(session.end_time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "TBA"}
+              <div className="space-y-1.5 flex-1 min-w-0">
+                <div className="flex flex-wrap items-center gap-2 text-xs text-[#6B7280] dark:text-[#CBD5E1]/70">
+                  <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-slate-100 dark:bg-[#0F172A] border border-[#E5E7EB] dark:border-white/5 font-mono font-bold text-[#1F2937] dark:text-[#F8FAFC]">
+                    <Clock className="w-3.5 h-3.5 text-[#1488A6] dark:text-[#38B2AC]" />
+                    {getTimeStr(session.start_time)} – {getTimeStr(session.end_time)}
                   </span>
                   <span>•</span>
-                  <span className="font-semibold text-[#1F2937] dark:text-[#F8FAFC] flex items-center gap-1">
-                    <MapPin className="w-3.5 h-3.5 text-[#1488A6] dark:text-[#38B2AC]" />
-                    {session.location || currentExpo?.location || "Grand Hall"}
+                  <span className="flex items-center gap-1 text-[#1488A6] dark:text-[#38B2AC] font-semibold">
+                    <MapPin className="w-3.5 h-3.5" />
+                    {session.location || currentExpo?.location || "Grand Main Hall"}
                   </span>
                   {session.topic && (
                     <>
                       <span>•</span>
-                      <span className="text-[11px] font-mono font-bold uppercase px-2 py-0.5 rounded teal-badge">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold teal-badge uppercase">
                         {session.topic}
                       </span>
                     </>
                   )}
                 </div>
 
-                <h3 className="text-sm sm:text-base font-bold text-[#1F2937] dark:text-[#F8FAFC] font-heading">
+                <h3 className="text-base font-bold text-[#1F2937] dark:text-[#F8FAFC] truncate font-heading">
                   {session.title}
                 </h3>
 
                 {session.speaker && (
-                  <div className="flex items-center gap-2 text-xs text-[#6B7280] dark:text-[#CBD5E1]">
-                    <User className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC]" />
-                    <span className="font-semibold text-[#1F2937] dark:text-[#F8FAFC]">Speaker: {session.speaker}</span>
-                  </div>
+                  <p className="text-xs text-[#6B7280] dark:text-[#CBD5E1]/80 flex items-center gap-1.5">
+                    <User className="w-3.5 h-3.5 text-[#6B7280] dark:text-[#CBD5E1]/60" />
+                    <span>Speaker: <strong className="text-[#1F2937] dark:text-[#F8FAFC]">{session.speaker}</strong></span>
+                  </p>
                 )}
               </div>
 
-              <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+              <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
                 <button
                   onClick={() => openEditModal(session)}
-                  className="px-3 py-1.5 rounded-xl border border-[#E5E7EB] dark:border-white/10 hover:bg-slate-100 dark:hover:bg-[#0F172A] text-xs font-semibold text-[#1F2937] dark:text-[#CBD5E1] flex items-center gap-1 transition-colors cursor-pointer"
-                  title="Edit Session"
+                  className="px-3 py-1.5 rounded-xl border border-[#E5E7EB] dark:border-white/10 hover:bg-slate-50 dark:hover:bg-[#203748] text-xs font-bold text-[#1F2937] dark:text-[#F8FAFC] flex items-center gap-1 transition-colors cursor-pointer"
                 >
-                  <Edit2 className="w-3.5 h-3.5" /> Edit
+                  <Edit2 className="w-3.5 h-3.5 text-[#1488A6] dark:text-[#38B2AC]" /> Edit
                 </button>
                 <button
                   onClick={() => {
@@ -261,8 +268,7 @@ export const ScheduleManager = () => {
                       deleteSession(session._id);
                     }
                   }}
-                  className="px-3 py-1.5 rounded-xl border border-[#E5E7EB] dark:border-white/10 hover:bg-rose-50 dark:hover:bg-rose-950/50 text-xs font-semibold text-rose-600 dark:text-rose-400 flex items-center gap-1 transition-colors cursor-pointer"
-                  title="Delete Session"
+                  className="px-3 py-1.5 rounded-xl border border-rose-200 dark:border-rose-900/40 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-bold text-rose-600 dark:text-rose-400 flex items-center gap-1 transition-colors cursor-pointer"
                 >
                   <Trash2 className="w-3.5 h-3.5" /> Delete
                 </button>
@@ -274,26 +280,43 @@ export const ScheduleManager = () => {
 
       {/* Add / Edit Session Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
-          <div className="bg-white dark:bg-[#1A202C] rounded-3xl shadow-2xl border border-[#E5E7EB] dark:border-white/10 max-w-lg w-full p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-[#E5E7EB] dark:border-white/10 pb-3">
-              <div>
-                <h3 className="text-base sm:text-lg font-bold text-[#1F2937] dark:text-[#F8FAFC] font-heading">
-                  {editingSession ? "Edit Session Details" : "Program New Session"}
-                </h3>
-                <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#CBD5E1]/70">
-                  Define talk title, speaker presentation, and timing schedule.
-                </p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/80 backdrop-blur-xs animate-in fade-in duration-200 font-body">
+          <div className="bg-white dark:bg-[#1A202C] rounded-3xl shadow-2xl border border-[#E5E7EB] dark:border-white/10 max-w-lg w-full flex flex-col max-h-[90vh] overflow-hidden text-[#1F2937] dark:text-[#F8FAFC]">
+            
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-slate-900 via-[#1488A6] to-slate-900 text-white p-5 sm:p-6 flex items-center justify-between shrink-0 relative">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-[#38B2AC] flex items-center justify-center shrink-0">
+                  <Clock className="w-5 h-5 text-[#38B2AC]" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#38B2AC]">
+                      Schedule Manager
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#38B2AC]/20 text-[#38B2AC] border border-[#38B2AC]/30">
+                      {editingSession ? "Edit Mode" : "New Session"}
+                    </span>
+                  </div>
+                  <h3 className="text-lg sm:text-xl font-bold tracking-tight text-white font-heading">
+                    {editingSession ? "Edit Session Details" : "Program New Session"}
+                  </h3>
+                  <p className="text-xs text-slate-300 mt-0.5">
+                    Define talk title, speaker presentation, and timing schedule.
+                  </p>
+                </div>
               </div>
+
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="p-1.5 rounded-lg text-[#6B7280] dark:text-[#CBD5E1] hover:text-[#1F2937] dark:hover:text-white cursor-pointer"
+                className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer shrink-0"
+                aria-label="Close"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleFormSubmit} className="space-y-4">
+            <form onSubmit={handleFormSubmit} className="p-5 sm:p-6 space-y-4 overflow-y-auto flex-1">
               {/* Session Title */}
               <div>
                 <label className="block text-xs font-bold text-[#1F2937] dark:text-[#CBD5E1] uppercase tracking-wider font-mono mb-1">

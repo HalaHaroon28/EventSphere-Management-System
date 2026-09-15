@@ -50,9 +50,6 @@ export const MyPassesModal = ({ isOpen, onClose, onSelectExpo, onOpenGetPass }) 
                 <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#38B2AC]">
                   Attendee Wallet
                 </span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#38B2AC]/20 text-[#38B2AC] border border-[#38B2AC]/30">
-                  {userRegistrations.length} Active {userRegistrations.length === 1 ? "Pass" : "Passes"}
-                </span>
               </div>
               <h3 className="text-lg sm:text-xl font-bold tracking-tight text-white font-heading">
                 My Verified Access Passes

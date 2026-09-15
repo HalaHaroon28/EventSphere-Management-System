@@ -74,37 +74,44 @@ export const GetPassModal = ({ expo, onClose, onSuccess }) => {
       <div className="bg-white dark:bg-[#1A202C] rounded-3xl shadow-2xl border border-[#E5E7EB] dark:border-white/10 max-w-lg w-full overflow-hidden flex flex-col max-h-[90vh]">
         
         {/* Modal Header */}
-        <div className="bg-gradient-to-r from-slate-900 via-[#1488A6] to-slate-900 text-white p-6 relative">
-          <div className="flex items-center justify-between relative z-10">
-            <div className="flex items-center gap-2">
+        <div className="bg-gradient-to-r from-slate-900 via-[#1488A6] to-slate-900 text-white p-5 sm:p-6 flex items-center justify-between shrink-0 relative">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-[#38B2AC] flex items-center justify-center shrink-0">
               <Ticket className="w-5 h-5 text-[#38B2AC]" />
-              <span className="text-xs font-mono font-bold uppercase tracking-widest text-[#38B2AC]">
-                Get Digital Pass
-              </span>
             </div>
-            <button
-              onClick={onClose}
-              className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
-            >
-              <X className="w-4 h-4" />
-            </button>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#38B2AC]">
+                  Digital Ticket Access
+                </span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#38B2AC]/20 text-[#38B2AC] border border-[#38B2AC]/30 font-mono">
+                  100% Free Pass
+                </span>
+              </div>
+              <h3 className="text-lg sm:text-xl font-bold tracking-tight text-white font-heading">
+                {expo.title}
+              </h3>
+              <div className="flex flex-wrap items-center gap-3 text-xs text-slate-300 mt-0.5 font-body">
+                <span className="flex items-center gap-1">
+                  <Calendar className="w-3.5 h-3.5 text-[#38B2AC]" />
+                  {new Date(expo.date).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" })}
+                </span>
+                <span>•</span>
+                <span className="flex items-center gap-1">
+                  <MapPin className="w-3.5 h-3.5 text-[#38B2AC]" />
+                  {expo.venue || expo.location}
+                </span>
+              </div>
+            </div>
           </div>
 
-          <div className="mt-4 relative z-10">
-            <h3 className="text-xl font-bold tracking-tight text-white font-heading">
-              {expo.title}
-            </h3>
-            <div className="flex flex-wrap items-center gap-4 text-xs text-slate-200 mt-2 font-body">
-              <span className="flex items-center gap-1">
-                <Calendar className="w-3.5 h-3.5 text-[#38B2AC]" />
-                {new Date(expo.date).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" })}
-              </span>
-              <span className="flex items-center gap-1">
-                <MapPin className="w-3.5 h-3.5 text-[#38B2AC]" />
-                {expo.venue}, {expo.location}
-              </span>
-            </div>
-          </div>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer shrink-0"
+            aria-label="Close"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         {/* Prefilled Form Content */}

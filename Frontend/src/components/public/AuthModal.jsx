@@ -80,17 +80,18 @@ export const AuthModal = ({ isOpen, onClose, initialMode = "login" }) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/75 backdrop-blur-xs">
       <div className="bg-white dark:bg-[#1A202C] rounded-2xl sm:rounded-3xl shadow-2xl border border-[#E5E7EB] dark:border-white/10 max-w-md w-full overflow-hidden animate-in fade-in zoom-in-95 duration-200 font-body">
         {/* Modal Header */}
-        <div className="bg-gradient-to-br from-[#0F172A] to-[#1A202C] text-white p-5 sm:p-6 relative">
+        <div className="bg-gradient-to-r from-slate-900 via-[#1488A6] to-slate-900 text-white p-5 sm:p-6 relative">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-[#38B2AC]" />
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#CBD5E1]">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#38B2AC]">
                 {mode === "login" ? "Role Authentication" : mode === "register" ? "Create Account" : "Password Recovery"}
               </span>
             </div>
             <button
               onClick={onClose}
-              className="p-1 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+              className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
+              aria-label="Close"
             >
               <X className="w-4 h-4" />
             </button>

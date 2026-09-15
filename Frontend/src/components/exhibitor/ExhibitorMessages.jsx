@@ -174,14 +174,11 @@ const ExhibitorMessages = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2.5">
-            <h2 className="text-xl sm:text-2xl font-extrabold text-[#1F2937] dark:text-[#F8FAFC] font-heading tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-bold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight font-heading">
               {isOrganizer ? "Organizer Messages Inbox" : isAttendee ? "Attendee Messages Inbox" : "Exhibitor Direct Messages Inbox"}
             </h2>
-            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold font-mono teal-badge uppercase">
-              Direct Communications
-            </span>
           </div>
-          <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#CBD5E1]/80 mt-1">
+          <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#94A3B8] mt-1 font-normal">
             {isOrganizer
               ? "Communicate directly with registered event exhibitors for booth coordination, logistics, and announcements."
               : isAttendee

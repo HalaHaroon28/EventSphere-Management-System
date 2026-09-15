@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useApp } from "../../context/AppContext";
+import { getExpoImage, EXPO_IMAGE_PRESETS } from "../../utils/expoImages";
 import {
   Calendar,
   Grid,
@@ -24,7 +25,11 @@ import {
   Award,
   Globe,
   Sliders,
-  Check
+  Check,
+  QrCode,
+  Compass,
+  ArrowUpRight,
+  Play
 } from "lucide-react";
 
 export const LandingPage = ({
@@ -34,6 +39,9 @@ export const LandingPage = ({
   onOpenAuth
 }) => {
   const { expos = [], loginAs, setActiveView, showToast, submitFeedback } = useApp();
+
+  // Active Hero Featured Expo Index
+  const [activeHeroIndex, setActiveHeroIndex] = useState(0);
 
   // FAQ Accordion State
   const [openFaq, setOpenFaq] = useState(0);
@@ -50,7 +58,43 @@ export const LandingPage = ({
   const [isSubmittingContact, setIsSubmittingContact] = useState(false);
   const [contactSubmitted, setContactSubmitted] = useState(false);
 
-  // Sync first expo if available
+  // Curated hero showcase list
+  const heroShowcaseList = expos.length > 0
+    ? expos.slice(0, 4).map((e, i) => ({
+      id: e._id || e.id,
+      title: e.title || "Global Technology Summit",
+      category: e.category || "Technology",
+      venue: e.venue || "Moscone Center",
+      location: e.location || "San Francisco, CA",
+      date: e.date ? new Date(e.date).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) : "Upcoming",
+      image: getExpoImage(e, i),
+      booths: e.total_booths || 48,
+      description: e.description || "The premier annual technology exhibition connecting global pioneers, enterprise vendors, and visionary founders."
+    }))
+    : EXPO_IMAGE_PRESETS.slice(0, 4).map((p, i) => ({
+      id: `featured_${i}`,
+      title: p.title,
+      category: p.category.toUpperCase(),
+      venue: "Convention Center",
+      location: p.location,
+      date: "Oct 15 - 18, 2026",
+      image: p.url,
+      booths: 60,
+      description: "Experience breakthrough innovations, interactive corporate showcases, and keynotes from industry leaders."
+    }));
+
+  const activeHero = heroShowcaseList[activeHeroIndex] || heroShowcaseList[0];
+
+  // Auto-cycle hero showcase every 6 seconds
+  useEffect(() => {
+    if (heroShowcaseList.length <= 1) return;
+    const interval = setInterval(() => {
+      setActiveHeroIndex((prev) => (prev + 1) % heroShowcaseList.length);
+    }, 6000);
+    return () => clearInterval(interval);
+  }, [heroShowcaseList.length]);
+
+  // Sync first expo in contact form if available
   useEffect(() => {
     if (expos.length > 0 && !contactForm.expo_id) {
       setContactForm((prev) => ({ ...prev, expo_id: expos[0]._id }));
@@ -102,90 +146,16 @@ export const LandingPage = ({
     }
   };
 
-  const coreFeatures = [
-    {
-      icon: Calendar,
-      title: "Expo Management",
-      badge: "Multi-Track",
-      description:
-        "Comprehensive summit configuration with multi-hall staging, attendance limits, ticketing tiers, and live event monitoring.",
-      highlights: ["Multi-venue staging & hall configuration", "Custom ticketing tiers & capacity rules", "Centralized summit publishing hub"]
-    },
-    {
-      icon: Grid,
-      title: "Booth Management",
-      badge: "Spatial Engine",
-      description:
-        "Interactive architectural floor plan grid with real-time coordinate plotting, booth tiers, dimensions, and live reservation locks.",
-      highlights: ["Coordinate-based floor matrix", "Automated double-booking prevention", "Custom square footage & power tags"]
-    },
-    {
-      icon: Building2,
-      title: "Exhibitor Management",
-      badge: "Vendor Suite",
-      description:
-        "Full vendor onboarding pipeline with document verification, customizable digital product showcases, and attendee lead inboxes.",
-      highlights: ["Streamlined application review pipeline", "Digital product catalog & team profiles", "Direct attendee inquiry routing"]
-    },
-    {
-      icon: Ticket,
-      title: "Attendee Registration",
-      badge: "Turnstile QR",
-      description:
-        "Frictionless ticketing with instant digital passes, Apple Wallet-style rendering, unique cryptographic QR badges, and fast turnstile verification.",
-      highlights: ["Instant digital wallet passes", "Cryptographic turnstile QR validation", "Automated attendee confirmation workflows"]
-    },
-    {
-      icon: Clock,
-      title: "Schedule Management",
-      badge: "Timeline Sync",
-      description:
-        "Synchronized keynote scheduling across multiple stages with speaker profiles, room designations, and personalized attendee itineraries.",
-      highlights: ["Multi-room agenda timeline", "Speaker bio & slide integration", "1-click attendee agenda bookmarks"]
-    },
-    {
-      icon: BarChart3,
-      title: "Analytics & Reporting",
-      badge: "Live Telemetry",
-      description:
-        "Executive telemetry tracking attendance velocity, booth foot-traffic density, ticket revenue, and exportable post-summit intelligence.",
-      highlights: ["Real-time check-in telemetry", "Booth foot-traffic & lead metrics", "Comprehensive revenue audit trails"]
-    }
-  ];
-
-  const whyChooseItems = [
-    {
-      icon: Zap,
-      title: "99.99% Operational Reliability",
-      description: "Mission-critical cloud infrastructure designed to handle peak turnstile rushes and simultaneous exhibitor bookings with zero latency."
-    },
-    {
-      icon: Sliders,
-      title: "Unified Multi-Stakeholder Architecture",
-      description: "Seamless synchronization between Organizers, Exhibitors, and Attendees on a single, coherent operating system."
-    },
-    {
-      icon: Shield,
-      title: "Enterprise-Grade Security & Verification",
-      description: "Cryptographic QR pass validation, role-based access control, and encrypted transaction logging for complete auditability."
-    },
-    {
-      icon: TrendingUp,
-      title: "Actionable Real-Time Telemetry",
-      description: "Live floor density heatmaps, registration velocities, and booth engagement metrics available to organizers instantly."
-    }
-  ];
-
   const statistics = [
-    { label: "Events Managed", value: "120+", subtext: "Across 42 countries", icon: Globe },
-    { label: "Exhibitors", value: "340+", subtext: "Active corporate showcases", icon: Building2 },
-    { label: "Attendees", value: "1200+", subtext: "Seamlessly checked in", icon: Users },
-    { label: "Sessions", value: "1300+", subtext: "Keynotes & workshops hosted", icon: Clock }
+    { label: "Global Expos", value: "120+", subtext: "Across 42 countries", icon: Globe },
+    { label: "Active Exhibitors", value: "340+", subtext: "Enterprise showcases", icon: Building2 },
+    { label: "Verified Attendees", value: "1,200+", subtext: "Digital passes issued", icon: Users },
+    { label: "Stage Keynotes", value: "1,300+", subtext: "Synchronized schedules", icon: Clock }
   ];
 
   const testimonials = [
     {
-      quote: "EventSphere replaced four disconnected tools for our annual summit. The interactive floor plan and instant exhibitor approval pipeline cut our operational overhead by over 40%.",
+      quote: "EventSphere replaced four disconnected tools for our annual summit. The interactive floor matrix and instant exhibitor approval pipeline cut our operational overhead by over 40%.",
       author: "Marcus Vance",
       title: "VP of Global Events",
       company: "Apex Enterprise Summits",
@@ -213,11 +183,11 @@ export const LandingPage = ({
   const faqs = [
     {
       q: "How does the interactive floor plan coordinate grid work?",
-      a: "Organizers can place, size, and price booth spaces across Hall A and Hall B on a live coordinate matrix. When exhibitors apply and select a booth, the system automatically locks the space to prevent double bookings in real time."
+      a: "Organizers configure booth spaces across Hall A and Hall B on a live coordinate matrix. When exhibitors apply and select a booth, the system automatically locks the space to prevent double bookings in real time."
     },
     {
-      q: "Can attendees save their digital passes to Apple Wallet or mobile devices?",
-      a: "Yes. Every registered attendee receives a high-fidelity digital pass equipped with a unique holographic turnstile QR code, venue map coordinates, and instant print/download capabilities."
+      q: "Can attendees save digital passes to Apple Wallet or mobile devices?",
+      a: "Yes. Every registered attendee receives a high-fidelity digital pass equipped with a cryptographic holographic turnstile QR code, venue map coordinates, and instant PDF/image download capabilities."
     },
     {
       q: "What role portals are included with EventSphere?",
@@ -234,179 +204,294 @@ export const LandingPage = ({
   ];
 
   return (
-    <div id="landing-page-root" className="space-y-20 sm:space-y-28 pb-16 font-body">
-      {/* 1. HERO SECTION */}
-      <section id="hero-section" className="relative min-h-[calc(100vh-5rem)] flex flex-col items-center justify-center pt-8 pb-16 sm:py-24 overflow-hidden">
-        {/* Sleek Concentric Halo & Backdrop Rings */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] sm:w-[540px] md:w-[680px] h-[340px] sm:h-[540px] md:h-[680px] rounded-full border border-slate-200/60 dark:border-slate-800/80 pointer-events-none -z-10" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[240px] sm:w-[380px] md:w-[480px] h-[240px] sm:h-[380px] md:h-[480px] rounded-full border border-teal-500/10 dark:border-[#38B2AC]/15 pointer-events-none -z-10" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 sm:w-[420px] h-80 sm:h-[420px] bg-gradient-to-tr from-[#1488A6]/20 via-[#EA580C]/10 to-[#38B2AC]/15 dark:from-[#1488A6]/25 dark:via-[#F97316]/15 dark:to-[#38B2AC]/20 rounded-full blur-3xl pointer-events-none -z-10" />
+    <div id="landing-page-root" className="space-y-20 sm:space-y-28 pb-20 font-body">
+      {/* 1. ULTRA-PREMIUM HERO SECTION */}
+      <section id="hero-section" className="relative pt-6 sm:pt-10 pb-12 sm:pb-20 overflow-hidden">
+        {/* Dynamic Glowing Halo Backdrops */}
+        <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[600px] sm:w-[900px] h-[350px] bg-gradient-to-r from-[#1488A6]/20 via-[#38B2AC]/15 to-[#F97316]/10 dark:from-[#1488A6]/25 dark:via-[#38B2AC]/20 dark:to-[#F97316]/15 rounded-full blur-3xl pointer-events-none -z-10" />
+        <div className="absolute top-40 right-10 w-72 h-72 bg-[#38B2AC]/10 rounded-full blur-2xl pointer-events-none -z-10" />
 
-        <div className="w-full max-w-4xl mx-auto text-center space-y-8 sm:space-y-10 px-4 sm:px-6">
-          {/* Clean Headline & Subtitle */}
-          <div className="space-y-5 max-w-3xl mx-auto">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight leading-[1.15] font-heading">
-              Plan, Exhibit & Attend <br className="hidden sm:inline" />
-              <span className="text-[#1488A6] dark:text-[#38B2AC]">Global Exhibitions</span>
-            </h1>
-            <p className="text-base sm:text-lg text-[#6B7280] dark:text-[#CBD5E1] leading-relaxed max-w-2xl mx-auto">
-              The all-in-one exhibition platform for event organizers, corporate exhibitors, and attendees. Book floor booths, get instant digital QR passes, and explore live schedules.
-            </p>
-          </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+            {/* Left Column: Command Headline & Calls to Action */}
+            <div className="lg:col-span-7 space-y-6 sm:space-y-8 text-center lg:text-left">
+              {/* Pill Badge */}
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-teal-50 dark:bg-[#1A202C] text-[#1488A6] dark:text-[#38B2AC] border border-[#1488A6]/20 dark:border-[#38B2AC]/30 shadow-xs">
+                <span className="w-2 h-2 rounded-full bg-[#38B2AC] animate-ping" />
+                <Sparkles className="w-3.5 h-3.5 text-[#1488A6] dark:text-[#38B2AC]" />
+                <span className="font-mono uppercase tracking-wider text-[11px]">The Enterprise Exhibition Operating System</span>
+              </div>
 
-          {/* Prominent EXPLORE EXPOS CTA Button */}
-          <div className="flex flex-col items-center justify-center gap-4 pt-2">
-            <button
-              id="hero-explore-expos-btn"
-              onClick={() => setActiveView("expos")}
-              className="w-full sm:w-80 py-4 px-8 rounded-2xl bg-gradient-to-r from-[#0F4C5C] via-[#1488A6] to-[#0D9488] hover:from-[#0D3B47] hover:to-[#0F766E] text-white font-black tracking-wider text-base sm:text-lg shadow-xl shadow-[#1488A6]/25 dark:shadow-teal-950/60 hover:shadow-2xl hover:scale-[1.02] transition-all duration-200 cursor-pointer flex items-center justify-center gap-3 border border-teal-300/30"
-            >
-              <span>EXPLORE EXPOS</span>
-              <ArrowRight className="w-5 h-5 text-teal-200" />
-            </button>
-          </div>
-        </div>
-      </section>
+              {/* Main Headline */}
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight leading-[1.12] font-heading">
+                Orchestrate, Exhibit & Attend{" "}
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#1488A6] via-[#0D9488] to-[#38B2AC]">
+                  World-Class Global Expos
+                </span>
+              </h1>
 
-      {/* 2. ABOUT EVENTSPHERE */}
-      <section id="about-section" className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16 space-y-3">
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight font-heading">
-            About EventSphere
-          </h2>
-          <p className="text-[#6B7280] dark:text-[#CBD5E1]/80 text-sm sm:text-base leading-relaxed">
-            EventSphere is engineered to eliminate friction from commercial conventions, summits, and trade exhibitions through intelligent orchestration and role-tailored tooling.
-          </p>
-        </div>
+              {/* Subtitle */}
+              <p className="text-sm sm:text-base lg:text-lg text-[#6B7280] dark:text-[#CBD5E1]/90 leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                The all-in-one platform for international conventions, technology summits, and trade exhibitions.
+                Experience real-time interactive floor plan matrices, cryptographic QR turnstiles, and synchronized keynote agendas.
+              </p>
 
-        {/* 3 Stakeholder Value Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-          {/* Organizers */}
-          <div className="saas-card rounded-2xl p-6 sm:p-8 space-y-4 saas-card-hover">
-            <div className="w-12 h-12 rounded-xl bg-slate-900 text-[#38B2AC] dark:bg-slate-800 flex items-center justify-center shadow-xs">
-              <Shield className="w-6 h-6" />
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
+                <button
+                  id="hero-explore-expos-btn"
+                  onClick={() => setActiveView("expos")}
+                  className="w-full sm:w-auto py-3.5 px-8 rounded-2xl btn-teal-primary text-white font-black tracking-wide text-sm sm:text-base shadow-xl shadow-[#1488A6]/25 hover:shadow-2xl hover:scale-[1.02] transition-all duration-200 cursor-pointer flex items-center justify-center gap-3 group"
+                >
+                  <span>EXPLORE LIVE EXPOS</span>
+                  <ArrowRight className="w-4 h-4 text-teal-200 group-hover:translate-x-1 transition-transform" />
+                </button>
+
+                <button
+                  onClick={() => {
+                    if (onSelectExpo && activeHero?.id && !activeHero.id.startsWith("featured_")) {
+                      onSelectExpo(activeHero.id);
+                    } else {
+                      setActiveView("expos");
+                    }
+                  }}
+                  className="w-full sm:w-auto py-3.5 px-6 rounded-2xl bg-white dark:bg-[#1A202C] hover:bg-slate-50 dark:hover:bg-[#203748] text-[#1F2937] dark:text-white font-bold text-sm border border-[#E5E7EB] dark:border-white/10 shadow-xs hover:border-[#38B2AC]/40 transition-all cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <Ticket className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC]" />
+                  <span>Get Pass / Floor Plan</span>
+                </button>
+              </div>
+
+              {/* Feature Micro-Badges */}
+              <div className="pt-4 border-t border-[#E5E7EB] dark:border-white/10 grid grid-cols-3 gap-3 text-left">
+                <div className="space-y-0.5">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-[#1F2937] dark:text-white">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[#38B2AC] shrink-0" />
+                    <span>Spatial Matrix</span>
+                  </div>
+                  <p className="text-[11px] text-[#6B7280] dark:text-[#CBD5E1]/60 font-mono">Live Booth Mapping</p>
+                </div>
+                <div className="space-y-0.5">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-[#1F2937] dark:text-white">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[#38B2AC] shrink-0" />
+                    <span>Holographic QR</span>
+                  </div>
+                  <p className="text-[11px] text-[#6B7280] dark:text-[#CBD5E1]/60 font-mono">Turnstile Wallet Pass</p>
+                </div>
+                <div className="space-y-0.5">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-[#1F2937] dark:text-white">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[#38B2AC] shrink-0" />
+                    <span>Multi-Track</span>
+                  </div>
+                  <p className="text-[11px] text-[#6B7280] dark:text-[#CBD5E1]/60 font-mono">Keynote Agenda Sync</p>
+                </div>
+              </div>
             </div>
-            <h3 className="text-lg font-bold text-[#1F2937] dark:text-[#F8FAFC] font-heading">For Event Organizers</h3>
-            <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#CBD5E1]/80 leading-relaxed">
-              Complete command of event life cycles. Manage floor plans, approve exhibitor applications, orchestrate multi-stage agendas, and monitor live turnstile check-ins.
-            </p>
-            <ul className="space-y-2 text-xs text-[#6B7280] dark:text-[#CBD5E1]/80 pt-2 border-t border-[#E5E7EB] dark:border-white/10">
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC] shrink-0" />
-                <span>Interactive floor matrix configuration</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC] shrink-0" />
-                <span>Automated application review workflows</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC] shrink-0" />
-                <span>Live attendee attendance telemetry</span>
-              </li>
-            </ul>
-          </div>
 
-          {/* Exhibitors */}
-          <div className="saas-card rounded-2xl p-6 sm:p-8 space-y-4 saas-card-hover border-t-2 border-t-[#1488A6] dark:border-t-[#38B2AC]">
-            <div className="w-12 h-12 rounded-xl bg-slate-900 text-[#38B2AC] dark:bg-slate-800 flex items-center justify-center shadow-xs">
-              <Building2 className="w-6 h-6" />
-            </div>
-            <h3 className="text-lg font-bold text-[#1F2937] dark:text-[#F8FAFC] font-heading">For Corporate Exhibitors</h3>
-            <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#CBD5E1]/80 leading-relaxed">
-              Streamline summit participation from application to teardown. Lock prime floor positions, curate digital product showcases, and capture attendee leads.
-            </p>
-            <ul className="space-y-2 text-xs text-[#6B7280] dark:text-[#CBD5E1]/80 pt-2 border-t border-[#E5E7EB] dark:border-white/10">
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC] shrink-0" />
-                <span>Instant visual booth selection</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC] shrink-0" />
-                <span>Rich digital showcase & catalog publisher</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC] shrink-0" />
-                <span>Direct attendee inquiry messaging</span>
-              </li>
-            </ul>
-          </div>
+            {/* Right Column: Visual Centerpiece Showcase Card with Real Expo Photography */}
+            <div className="lg:col-span-5 relative">
+              {/* Outer Glow Frame */}
+              <div className="relative rounded-3xl p-2 bg-gradient-to-b from-[#1488A6]/40 via-teal-500/10 to-slate-800/50 shadow-2xl border border-white/20 dark:border-white/10">
+                <div className="relative rounded-2xl overflow-hidden bg-slate-950 aspect-[4/3] sm:aspect-[16/11]">
+                  {/* Hero Showcase Photography */}
+                  <img
+                    src={activeHero?.image}
+                    alt={activeHero?.title}
+                    key={activeHero?.image}
+                    className="w-full h-full object-cover transition-all duration-700 hover:scale-105"
+                  />
+                  {/* Gradients */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-slate-950/60 via-transparent to-transparent" />
 
-          {/* Attendees */}
-          <div className="saas-card rounded-2xl p-6 sm:p-8 space-y-4 saas-card-hover">
-            <div className="w-12 h-12 rounded-xl bg-slate-900 text-[#38B2AC] dark:bg-slate-800 flex items-center justify-center shadow-xs">
-              <Ticket className="w-6 h-6" />
-            </div>
-            <h3 className="text-lg font-bold text-[#1F2937] dark:text-[#F8FAFC] font-heading">For Attendees</h3>
-            <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#CBD5E1]/80 leading-relaxed">
-              Frictionless convention navigation. Claim digital QR passes, bookmark keynote sessions, browse exhibitor catalogs, and navigate venue floor plans.
-            </p>
-            <ul className="space-y-2 text-xs text-[#6B7280] dark:text-[#CBD5E1]/80 pt-2 border-t border-[#E5E7EB] dark:border-white/10">
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC] shrink-0" />
-                <span>Holographic digital wallet turnstile pass</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC] shrink-0" />
-                <span>Personalized keynote agenda builder</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC] shrink-0" />
-                <span>Interactive floor map & booth finder</span>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      {/* 3. CORE FEATURES */}
-      <section id="features-section" className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16 space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold teal-badge font-mono">
-            <Layers className="w-3.5 h-3.5 text-[#1488A6] dark:text-[#38B2AC]" />
-            <span>Platform Capabilities</span>
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight font-heading">
-            Comprehensive Event Infrastructure
-          </h2>
-          <p className="text-[#6B7280] dark:text-[#CBD5E1]/80 text-sm sm:text-base leading-relaxed">
-            Six foundational modules designed for high-density trade exhibitions and enterprise technology summits.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-          {coreFeatures.map((feat, idx) => {
-            const Icon = feat.icon;
-            return (
-              <div
-                key={idx}
-                className="saas-card rounded-2xl p-6 sm:p-7 space-y-4 saas-card-hover flex flex-col justify-between"
-              >
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="w-11 h-11 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-[#38B2AC] flex items-center justify-center">
-                      <Icon className="w-5 h-5" />
-                    </div>
-                    <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-md teal-badge">
-                      {feat.badge}
+                  {/* Top Badges */}
+                  <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none">
+                    <span className="px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-slate-950/80 backdrop-blur-md text-[#38B2AC] border border-[#38B2AC]/40 flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                      {activeHero?.category || "Flagship Expo"}
+                    </span>
+                    <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-slate-950/80 backdrop-blur-md text-amber-300 border border-amber-500/30">
+                      {activeHero?.booths} Booths Grid
                     </span>
                   </div>
 
-                  <h3 className="text-base sm:text-lg font-bold text-[#1F2937] dark:text-[#F8FAFC] font-heading">
-                    {feat.title}
-                  </h3>
+                  {/* Floating Telemetry Glass Chip (Top Right offset) */}
+                  <div className="absolute bottom-20 right-4 hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/90 backdrop-blur-md border border-white/15 text-[11px] text-slate-200 shadow-lg">
+                    <QrCode className="w-3.5 h-3.5 text-[#38B2AC]" />
+                    <span className="font-mono">Instant QR Validation</span>
+                  </div>
 
-                  <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#CBD5E1]/80 leading-relaxed">
-                    {feat.description}
-                  </p>
+                  {/* Bottom Content Overlay */}
+                  <div className="absolute bottom-4 left-4 right-4 text-white space-y-2">
+                    <div className="flex items-center gap-2 text-[11px] text-teal-300 font-mono">
+                      <Calendar className="w-3.5 h-3.5 text-[#38B2AC]" />
+                      <span>{activeHero?.date}</span>
+                      <span>·</span>
+                      <MapPin className="w-3.5 h-3.5 text-[#38B2AC]" />
+                      <span className="truncate">{activeHero?.location}</span>
+                    </div>
+
+                    <h3 className="text-base sm:text-lg font-bold font-heading text-white line-clamp-1">
+                      {activeHero?.title}
+                    </h3>
+
+                    <div className="pt-2 flex items-center justify-between gap-3">
+                      <button
+                        onClick={() => {
+                          if (onSelectExpo && activeHero?.id && !activeHero.id.startsWith("featured_")) {
+                            onSelectExpo(activeHero.id);
+                          } else {
+                            setActiveView("expos");
+                          }
+                        }}
+                        className="px-4 py-1.5 rounded-xl bg-[#38B2AC] hover:bg-[#2C7A7B] text-slate-950 font-extrabold text-xs tracking-wide transition-colors cursor-pointer flex items-center gap-1.5 shadow-md"
+                      >
+                        <span>View Expo Details</span>
+                        <ArrowUpRight className="w-3.5 h-3.5" />
+                      </button>
+
+                      {/* Showcase switcher dots */}
+                      <div className="flex items-center gap-1.5">
+                        {heroShowcaseList.map((_, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => setActiveHeroIndex(idx)}
+                            aria-label={`Select showcase ${idx + 1}`}
+                            className={`h-2 rounded-full transition-all cursor-pointer ${activeHeroIndex === idx ? "w-6 bg-[#38B2AC]" : "w-2 bg-slate-600 hover:bg-slate-400"
+                              }`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 2. FEATURED GLOBAL SUMMITS & EXHIBITIONS (Dynamic Image Cards) */}
+      <section id="featured-expos-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 sm:mb-10">
+          <div>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold teal-badge font-mono mb-2">
+              <Compass className="w-3.5 h-3.5 text-[#1488A6] dark:text-[#38B2AC]" />
+              <span>Flagship Exhibitions</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight font-heading">
+              Featured Global Summits
+            </h2>
+            <p className="text-[#6B7280] dark:text-[#CBD5E1]/80 text-xs sm:text-sm mt-1 max-w-xl">
+              Discover industry conventions, inspect interactive coordinate floor plans, and secure your verified attendee pass.
+            </p>
+          </div>
+
+          <button
+            onClick={() => setActiveView("expos")}
+            className="self-start sm:self-auto px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#1A202C] dark:hover:bg-[#203748] text-[#1F2937] dark:text-white font-bold text-xs border border-[#E5E7EB] dark:border-white/10 transition-all flex items-center gap-2 cursor-pointer shadow-xs"
+          >
+            <span>View All Summits</span>
+            <ArrowRight className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC]" />
+          </button>
+        </div>
+
+        {/* 3-Column Visual Expo Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+          {(expos.length > 0 ? expos.slice(0, 3) : heroShowcaseList.slice(0, 3)).map((expo, idx) => {
+            const expoId = expo._id || expo.id;
+            const imgSrc = getExpoImage(expo, idx);
+            const dateStr = expo.date ? new Date(expo.date).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) : "Upcoming";
+
+            return (
+              <div
+                key={expoId || idx}
+                className="saas-card saas-card-hover rounded-3xl overflow-hidden flex flex-col justify-between group border border-[#E5E7EB] dark:border-white/10 shadow-sm"
+              >
+                <div>
+                  {/* Image Banner */}
+                  <div className="relative h-48 sm:h-52 w-full overflow-hidden bg-slate-900">
+                    <img
+                      src={imgSrc}
+                      alt={expo.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+
+                    {/* Category pill */}
+                    <div className="absolute top-3 left-3">
+                      <span className="px-2.5 py-1 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider bg-slate-950/80 backdrop-blur-md text-[#38B2AC] border border-[#38B2AC]/40">
+                        {expo.category || "Technology"}
+                      </span>
+                    </div>
+
+                    <div className="absolute top-3 right-3">
+                      <span className="px-2.5 py-1 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider bg-emerald-950/80 backdrop-blur-md text-emerald-300 border border-emerald-500/40">
+                        {expo.status || "Upcoming"}
+                      </span>
+                    </div>
+
+                    <div className="absolute bottom-3 left-4 text-xs font-mono font-medium text-slate-200 flex items-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5 text-[#38B2AC]" />
+                      <span>{dateStr}</span>
+                    </div>
+                  </div>
+
+                  {/* Body Info */}
+                  <div className="p-5 sm:p-6 space-y-3">
+                    <h3
+                      onClick={() => onSelectExpo && expoId && onSelectExpo(expoId)}
+                      className="text-base sm:text-lg font-bold font-heading text-[#1F2937] dark:text-[#F8FAFC] group-hover:text-[#1488A6] dark:group-hover:text-[#38B2AC] transition-colors line-clamp-1 cursor-pointer"
+                    >
+                      {expo.title}
+                    </h3>
+
+                    <p className="text-xs text-[#6B7280] dark:text-[#CBD5E1]/80 line-clamp-2 leading-relaxed">
+                      {expo.description}
+                    </p>
+
+                    <div className="pt-2 border-t border-[#E5E7EB] dark:border-white/10 space-y-1.5 text-xs text-[#6B7280] dark:text-[#CBD5E1]/70">
+                      <div className="flex items-center gap-1.5">
+                        <MapPin className="w-3.5 h-3.5 text-[#38B2AC] shrink-0" />
+                        <span className="truncate">{expo.venue ? `${expo.venue}, ${expo.location}` : (expo.location || "Global Convention Hall")}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Building2 className="w-3.5 h-3.5 text-[#38B2AC] shrink-0" />
+                        <span className="font-mono text-[#1F2937] dark:text-[#CBD5E1]">{expo.total_booths || 40} Exhibition Booths</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="pt-4 border-t border-[#E5E7EB] dark:border-white/10 space-y-1.5">
-                  {feat.highlights.map((h, i) => (
-                    <div key={i} className="flex items-center gap-2 text-xs text-[#6B7280] dark:text-[#CBD5E1]/80">
-                      <Check className="w-3.5 h-3.5 text-[#1488A6] dark:text-[#38B2AC] shrink-0" />
-                      <span>{h}</span>
-                    </div>
-                  ))}
+                {/* Card Footer Actions */}
+                <div className="p-5 sm:p-6 pt-0 flex items-center justify-between border-t border-[#E5E7EB] dark:border-white/10 mt-auto">
+                  <span className="px-2.5 py-1 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                    Free Attendee Pass
+                  </span>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        if (onRegisterPass && expoId) {
+                          onRegisterPass(expoId);
+                        } else {
+                          setActiveView("expos");
+                        }
+                      }}
+                      className="px-3.5 py-2 rounded-xl btn-teal-primary text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Ticket className="w-3.5 h-3.5" />
+                      <span>Get Pass</span>
+                    </button>
+
+                    <button
+                      onClick={() => onSelectExpo && expoId && onSelectExpo(expoId)}
+                      className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#203748] dark:hover:bg-[#203748]/80 text-[#1F2937] dark:text-[#CBD5E1] transition-colors cursor-pointer border border-[#E5E7EB] dark:border-white/10"
+                      title="View Details"
+                    >
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             );
@@ -414,65 +499,149 @@ export const LandingPage = ({
         </div>
       </section>
 
-      {/* 4. WHY CHOOSE EVENTSPHERE */}
-      <section id="why-choose-section" className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="bg-slate-900 dark:bg-slate-900/90 text-white rounded-3xl p-8 sm:p-12 lg:p-16 border border-[#1488A6]/20 shadow-xl relative overflow-hidden">
-          {/* Subtle teal glow corner */}
-          <div className="absolute top-0 right-0 w-80 h-80 bg-[#1488A6]/15 rounded-full blur-3xl pointer-events-none" />
+      {/* 3. THREE-PILLAR PLATFORM ARCHITECTURE */}
+      <section id="pillars-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16 space-y-3">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold teal-badge font-mono">
+            <Layers className="w-3.5 h-3.5 text-[#1488A6] dark:text-[#38B2AC]" />
+            <span>Built for Every Stakeholder</span>
+          </div>
+          <h2 className="text-2xl sm:text-4xl font-extrabold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight font-heading">
+            Tailored Experiences Across The Convention Lifecycle
+          </h2>
+          <p className="text-[#6B7280] dark:text-[#CBD5E1]/80 text-xs sm:text-base leading-relaxed">
+            Whether you are coordinating multi-hall staging, exhibiting cutting-edge hardware, or attending keynotes, EventSphere powers your workflow.
+          </p>
+        </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-            <div className="lg:col-span-5 space-y-4">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#1488A6]/20 text-[#38B2AC] border border-[#38B2AC]/30 font-mono">
-                <Award className="w-3.5 h-3.5" />
-                <span>Enterprise Grade</span>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+          {/* Organizers */}
+          <div className="saas-card rounded-3xl p-6 sm:p-8 space-y-5 saas-card-hover flex flex-col justify-between border border-[#E5E7EB] dark:border-white/10">
+            <div className="space-y-4">
+              <div className="w-12 h-12 rounded-2xl bg-[#1488A6]/10 text-[#1488A6] dark:bg-slate-800 dark:text-[#38B2AC] flex items-center justify-center shadow-xs">
+                <Shield className="w-6 h-6" />
               </div>
-              <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight text-white font-heading">
-                Why Industry Leaders Choose EventSphere
-              </h2>
-              <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-                Traditional expo management is plagued by manual spreadsheets, double bookings, and registration bottlenecks. EventSphere brings modern SaaS precision to convention floors.
+              <h3 className="text-lg sm:text-xl font-bold text-[#1F2937] dark:text-[#F8FAFC] font-heading">
+                For Event Organizers
+              </h3>
+              <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#CBD5E1]/80 leading-relaxed">
+                Full lifecycle summit command. Design interactive coordinate floor plans, manage exhibitor review pipelines, and monitor live turnstile telemetry.
               </p>
-              <div className="pt-4">
-                <button
-                  onClick={() => setActiveView("expos")}
-                  className="px-6 py-3 rounded-xl btn-teal-primary text-white font-bold text-xs sm:text-sm shadow-md transition-all flex items-center gap-2 cursor-pointer"
-                >
-                  <span>Browse Current Expos</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
+              <ul className="space-y-2.5 text-xs text-[#6B7280] dark:text-[#CBD5E1]/80 pt-2 border-t border-[#E5E7EB] dark:border-white/10">
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC] shrink-0" />
+                  <span>Interactive Hall A/B floor coordinate matrix</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC] shrink-0" />
+                  <span>1-Click exhibitor vetting & booth confirmations</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC] shrink-0" />
+                  <span>Real-time check-in velocity telemetry</span>
+                </li>
+              </ul>
             </div>
+            <div className="pt-4">
+              <button
+                onClick={() => onOpenAuth && onOpenAuth("login", "organizer")}
+                className="w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#1A202C] dark:hover:bg-[#203748] text-[#1F2937] dark:text-white font-bold text-xs border border-[#E5E7EB] dark:border-white/10 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>Organizer Suite</span>
+                <ArrowRight className="w-3.5 h-3.5 text-[#1488A6] dark:text-[#38B2AC]" />
+              </button>
+            </div>
+          </div>
 
-            <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-5">
-              {whyChooseItems.map((item, idx) => {
-                const Icon = item.icon;
-                return (
-                  <div
-                    key={idx}
-                    className="p-5 rounded-2xl bg-slate-800/80 border border-slate-700/80 space-y-2.5"
-                  >
-                    <div className="w-9 h-9 rounded-lg bg-[#1488A6]/20 text-[#38B2AC] flex items-center justify-center">
-                      <Icon className="w-5 h-5" />
-                    </div>
-                    <h4 className="text-sm font-bold text-white font-heading">{item.title}</h4>
-                    <p className="text-xs text-slate-300 leading-relaxed">{item.description}</p>
-                  </div>
-                );
-              })}
+          {/* Exhibitors */}
+          <div className="saas-card rounded-3xl p-6 sm:p-8 space-y-5 saas-card-hover flex flex-col justify-between border-2 border-[#1488A6] dark:border-[#38B2AC] relative shadow-lg">
+            <div className="absolute -top-3 left-6">
+            </div>
+            <div className="space-y-4">
+              <div className="w-12 h-12 rounded-2xl bg-[#1488A6]/10 text-[#1488A6] dark:bg-slate-800 dark:text-[#38B2AC] flex items-center justify-center shadow-xs">
+                <Building2 className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg sm:text-xl font-bold text-[#1F2937] dark:text-[#F8FAFC] font-heading">
+                For Corporate Exhibitors
+              </h3>
+              <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#CBD5E1]/80 leading-relaxed">
+                Maximize corporate presence. Reserve prime floor positions, publish digital hardware catalogs, and engage attendees with direct lead inboxes.
+              </p>
+              <ul className="space-y-2.5 text-xs text-[#6B7280] dark:text-[#CBD5E1]/80 pt-2 border-t border-[#E5E7EB] dark:border-white/10">
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC] shrink-0" />
+                  <span>Instant visual booth selection & locks</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC] shrink-0" />
+                  <span>Rich digital showcase & catalog publisher</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC] shrink-0" />
+                  <span>Direct attendee inquiry messaging inbox</span>
+                </li>
+              </ul>
+            </div>
+            <div className="pt-4">
+              <button
+                onClick={() => onOpenAuth && onOpenAuth("login", "exhibitor")}
+                className="w-full py-2.5 px-4 rounded-xl btn-teal-primary text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>Exhibitor Portal</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+
+          {/* Attendees */}
+          <div className="saas-card rounded-3xl p-6 sm:p-8 space-y-5 saas-card-hover flex flex-col justify-between border border-[#E5E7EB] dark:border-white/10">
+            <div className="space-y-4">
+              <div className="w-12 h-12 rounded-2xl bg-[#1488A6]/10 text-[#1488A6] dark:bg-slate-800 dark:text-[#38B2AC] flex items-center justify-center shadow-xs">
+                <Ticket className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg sm:text-xl font-bold text-[#1F2937] dark:text-[#F8FAFC] font-heading">
+                For Summit Attendees
+              </h3>
+              <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#CBD5E1]/80 leading-relaxed">
+                Frictionless convention navigation. Claim digital QR passes, bookmark keynote tracks, browse vendor catalogs, and locate booths in real time.
+              </p>
+              <ul className="space-y-2.5 text-xs text-[#6B7280] dark:text-[#CBD5E1]/80 pt-2 border-t border-[#E5E7EB] dark:border-white/10">
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC] shrink-0" />
+                  <span>Holographic digital wallet turnstile QR pass</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC] shrink-0" />
+                  <span>Personalized keynote & workshop agenda builder</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-[#1488A6] dark:text-[#38B2AC] shrink-0" />
+                  <span>Interactive booth directory & vendor chats</span>
+                </li>
+              </ul>
+            </div>
+            <div className="pt-4">
+              <button
+                onClick={() => onOpenAuth && onOpenAuth("login", "attendee")}
+                className="w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#1A202C] dark:hover:bg-[#203748] text-[#1F2937] dark:text-white font-bold text-xs border border-[#E5E7EB] dark:border-white/10 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>Attendee Hub</span>
+                <ArrowRight className="w-3.5 h-3.5 text-[#1488A6] dark:text-[#38B2AC]" />
+              </button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 5. STATISTICS SECTION */}
-      <section id="statistics-section" className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="saas-card rounded-3xl p-8 sm:p-12 border border-[#E5E7EB] dark:border-white/10">
+      {/* 4. KEY METRICS & TRUST COUNTER */}
+      <section id="statistics-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="saas-card rounded-3xl p-8 sm:p-12 border border-[#E5E7EB] dark:border-white/10 shadow-sm">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center divide-y sm:divide-y-0 sm:divide-x divide-[#E5E7EB] dark:divide-white/10">
             {statistics.map((stat, idx) => {
               const Icon = stat.icon;
               return (
                 <div key={idx} className={`space-y-2 ${idx > 0 ? "pt-6 sm:pt-0" : ""}`}>
-                  <div className="w-10 h-10 mx-auto rounded-xl bg-teal-50 dark:bg-[#203748] text-[#1488A6] dark:text-[#38B2AC] flex items-center justify-center mb-3">
+                  <div className="w-10 h-10 mx-auto rounded-xl bg-teal-50 dark:bg-[#203748] text-[#1488A6] dark:text-[#38B2AC] flex items-center justify-center mb-3 shadow-xs">
                     <Icon className="w-5 h-5" />
                   </div>
                   <p className="text-3xl sm:text-4xl font-extrabold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight font-heading">
@@ -491,14 +660,18 @@ export const LandingPage = ({
         </div>
       </section>
 
-      {/* 6. TESTIMONIALS */}
-      <section id="testimonials-section" className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16 space-y-3">
+      {/* 5. TESTIMONIALS */}
+      <section id="testimonials-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14 space-y-3">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold teal-badge font-mono">
+            <Award className="w-3.5 h-3.5 text-[#1488A6] dark:text-[#38B2AC]" />
+            <span>Proven Reliability</span>
+          </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight font-heading">
             Trusted by Commercial Organizers Worldwide
           </h2>
-          <p className="text-[#6B7280] dark:text-[#CBD5E1]/80 text-sm sm:text-base leading-relaxed">
-            Read how global event producers and enterprise exhibitors rely on EventSphere to deliver flawless summits.
+          <p className="text-[#6B7280] dark:text-[#CBD5E1]/80 text-xs sm:text-sm leading-relaxed">
+            See how international summit directors and enterprise exhibitors rely on EventSphere.
           </p>
         </div>
 
@@ -506,7 +679,7 @@ export const LandingPage = ({
           {testimonials.map((t, idx) => (
             <div
               key={idx}
-              className="saas-card rounded-2xl p-6 sm:p-8 space-y-4 flex flex-col justify-between saas-card-hover"
+              className="saas-card rounded-3xl p-6 sm:p-8 space-y-4 flex flex-col justify-between saas-card-hover border border-[#E5E7EB] dark:border-white/10"
             >
               <div className="space-y-3">
                 <div className="flex items-center gap-1 text-[#1488A6] dark:text-[#38B2AC]">
@@ -527,7 +700,7 @@ export const LandingPage = ({
                   {t.title} · <span className="font-semibold text-[#1F2937] dark:text-[#CBD5E1]">{t.company}</span>
                 </p>
                 <p className="text-[10px] text-[#1488A6] dark:text-[#38B2AC] font-mono font-medium pt-1">
-                  Event: {t.event}
+                  Summit: {t.event}
                 </p>
               </div>
             </div>
@@ -535,24 +708,24 @@ export const LandingPage = ({
         </div>
       </section>
 
-      {/* 7. FAQ SECTION */}
+      {/* 6. FAQ SECTION */}
       <section id="faq-section" className="max-w-4xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-10 sm:mb-12 space-y-3">
           <h2 className="text-2xl sm:text-3xl font-extrabold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight font-heading">
             Frequently Asked Questions
           </h2>
-          <p className="text-[#6B7280] dark:text-[#CBD5E1]/80 text-sm sm:text-base">
+          <p className="text-[#6B7280] dark:text-[#CBD5E1]/80 text-xs sm:text-sm">
             Everything you need to know about setting up, exhibiting, and attending summits on EventSphere.
           </p>
         </div>
 
-        <div className="space-y-3.5">
+        <div className="space-y-3">
           {faqs.map((faq, idx) => {
             const isOpen = openFaq === idx;
             return (
               <div
                 key={idx}
-                className="saas-card rounded-xl border border-[#E5E7EB] dark:border-white/10 overflow-hidden transition-all"
+                className="saas-card rounded-2xl border border-[#E5E7EB] dark:border-white/10 overflow-hidden transition-all"
               >
                 <button
                   onClick={() => setOpenFaq(isOpen ? -1 : idx)}
@@ -577,8 +750,8 @@ export const LandingPage = ({
         </div>
       </section>
 
-      {/* 8. CONTACT US */}
-      <section id="contact-section" className="max-w-7xl mx-auto px-4 sm:px-6">
+      {/* 7. ENTERPRISE CONTACT & INQUIRIES */}
+      <section id="contact-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="saas-card rounded-3xl p-8 sm:p-12 border border-[#E5E7EB] dark:border-white/10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
             {/* Left: Business Info */}
@@ -586,19 +759,19 @@ export const LandingPage = ({
               <div className="space-y-3">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold teal-badge font-mono">
                   <Mail className="w-3.5 h-3.5 text-[#1488A6] dark:text-[#38B2AC]" />
-                  <span>Get in Touch</span>
+                  <span>Enterprise Concierge</span>
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-extrabold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight font-heading">
-                  Speak with an Enterprise Event Specialist
+                  Speak with an Event Specialist
                 </h2>
                 <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#CBD5E1]/80 leading-relaxed">
-                  Planning a summit or exploring enterprise expo infrastructure? Contact our solutions engineering team for custom floor plan setups, volume ticketing, or tailored integrations.
+                  Planning a commercial summit or exploring enterprise expo infrastructure? Contact our solutions engineering team for custom floor plan setups, volume ticketing, or tailored integrations.
                 </p>
               </div>
 
               <div className="space-y-4 pt-2 text-xs sm:text-sm text-[#6B7280] dark:text-[#CBD5E1]/80">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-[#38B2AC] flex items-center justify-center shrink-0">
+                  <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 text-[#1488A6] dark:text-[#38B2AC] flex items-center justify-center shrink-0">
                     <Mail className="w-4 h-4" />
                   </div>
                   <div>
@@ -608,7 +781,7 @@ export const LandingPage = ({
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-[#38B2AC] flex items-center justify-center shrink-0">
+                  <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 text-[#1488A6] dark:text-[#38B2AC] flex items-center justify-center shrink-0">
                     <Phone className="w-4 h-4" />
                   </div>
                   <div>
@@ -618,11 +791,11 @@ export const LandingPage = ({
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-[#38B2AC] flex items-center justify-center shrink-0">
+                  <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 text-[#1488A6] dark:text-[#38B2AC] flex items-center justify-center shrink-0">
                     <MapPin className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="font-semibold text-[#1F2937] dark:text-[#F8FAFC]">Global Headquarters</p>
+                    <p className="font-semibold text-[#1F2937] dark:text-[#F8FAFC]">Global Operations Hub</p>
                     <p className="text-[#6B7280] dark:text-[#CBD5E1]/70 text-xs">500 Howard Street, Suite 1400, San Francisco, CA</p>
                   </div>
                 </div>
@@ -630,7 +803,7 @@ export const LandingPage = ({
             </div>
 
             {/* Right: Contact Form */}
-            <div className="lg:col-span-7 bg-slate-50 dark:bg-[#0F172A]/50 p-6 sm:p-8 rounded-2xl border border-[#E5E7EB] dark:border-white/10">
+            <div className="lg:col-span-7 bg-slate-50 dark:bg-[#0F172A]/60 p-6 sm:p-8 rounded-2xl border border-[#E5E7EB] dark:border-white/10">
               {contactSubmitted ? (
                 <div className="text-center py-8 space-y-3">
                   <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 mx-auto flex items-center justify-center">
@@ -642,7 +815,7 @@ export const LandingPage = ({
                   </p>
                   <button
                     onClick={() => setContactSubmitted(false)}
-                    className="px-4 py-2 rounded-lg btn-teal-primary text-white text-xs font-semibold cursor-pointer"
+                    className="px-4 py-2 rounded-xl btn-teal-primary text-white text-xs font-semibold cursor-pointer"
                   >
                     Send Another Message
                   </button>
@@ -731,14 +904,14 @@ export const LandingPage = ({
 
                   <div className="space-y-1.5">
                     <label className="block text-xs font-bold text-[#1F2937] dark:text-[#CBD5E1]">
-                      Message / Project Details *
+                      Message / Requirements *
                     </label>
                     <textarea
                       required
                       rows={3}
                       value={contactForm.message}
                       onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
-                      placeholder="Describe your upcoming event, expected dates, attendee count, or specific feature requirements..."
+                      placeholder="Describe your upcoming event, expected dates, attendee volume, or specific floor plan requirements..."
                       className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-[#1A202C] border border-[#E5E7EB] dark:border-white/10 text-xs sm:text-sm text-[#1F2937] dark:text-white focus-ring"
                     />
                   </div>

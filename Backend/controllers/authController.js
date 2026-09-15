@@ -133,7 +133,34 @@ export const login = async (req, res) => {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    // Direct Login with credentials: Issue JWT token directly with 0 friction
+    // Enforce email verification: User cannot login until email is verified
+    if (!user.is_verified) {
+      const otp_code = Math.floor(100000 + Math.random() * 900000).toString();
+      const otp_expires_at = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+      user.otp_code = otp_code;
+      user.otp_expires_at = otp_expires_at;
+      user.otp_enabled = true;
+      await user.save();
+
+      try {
+        await sendOtpEmail(user.email, otp_code);
+      } catch (mailErr) {
+        console.error('Failed to send verification email on login:', mailErr);
+      }
+
+      return res.status(200).json({
+        otpRequired: true,
+        is_verified: false,
+        user_id: user._id,
+        email: user.email,
+        role: user.role,
+        message: 'Your email is not verified yet. A 6-digit verification code has been sent to your email address.',
+        dev_otp_code: otp_code,
+      });
+    }
+
+    // Direct Login with credentials: Issue JWT token once verified
     const token = generateToken(user);
 
     return res.status(200).json({
@@ -156,15 +183,25 @@ export const login = async (req, res) => {
 
 export const resendOtp = async (req, res) => {
   try {
-    const { user_id } = req.body;
+    const { user_id, email } = req.body || {};
 
-    if (!user_id) {
-      return res.status(400).json({ message: 'Please provide user_id' });
+    if (!user_id && !email) {
+      return res.status(400).json({ message: 'Please provide user_id or email' });
     }
 
-    const user = await User.findById(user_id);
+    let user;
+    if (user_id) {
+      user = await User.findById(user_id);
+    } else if (email) {
+      user = await User.findOne({ email: email.toLowerCase().trim() });
+    }
+
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: 'User account not found' });
+    }
+
+    if (user.is_verified) {
+      return res.status(400).json({ message: 'This email is already verified. You can sign in directly.', is_verified: true });
     }
 
     const otp_code = Math.floor(100000 + Math.random() * 900000).toString();
@@ -172,6 +209,7 @@ export const resendOtp = async (req, res) => {
 
     user.otp_code = otp_code;
     user.otp_expires_at = otp_expires_at;
+    user.otp_enabled = true;
     await user.save();
 
     await sendOtpEmail(user.email, otp_code);
@@ -179,6 +217,8 @@ export const resendOtp = async (req, res) => {
     return res.status(200).json({
       message: 'New verification code sent to your email address',
       user_id: user._id,
+      email: user.email,
+      role: user.role,
       dev_otp_code: otp_code,
     });
   } catch (error) {

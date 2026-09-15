@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useApp } from "../../context/AppContext";
 import { MetricCard } from "../common/MetricCard";
+import { generateAnalyticsReportPDF } from "../../utils/generateAnalyticsReportPDF";
 import {
   BarChart,
   Bar,
@@ -22,11 +23,12 @@ import {
   Grid,
   Bookmark,
   Calendar,
-  RefreshCw,
+  Download,
   TrendingUp,
   Award,
   Loader2,
-  Sparkles
+  Sparkles,
+  FileText
 } from "lucide-react";
 
 const AnalyticsReports = () => {
@@ -38,6 +40,7 @@ const AnalyticsReports = () => {
     registrations = [],
     bookmarks = [],
     applications = [],
+    currentUser,
     fetchExpoAnalyticsApi,
     showToast
   } = useApp();
@@ -45,6 +48,7 @@ const AnalyticsReports = () => {
   const [selectedExpoId, setSelectedExpoId] = useState(globalExpoId || expos[0]?._id || "");
   const [analyticsData, setAnalyticsData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
   // Sync selectedExpoId if expos load
   useEffect(() => {
@@ -70,14 +74,32 @@ const AnalyticsReports = () => {
     }
   }, [selectedExpoId]);
 
-  const handleRefresh = () => {
-    if (selectedExpoId) {
-      loadAnalytics(selectedExpoId);
-      showToast("Analytics Refreshed", "Real-time performance metrics updated.", "info");
+  const selectedExpo = expos.find((e) => e._id === selectedExpoId) || expos[0];
+
+  const handleDownloadPdfReport = async () => {
+    if (!selectedExpo) {
+      showToast("No Expo Selected", "Please select an expo to generate its report.", "error");
+      return;
+    }
+    setIsGeneratingPdf(true);
+    try {
+      generateAnalyticsReportPDF({
+        expo: selectedExpo,
+        analyticsData,
+        booths,
+        sessions,
+        registrations,
+        bookmarks,
+        currentUser
+      });
+      showToast("Report Downloaded", `Executive analytics PDF generated for "${selectedExpo.title}".`, "success");
+    } catch (err) {
+      console.error("Failed to generate analytics PDF:", err);
+      showToast("PDF Error", "Failed to compile the analytics report.", "error");
+    } finally {
+      setIsGeneratingPdf(false);
     }
   };
-
-  const selectedExpo = expos.find((e) => e._id === selectedExpoId) || expos[0];
 
   // 1. Booth Traffic & Utilization Data
   const expoBooths = booths.filter(
@@ -127,23 +149,23 @@ const AnalyticsReports = () => {
 
   const sessionPopularityData = apiSessions.length > 0
     ? apiSessions.map((s) => ({
-        name: s.title ? (s.title.length > 20 ? s.title.slice(0, 20) + "..." : s.title) : "Session",
-        speaker: s.speaker || "Keynote",
-        registrations: s.registrations_count || 0,
-        bookmarks: s.bookmarks_count || 0,
-        totalInterest: (s.registrations_count || 0) + (s.bookmarks_count || 0)
-      }))
+      name: s.title ? (s.title.length > 20 ? s.title.slice(0, 20) + "..." : s.title) : "Session",
+      speaker: s.speaker || "Keynote",
+      registrations: s.registrations_count || 0,
+      bookmarks: s.bookmarks_count || 0,
+      totalInterest: (s.registrations_count || 0) + (s.bookmarks_count || 0)
+    }))
     : expoSessions.map((s) => {
-        const bms = bookmarks.filter((b) => String(b.session_id) === String(s._id)).length;
-        const regs = registrations.filter((r) => String(r.session_id) === String(s._id)).length;
-        return {
-          name: s.title ? (s.title.length > 20 ? s.title.slice(0, 20) + "..." : s.title) : "Session",
-          speaker: s.speaker_name || s.speaker || "Keynote",
-          registrations: regs,
-          bookmarks: bms,
-          totalInterest: regs + bms
-        };
-      });
+      const bms = bookmarks.filter((b) => String(b.session_id) === String(s._id)).length;
+      const regs = registrations.filter((r) => String(r.session_id) === String(s._id)).length;
+      return {
+        name: s.title ? (s.title.length > 20 ? s.title.slice(0, 20) + "..." : s.title) : "Session",
+        speaker: s.speaker_name || s.speaker || "Keynote",
+        registrations: regs,
+        bookmarks: bms,
+        totalInterest: regs + bms
+      };
+    });
 
   // 4. Booth Status Pie Data
   const boothStatusData = [
@@ -184,19 +206,16 @@ const AnalyticsReports = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2.5">
-            <h2 className="text-xl sm:text-2xl font-extrabold text-[#1F2937] dark:text-[#F8FAFC] font-heading tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-bold text-[#1F2937] dark:text-[#F8FAFC] font-heading tracking-tight">
               Analytics & Real-Time Performance
             </h2>
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono teal-badge uppercase">
-              Real-Time Reports
-            </span>
           </div>
-          <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#CBD5E1]/80 mt-1">
+          <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#CBD5E1] mt-0.5">
             Real-time reports on attendee engagement, booth traffic, hall utilization, and session popularity.
           </p>
         </div>
 
-        {/* Controls: Expo Dropdown & Refresh */}
+        {/* Controls: Expo Dropdown & Download PDF Report */}
         <div className="flex items-center gap-2.5">
           <div className="relative">
             <Calendar className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#1488A6] dark:text-[#38B2AC]" />
@@ -214,13 +233,13 @@ const AnalyticsReports = () => {
           </div>
 
           <button
-            onClick={handleRefresh}
-            disabled={loading}
-            className="p-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-[#1A202C] dark:hover:bg-[#203748] border border-[#E5E7EB] dark:border-white/10 rounded-xl text-xs font-bold text-[#1F2937] dark:text-[#F8FAFC] flex items-center gap-1.5 cursor-pointer transition-all shadow-xs disabled:opacity-50"
-            title="Refresh analytics metrics"
+            onClick={handleDownloadPdfReport}
+            disabled={isGeneratingPdf || !selectedExpo}
+            className="py-2 px-3.5 btn-teal-primary rounded-xl text-xs font-bold text-white flex items-center gap-2 cursor-pointer transition-all shadow-md hover:shadow-lg disabled:opacity-50"
+            title="Download executive analytics PDF report"
           >
-            <RefreshCw className={`w-4 h-4 text-[#1488A6] dark:text-[#38B2AC] ${loading ? "animate-spin" : ""}`} />
-            <span className="hidden sm:inline">Refresh</span>
+            <Download className={`w-4 h-4 ${isGeneratingPdf ? "animate-bounce" : ""}`} />
+            <span>{isGeneratingPdf ? "Generating PDF..." : "Download Report"}</span>
           </button>
         </div>
       </div>

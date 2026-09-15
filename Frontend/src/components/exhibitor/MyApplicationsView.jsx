@@ -13,20 +13,13 @@ const MyApplicationsView = ({ onNavigateToBoothSelection }) => {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl sm:text-2xl font-extrabold text-[#1F2937] dark:text-[#F8FAFC] font-heading tracking-tight">
+          <h2 className="text-xl sm:text-2xl font-bold text-[#1F2937] dark:text-[#F8FAFC] tracking-tight font-heading">
             My Applications
           </h2>
-          <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#CBD5E1] mt-1">
+          <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#94A3B8] mt-1 font-normal">
             Check the status of your expo participation requests and see your assigned booths.
           </p>
         </div>
-
-        <button
-          onClick={() => setIsApplyModalOpen(true)}
-          className="px-4 py-2.5 btn-teal-primary text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all self-start sm:self-auto cursor-pointer"
-        >
-          <Plus className="w-4 h-4" /> Apply for Expo
-        </button>
       </div>
 
       {/* Applications List */}

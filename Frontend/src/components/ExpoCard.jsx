@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   ArrowRight
 } from "lucide-react";
+import { getExpoImage } from "../utils/expoImages";
 
 export const ExpoCard = ({
   expo,
@@ -16,36 +17,27 @@ export const ExpoCard = ({
   isRegistered = false,
   userRole = "attendee"
 }) => {
-  const bannerSrc = expo.banner_image
-    ? (expo.banner_image.startsWith("http") || expo.banner_image.startsWith("data:")
-        ? expo.banner_image
-        : `http://localhost:5000${expo.banner_image.startsWith("/") ? "" : "/"}${expo.banner_image}`)
-    : null;
+  const bannerSrc = getExpoImage(expo);
 
   return (
     <div className="saas-card saas-card-hover rounded-2xl overflow-hidden flex flex-col justify-between group">
       <div>
         {/* Banner with overlay */}
         <div className="relative h-44 w-full overflow-hidden bg-gradient-to-br from-slate-900 via-[#1488A6]/30 to-slate-950">
-          {bannerSrc ? (
-            <img
-              src={bannerSrc}
-              alt={expo.title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
-            />
-          ) : (
-            <div className="w-full h-full bg-gradient-to-tr from-slate-900 via-[#1488A6]/20 to-[#203748] flex items-center justify-center p-4 text-center">
-              <span className="text-xs font-bold text-[#38B2AC]/80 font-heading tracking-wider uppercase">
-                {expo.category || "Exhibition"}
-              </span>
-            </div>
-          )}
+          <img
+            src={bannerSrc}
+            alt={expo.title}
+            onError={(e) => {
+              e.currentTarget.src = "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80";
+            }}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
 
           {/* Category badge */}
           <div className="absolute top-3 left-3">
             <span className="px-2.5 py-1 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider bg-slate-950/80 backdrop-blur-md text-[#38B2AC] border border-[#38B2AC]/40">
-              {expo.category}
+              {expo.category || "Exhibition"}
             </span>
           </div>
 
@@ -60,7 +52,7 @@ export const ExpoCard = ({
                   : "bg-slate-800/80 text-slate-300 border border-slate-700"
               }`}
             >
-              {expo.status}
+              {expo.status || "Upcoming"}
             </span>
           </div>
 
@@ -97,12 +89,13 @@ export const ExpoCard = ({
             </div>
             <div className="flex items-center gap-1.5">
               <Building2 className="w-3.5 h-3.5 text-[#38B2AC] shrink-0" />
-              <span className="font-mono text-[#1F2937] dark:text-[#CBD5E1]">{expo.total_booths} Exhibition Booths</span>
+              <span className="font-mono text-[#1F2937] dark:text-[#CBD5E1]">{expo.total_booths || 40} Exhibition Booths</span>
             </div>
           </div>
         </div>
       </div>
 
+      <div className="p-5 pt-0 flex items-center justify-between border-t border-[#E5E7EB] dark:border-white/10 mt-auto">
         <div>
           <span className="px-2.5 py-1 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
             Free Entry

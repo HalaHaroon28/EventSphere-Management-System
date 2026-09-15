@@ -13,14 +13,17 @@ import {
   Layers,
   MessageSquare,
   PackageCheck,
-  ChevronDown
+  ChevronDown,
+  Sparkles,
+  Zap
 } from "lucide-react";
 
 export const ExhibitorSearch = ({
   onMessageExhibitor,
   onContactExhibitor,
   onViewFloorPlan,
-  onSelectExpo
+  onSelectExpo,
+  onOpenAIMatchmaker
 }) => {
   const {
     showcases = [],
@@ -39,6 +42,16 @@ export const ExhibitorSearch = ({
   const [selectedExpoId, setSelectedExpoId] = useState("all");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [activeShowcaseModal, setActiveShowcaseModal] = useState(null);
+
+  const getMediaUrl = (url) => {
+    if (!url || typeof url !== "string" || !url.trim()) return null;
+    const clean = url.trim();
+    if (clean.startsWith("http://") || clean.startsWith("https://") || clean.startsWith("data:") || clean.startsWith("blob:")) {
+      return clean;
+    }
+    const cleanPath = clean.startsWith("/") ? clean : `/${clean}`;
+    return `http://localhost:5000${cleanPath}`;
+  };
 
   // Helper function to strictly filter out mock test exhibitors
   const isTestExhibitor = (exhId, companyName, description) => {
@@ -114,10 +127,12 @@ export const ExhibitorSearch = ({
       }));
 
       const productsList = (bDetails.products || []).map((p) => ({
-        _id: p._id,
+        _id: p._id || p.id,
         name: p.name || "Product",
+        category: p.category || "General",
         price: p.price || 0,
-        description: p.description || ""
+        description: p.description || "",
+        image_url: p.image_url || p.imageUrl || ""
       }));
 
       exhibitorsMap[key] = {
@@ -128,7 +143,7 @@ export const ExhibitorSearch = ({
         category: b.category || exhObj?.category || "Technology",
         booth_number: b.booth_number,
         hall: b.hall,
-        logo_url: exhObj?.company_profile?.logo || exhObj?.profile_photo_url || null,
+        logo_url: exhObj?.company_profile?.logo || exhObj?.profile_photo_url || bDetails?.logo_url || bDetails?.logo || null,
         description: desc,
         products: productsList,
         staff: staffList
@@ -305,11 +320,23 @@ export const ExhibitorSearch = ({
           </p>
         </div>
 
-        {/* Count Tab */}
-        <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-[#1A202C] p-1.5 rounded-2xl text-xs self-start md:self-auto border border-[#E5E7EB] dark:border-white/10">
-          <span className="px-3.5 py-1.5 rounded-xl font-bold bg-white dark:bg-[#203748] text-[#1488A6] dark:text-[#38B2AC] shadow-xs border border-[#E5E7EB] dark:border-white/10">
-            All Exhibitors ({dynamicExhibitorsList.length})
-          </span>
+        {/* Actions & Count Tab */}
+        <div className="flex items-center gap-2.5 self-start md:self-auto">
+          {onOpenAIMatchmaker && (
+            <button
+              onClick={() => onOpenAIMatchmaker(searchQuery || "I want edge computing hardware and IoT sensors")}
+              className="px-4 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-[#1488A6] to-[#38B2AC] hover:from-[#117690] hover:to-[#2C9A93] text-white shadow-md flex items-center gap-1.5 transition-all cursor-pointer"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>AI Booth Matchmaker</span>
+            </button>
+          )}
+
+          <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-[#1A202C] p-1.5 rounded-2xl text-xs border border-[#E5E7EB] dark:border-white/10">
+            <span className="px-3.5 py-1.5 rounded-xl font-bold bg-white dark:bg-[#203748] text-[#1488A6] dark:text-[#38B2AC] shadow-xs border border-[#E5E7EB] dark:border-white/10">
+              All Exhibitors ({dynamicExhibitorsList.length})
+            </span>
+          </div>
         </div>
       </div>
 
@@ -406,17 +433,26 @@ export const ExhibitorSearch = ({
                 <div className="space-y-3">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-3">
-                      {sc.logo_url ? (
+                      {sc.logo_url && getMediaUrl(sc.logo_url) ? (
                         <img
-                          src={sc.logo_url}
+                          src={getMediaUrl(sc.logo_url)}
                           alt={sc.company_name}
                           className="w-12 h-12 rounded-2xl object-cover ring-2 ring-[#38B2AC]/40 shrink-0"
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                            if (e.currentTarget.nextElementSibling) {
+                              e.currentTarget.nextElementSibling.style.display = "flex";
+                            }
+                          }}
                         />
-                      ) : (
-                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-slate-900 to-[#1488A6] text-white flex items-center justify-center text-base font-bold font-mono group-hover:scale-105 transition-transform border border-white/10 shadow-xs">
-                          {(sc.company_name || "EX").slice(0, 2).toUpperCase()}
-                        </div>
-                      )}
+                      ) : null}
+                      <div
+                        className={`w-12 h-12 rounded-2xl bg-gradient-to-br from-slate-900 to-[#1488A6] text-white ${
+                          sc.logo_url && getMediaUrl(sc.logo_url) ? "hidden" : "flex"
+                        } items-center justify-center text-base font-bold font-mono group-hover:scale-105 transition-transform border border-white/10 shadow-xs shrink-0`}
+                      >
+                        {(sc.company_name || "EX").slice(0, 2).toUpperCase()}
+                      </div>
                       <div>
                         <h3 className="text-sm sm:text-base font-bold text-[#1F2937] dark:text-[#F8FAFC] font-heading line-clamp-1">
                           {sc.company_name}
@@ -501,58 +537,64 @@ export const ExhibitorSearch = ({
 
       {/* CATALOG & FULL SHOWCASE MODAL */}
       {activeShowcaseModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs overflow-y-auto animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-[#1A202C] rounded-3xl shadow-2xl border border-[#E5E7EB] dark:border-white/10 max-w-2xl w-full p-6 space-y-5 my-auto max-h-[90vh] overflow-y-auto text-[#1F2937] dark:text-[#F8FAFC]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/80 backdrop-blur-xs animate-in fade-in duration-200 font-body">
+          <div className="bg-white dark:bg-[#1A202C] rounded-3xl shadow-2xl border border-[#E5E7EB] dark:border-white/10 max-w-2xl w-full flex flex-col max-h-[90vh] overflow-hidden text-[#1F2937] dark:text-[#F8FAFC]">
             
             {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-[#E5E7EB] dark:border-white/10 pb-4">
+            <div className="bg-gradient-to-r from-slate-900 via-[#1488A6] to-slate-900 text-white p-5 sm:p-6 flex items-center justify-between shrink-0 relative">
               <div className="flex items-center gap-3">
-                {activeShowcaseModal.logo_url ? (
+                {activeShowcaseModal.logo_url && getMediaUrl(activeShowcaseModal.logo_url) ? (
                   <img
-                    src={activeShowcaseModal.logo_url}
+                    src={getMediaUrl(activeShowcaseModal.logo_url)}
                     alt={activeShowcaseModal.company_name}
-                    className="w-12 h-12 rounded-2xl object-cover ring-2 ring-[#38B2AC]/40"
+                    className="w-12 h-12 rounded-2xl object-cover ring-2 ring-[#38B2AC]/40 shrink-0"
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                      if (e.currentTarget.nextElementSibling) {
+                        e.currentTarget.nextElementSibling.style.display = "flex";
+                      }
+                    }}
                   />
-                ) : (
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-slate-900 to-[#1488A6] text-white flex items-center justify-center font-mono font-bold text-base border border-white/10 shadow-xs">
-                    {(activeShowcaseModal.company_name || "EX").slice(0, 2).toUpperCase()}
-                  </div>
-                )}
+                ) : null}
+                <div
+                  className={`w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md text-[#38B2AC] border border-white/20 ${
+                    activeShowcaseModal.logo_url && getMediaUrl(activeShowcaseModal.logo_url) ? "hidden" : "flex"
+                  } items-center justify-center font-mono font-bold text-sm shrink-0`}
+                >
+                  {(activeShowcaseModal.company_name || "EX").slice(0, 2).toUpperCase()}
+                </div>
                 <div>
-                  <h3 className="text-base sm:text-lg font-bold font-heading">
-                    {activeShowcaseModal.company_name}
-                  </h3>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-xs font-mono font-bold teal-badge px-2 py-0.5 rounded">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#38B2AC]">
+                      Exhibitor Showcase
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#38B2AC]/20 text-[#38B2AC] border border-[#38B2AC]/30">
                       Booth {activeShowcaseModal.booth_number || "Main Pavilion"}
                     </span>
-                    {activeShowcaseModal.expo_id && (
-                      <button
-                        onClick={() => {
-                          const targetExpo = activeShowcaseModal.expo_id;
-                          setActiveShowcaseModal(null);
-                          handleViewFloorPlanAction(targetExpo);
-                        }}
-                        className="text-xs font-mono font-bold text-[#1488A6] dark:text-[#38B2AC] hover:underline flex items-center gap-1 cursor-pointer"
-                      >
-                        <MapPin className="w-3 h-3" /> View on Floor Plan
-                      </button>
-                    )}
                   </div>
+                  <h3 className="text-lg sm:text-xl font-bold tracking-tight text-white font-heading">
+                    {activeShowcaseModal.company_name}
+                  </h3>
+                  <p className="text-xs text-slate-300 mt-0.5">
+                    {activeShowcaseModal.category || "Technology & Enterprise Solutions"}
+                  </p>
                 </div>
               </div>
 
               <button
                 onClick={() => setActiveShowcaseModal(null)}
-                className="p-1.5 rounded-full bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/20 text-[#6B7280] dark:text-[#CBD5E1] transition-colors cursor-pointer"
+                className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer shrink-0"
+                aria-label="Close"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
-            <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#CBD5E1] leading-relaxed">
-              {activeShowcaseModal.description}
-            </p>
+            {/* Modal Body */}
+            <div className="p-5 sm:p-6 overflow-y-auto space-y-5 flex-1">
+              <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#CBD5E1] leading-relaxed">
+                {activeShowcaseModal.description}
+              </p>
 
             {/* Products Catalog List */}
             <div className="space-y-3">
@@ -568,9 +610,13 @@ export const ExhibitorSearch = ({
                       className="p-3.5 bg-slate-50 dark:bg-[#0F172A] rounded-2xl border border-[#E5E7EB] dark:border-white/10 flex gap-3"
                     >
                       <img
-                        src={p.image_url || "https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&auto=format&fit=crop&q=80"}
+                        src={getMediaUrl(p.image_url) || "https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&auto=format&fit=crop&q=80"}
                         alt={p.name}
                         className="w-16 h-16 rounded-xl object-cover shrink-0 border border-[#E5E7EB] dark:border-white/10"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = "https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&auto=format&fit=crop&q=80";
+                        }}
                       />
                       <div className="min-w-0 flex-1 space-y-0.5">
                         <span className="text-[10px] font-bold text-[#1488A6] dark:text-[#38B2AC] block font-mono uppercase">
@@ -640,8 +686,9 @@ export const ExhibitorSearch = ({
             </div>
           </div>
         </div>
-      )}
-    </div>
+      </div>
+    )}
+  </div>
   );
 };
 

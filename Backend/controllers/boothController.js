@@ -2,6 +2,7 @@ import { getIO } from '../config/socket.js';
 import Booth from '../models/Booth.js';
 import Expo from '../models/Expo.js';
 import ExhibitorApplication from '../models/ExhibitorApplication.js';
+import Notification from '../models/Notification.js';
 
 export const addBooth = async (req, res) => {
   try {
@@ -234,6 +235,33 @@ export const reserveBooth = async (req, res) => {
 
     approvedApplication.booth_id = booth._id;
     await approvedApplication.save();
+
+    // 🔔 NOTIFICATION HOOK: Send notification to Organizer and Exhibitor
+    try {
+      const expo = await Expo.findById(booth.expo_id);
+      const expoTitle = expo?.title || 'the expo';
+      const exhName = approvedApplication.company_name || req.user?.name || 'An exhibitor';
+
+      if (expo?.organizer_id) {
+        await Notification.create({
+          user_id: expo.organizer_id,
+          target_role: 'organizer',
+          title: 'Booth Space Reserved',
+          type: 'booth_update',
+          message: `Exhibitor "${exhName}" has reserved Booth ${booth.booth_number} at "${expoTitle}".`,
+        });
+      }
+
+      await Notification.create({
+        user_id: userId,
+        target_role: 'exhibitor',
+        title: 'Booth Reservation Confirmed',
+        type: 'booth_update',
+        message: `Your reservation for Booth ${booth.booth_number} at "${expoTitle}" has been confirmed.`,
+      });
+    } catch (notifErr) {
+      console.error('Failed to create reservation notification:', notifErr.message);
+    }
 
     res.status(200).json({
       message: 'Booth reserved successfully',

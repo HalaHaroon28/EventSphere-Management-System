@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useApp } from "../../context/AppContext";
 import { GetPassModal } from "./GetPassModal";
 import { generatePassImage } from "../../utils/generatePassImage";
+import { getExpoImage } from "../../utils/expoImages";
 import {
   MapPin,
   Building2,
@@ -98,15 +99,11 @@ export const AttendeeBrowseExpos = ({
 
       {/* Expos Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredExpos.map((expo) => {
+        {filteredExpos.map((expo, idx) => {
           const isRegistered = registrations.some(
             (r) => r.expo_id === expo._id && r.user_id === currentUser?._id
           );
-          const bannerSrc = expo.banner_image
-            ? (expo.banner_image.startsWith("http") || expo.banner_image.startsWith("data:")
-              ? expo.banner_image
-              : `http://localhost:5000${expo.banner_image.startsWith("/") ? "" : "/"}${expo.banner_image}`)
-            : null;
+          const bannerSrc = getExpoImage(expo, idx);
 
           return (
             <div
@@ -115,19 +112,14 @@ export const AttendeeBrowseExpos = ({
             >
               <div>
                 <div className="relative h-48 bg-gradient-to-br from-slate-900 via-[#1488A6]/30 to-slate-950 overflow-hidden">
-                  {bannerSrc ? (
-                    <img
-                      src={bannerSrc}
-                      alt={expo.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-tr from-slate-900 via-[#1488A6]/20 to-[#203748] flex items-center justify-center p-4 text-center">
-                      <span className="text-xs font-bold text-[#38B2AC]/80 font-heading tracking-wider uppercase">
-                        {expo.category || "Exhibition"}
-                      </span>
-                    </div>
-                  )}
+                  <img
+                    src={bannerSrc}
+                    alt={expo.title || "Expo"}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80"
+                    onError={(e) => {
+                      e.target.src = "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80";
+                    }}
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
                   <span className="absolute top-3 left-3 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider teal-badge">
                     {expo.category}

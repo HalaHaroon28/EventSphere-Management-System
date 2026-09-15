@@ -1,6 +1,58 @@
+import mongoose from "mongoose";
+import bcrypt from "bcrypt";
 import Message from "../models/Message.js";
 import User from "../models/User.js";
+import Booth from "../models/Booth.js";
 import Notification from "../models/Notification.js";
+
+// Helper function to resolve an existing exhibitor or recipient user
+export async function resolveRecipientUser(receiver_id) {
+  if (!receiver_id) return null;
+
+  const isHexObjectId = /^[0-9a-fA-F]{24}$/.test(String(receiver_id));
+
+  // 1. If valid 24-hex ObjectId, try finding User directly
+  if (isHexObjectId) {
+    let user = await User.findById(receiver_id);
+    if (user) return user;
+
+    // Check if receiver_id is a Booth ID
+    const booth = await Booth.findById(receiver_id);
+    if (booth) {
+      if (booth.exhibitor_id && /^[0-9a-fA-F]{24}$/.test(String(booth.exhibitor_id))) {
+        user = await User.findById(booth.exhibitor_id);
+        if (user) return user;
+      }
+      // If booth has an exhibitor_name, find existing exhibitor user
+      if (booth.exhibitor_name) {
+        user = await User.findOne({
+          $or: [
+            { name: booth.exhibitor_name },
+            { 'company_profile.company_name': booth.exhibitor_name }
+          ]
+        });
+        if (user) {
+          booth.exhibitor_id = user._id;
+          await booth.save().catch(() => {});
+          return user;
+        }
+      }
+    }
+  }
+
+  // 2. Try looking up existing user by name, email, or company_name
+  const nameQuery = String(receiver_id).trim();
+  let user = await User.findOne({
+    $or: [
+      { email: nameQuery.toLowerCase() },
+      { name: { $regex: new RegExp(`^${nameQuery}$`, 'i') } },
+      { 'company_profile.company_name': { $regex: new RegExp(`^${nameQuery}$`, 'i') } }
+    ]
+  });
+  if (user) return user;
+
+  return null;
+}
 
 /**
  * Send a message to another user
@@ -18,41 +70,22 @@ export const sendMessage = async (req, res) => {
       });
     }
 
-    if (sender_id.toString() === receiver_id.toString()) {
+    const sender = await User.findById(sender_id);
+    const receiver = await resolveRecipientUser(receiver_id);
+
+    if (!receiver) {
+      return res.status(404).json({ message: "Recipient user or exhibitor could not be found." });
+    }
+
+    if (sender_id.toString() === receiver._id.toString()) {
       return res.status(400).json({
         message: "You cannot send a message to yourself.",
       });
     }
 
-    // Role Restrictions:
-    // 1. Organizers can ONLY communicate with exhibitors.
-    // 2. Exhibitors can communicate with fellow exhibitors and organizers.
-    // 3. Attendees are excluded from direct messaging.
-    const sender = await User.findById(sender_id);
-    const receiver = await User.findById(receiver_id);
-
-    if (!receiver) {
-      return res.status(404).json({ message: "Recipient user not found." });
-    }
-
-    if (sender) {
-      const activeRole = req.headers['x-current-role'] || sender.role;
-      if (activeRole === "organizer" && receiver.role !== "exhibitor") {
-        return res.status(403).json({
-          message: "Organizers can only communicate with exhibitors.",
-        });
-      }
-      if (activeRole === "attendee" && receiver.role !== "exhibitor") {
-        return res.status(403).json({
-          message: "Attendees can only communicate with exhibitors.",
-        });
-      }
-      // Exhibitors can communicate with organizers, fellow exhibitors, and attendees.
-    }
-
     const newMessage = await Message.create({
       sender_id,
-      receiver_id,
+      receiver_id: receiver._id,
       content: content.trim(),
     });
 
@@ -63,7 +96,7 @@ export const sendMessage = async (req, res) => {
 
     try {
       await Notification.create({
-        user_id: receiver_id,
+        user_id: receiver._id,
         target_role: receiver.role || 'exhibitor',
         title: 'New Message Received',
         type: 'message',
@@ -169,16 +202,19 @@ export const listInbox = async (req, res) => {
 export const getThreadWithUser = async (req, res) => {
   try {
     const currentUserId = req.user._id || req.user.user_id;
-    const { userId: partnerId } = req.params;
+    let { userId: partnerId } = req.params;
 
     if (!partnerId) {
       return res.status(400).json({ message: "Partner user ID is required." });
     }
 
+    const resolvedUser = await resolveRecipientUser(partnerId);
+    const targetPartnerId = resolvedUser ? resolvedUser._id : partnerId;
+
     const thread = await Message.find({
       $or: [
-        { sender_id: currentUserId, receiver_id: partnerId },
-        { sender_id: partnerId, receiver_id: currentUserId },
+        { sender_id: currentUserId, receiver_id: targetPartnerId },
+        { sender_id: targetPartnerId, receiver_id: currentUserId },
       ],
     })
       .sort({ sent_at: 1, createdAt: 1 })
@@ -191,7 +227,7 @@ export const getThreadWithUser = async (req, res) => {
 
     // Mark unread messages received by current user in this thread as read
     await Message.updateMany(
-      { sender_id: partnerId, receiver_id: currentUserId, read: false },
+      { sender_id: targetPartnerId, receiver_id: currentUserId, read: false },
       { $set: { read: true } }
     );
 
@@ -221,10 +257,13 @@ export const deleteThreadWithUser = async (req, res) => {
       return res.status(400).json({ message: "Partner user ID is required." });
     }
 
+    const resolvedUser = await resolveRecipientUser(partnerId);
+    const targetPartnerId = resolvedUser ? resolvedUser._id : partnerId;
+
     const result = await Message.deleteMany({
       $or: [
-        { sender_id: currentUserId, receiver_id: partnerId },
-        { sender_id: partnerId, receiver_id: currentUserId },
+        { sender_id: currentUserId, receiver_id: targetPartnerId },
+        { sender_id: targetPartnerId, receiver_id: currentUserId },
       ],
     });
 
@@ -252,11 +291,8 @@ export const getUsersForMessaging = async (req, res) => {
 
     let query = { _id: { $ne: currentUserId } };
 
-    if (currentUserRole === "organizer") {
-      // Organizers can ONLY contact exhibitors
-      query.role = "exhibitor";
-    } else if (currentUserRole === "attendee") {
-      // Attendees can ONLY contact exhibitors
+    if (currentUserRole === "organizer" || currentUserRole === "attendee") {
+      // Organizers and Attendees can ONLY contact registered exhibitors
       query.role = "exhibitor";
     } else if (currentUserRole === "exhibitor") {
       // Exhibitors can contact exhibitors, organizers, and attendees

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useApp } from "../../context/AppContext";
 import {
   MapPin,
@@ -13,6 +13,19 @@ import {
   Edit2,
   Trash2
 } from "lucide-react";
+
+const getFloorPlanImageUrl = (expo) => {
+  const url = expo?.floor_plan_image_url || expo?.floor_plan || "/blueprint-floorplan.jpg";
+  if (!url || typeof url !== "string") return "/blueprint-floorplan.jpg";
+  const clean = url.trim();
+  if (clean.startsWith("http://") || clean.startsWith("https://") || clean.startsWith("data:") || clean.startsWith("blob:")) {
+    return clean;
+  }
+  if (clean.startsWith("/uploads") || clean.startsWith("uploads")) {
+    return `http://localhost:5000${clean.startsWith("/") ? "" : "/"}${clean}`;
+  }
+  return clean.startsWith("/") ? clean : `/${clean}`;
+};
 
 export const FloorPlanView = ({
   expoId,
@@ -41,6 +54,19 @@ export const FloorPlanView = ({
       String(b.expo_id?._id) === String(expoId)
   );
 
+  useEffect(() => {
+    if (selectedBoothId && expoBooths.length > 0) {
+      const found = expoBooths.find(
+        (b) =>
+          String(b._id) === String(selectedBoothId) ||
+          b.booth_number?.toLowerCase() === String(selectedBoothId).toLowerCase()
+      );
+      if (found) {
+        setActiveBooth(found);
+      }
+    }
+  }, [selectedBoothId, expoBooths]);
+
   const filteredBooths = expoBooths.filter((b) => {
     if (filterStatus !== "all" && b.status !== filterStatus) return false;
     if (filterSize !== "all" && b.size !== filterSize) return false;
@@ -56,13 +82,13 @@ export const FloorPlanView = ({
   const getBoothDimensions = (size) => {
     switch (size) {
       case "small":
-        return { w: "w-16 sm:w-18", h: "h-14 sm:h-16", text: "text-xs" };
+        return { w: "w-11 sm:w-13 md:w-14", h: "h-9 sm:h-10 md:h-11", numText: "text-[10px] sm:text-xs", subText: "text-[8px] sm:text-[9px]" };
       case "medium":
-        return { w: "w-20 sm:w-24", h: "h-16 sm:h-18", text: "text-xs" };
+        return { w: "w-12 sm:w-14 md:w-15", h: "h-10 sm:h-11 md:h-12", numText: "text-[10px] sm:text-xs", subText: "text-[8px] sm:text-[9px]" };
       case "large":
-        return { w: "w-26 sm:w-30", h: "h-18 sm:h-22", text: "text-xs" };
+        return { w: "w-13 sm:w-15 md:w-16", h: "h-10 sm:h-12 md:h-13", numText: "text-[11px] sm:text-xs", subText: "text-[8px] sm:text-[9px]" };
       default:
-        return { w: "w-20 sm:w-24", h: "h-16 sm:h-18", text: "text-xs" };
+        return { w: "w-12 sm:w-14 md:w-15", h: "h-10 sm:h-11 md:h-12", numText: "text-[10px] sm:text-xs", subText: "text-[8px] sm:text-[9px]" };
     }
   };
 
@@ -225,27 +251,47 @@ export const FloorPlanView = ({
           {/* Interactive Scalable Map Container */}
           <div className="overflow-x-auto overflow-y-auto max-h-[580px] p-2 flex justify-start sm:justify-center touch-pan-x touch-pan-y no-scrollbar">
             <div
-              className="relative w-full min-w-[540px] sm:min-w-full max-w-[760px] aspect-[4/3] bg-[#0A101D] rounded-2xl border border-[#38B2AC]/30 transition-transform duration-200 origin-top shadow-inner shrink-0 overflow-hidden"
+              className="relative w-full min-w-[540px] sm:min-w-full max-w-[760px] aspect-[4/3] bg-[#0A101D] rounded-2xl border border-[#38B2AC]/40 transition-transform duration-200 origin-top shadow-2xl shrink-0 overflow-hidden"
               style={{
                 transform: `scale(${zoomLevel})`,
-                backgroundImage: `radial-gradient(circle at 1px 1px, rgba(56, 178, 172, 0.25) 1px, transparent 0), linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.04) 1px, transparent 1px)`,
-                backgroundSize: `24px 24px, 48px 48px, 48px 48px`
               }}
             >
+              {/* Floor Plan Architectural Blueprint Image Layer */}
+              <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none select-none">
+                <img
+                  src={getFloorPlanImageUrl(expo)}
+                  alt="Expo Floor Plan Blueprint"
+                  className="w-full h-full object-cover opacity-35 mix-blend-screen contrast-125 filter brightness-110"
+                  onError={(e) => {
+                    if (!e.currentTarget.src.endsWith("/blueprint-floorplan.jpg")) {
+                      e.currentTarget.src = "/blueprint-floorplan.jpg";
+                    }
+                  }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0A101D]/90 via-[#0A101D]/30 to-[#0A101D]/70" />
+                <div
+                  className="absolute inset-0 opacity-15"
+                  style={{
+                    backgroundImage: `radial-gradient(circle at 1px 1px, rgba(56, 178, 172, 0.4) 1px, transparent 0), linear-gradient(to right, rgba(56,178,172,0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(56,178,172,0.1) 1px, transparent 1px)`,
+                    backgroundSize: `24px 24px, 48px 48px, 48px 48px`
+                  }}
+                />
+              </div>
+
               {/* Hall Zones */}
-              <div className="absolute top-3 left-4 text-[11px] font-mono font-bold text-[#38B2AC] bg-slate-950/80 px-2.5 py-1 rounded-lg border border-[#38B2AC]/40 uppercase tracking-widest pointer-events-none shadow-sm flex items-center gap-2">
+              <div className="absolute top-3 left-4 z-10 text-[10px] sm:text-[11px] font-mono font-bold text-[#38B2AC] bg-slate-950/90 px-2.5 py-1 rounded-lg border border-[#38B2AC]/40 uppercase tracking-widest pointer-events-none shadow-sm flex items-center gap-2 backdrop-blur-xs">
                 <span className="w-2 h-2 rounded-full bg-[#38B2AC]" />
                 ZONE A — MAIN GRAND HALL
               </div>
-              <div className="absolute bottom-3 left-4 text-[11px] font-mono font-bold text-[#38B2AC] bg-slate-950/80 px-2.5 py-1 rounded-lg border border-[#38B2AC]/40 uppercase tracking-widest pointer-events-none shadow-sm flex items-center gap-2">
+              <div className="absolute bottom-3 left-4 z-10 text-[10px] sm:text-[11px] font-mono font-bold text-[#38B2AC] bg-slate-950/90 px-2.5 py-1 rounded-lg border border-[#38B2AC]/40 uppercase tracking-widest pointer-events-none shadow-sm flex items-center gap-2 backdrop-blur-xs">
                 <span className="w-2 h-2 rounded-full bg-[#38B2AC]" />
                 ZONE C — INNOVATION & QUANTUM PAVILION
               </div>
-              <div className="absolute top-1/2 left-0 right-0 border-t border-dashed border-[#38B2AC]/30 pointer-events-none" />
+              <div className="absolute top-1/2 left-0 right-0 border-t border-dashed border-[#38B2AC]/30 pointer-events-none z-10" />
 
               {/* Empty state overlay if no booths */}
               {filteredBooths.length === 0 && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center text-slate-400 font-body space-y-2 pointer-events-none">
+                <div className="absolute inset-0 z-10 flex flex-col items-center justify-center p-6 text-center text-slate-400 font-body space-y-2 pointer-events-none">
                   <Building2 className="w-10 h-10 text-[#38B2AC] opacity-60" />
                   <p className="text-sm font-bold text-slate-200">No Floor Booths Found</p>
                   <p className="text-xs text-slate-400 max-w-xs">
@@ -265,28 +311,28 @@ export const FloorPlanView = ({
                     key={booth._id}
                     id={`floorplan-booth-${booth.booth_number}`}
                     onClick={() => handleBoothClick(booth)}
-                    className={`absolute -translate-x-1/2 -translate-y-1/2 ${dims.w} ${dims.h} rounded-xl flex flex-col items-center justify-center p-1.5 text-center transition-all cursor-pointer select-none ${styling}`}
+                    className={`absolute z-20 -translate-x-1/2 -translate-y-1/2 ${dims.w} ${dims.h} rounded-lg sm:rounded-xl flex flex-col items-center justify-center p-1 text-center transition-all cursor-pointer select-none ${styling}`}
                     style={{
                       left: `${booth.position.x}%`,
                       top: `${booth.position.y}%`
                     }}
                   >
-                    <span className="font-bold tracking-tight text-xs sm:text-sm leading-tight font-mono">
+                    <span className={`font-bold tracking-tight ${dims.numText} leading-none font-mono`}>
                       {booth.booth_number}
                     </span>
                     {booth.exhibitor_name ? (
-                      <span className="text-[10px] sm:text-xs truncate max-w-full font-semibold opacity-90 px-1">
+                      <span className={`${dims.subText} truncate max-w-full font-semibold opacity-90 px-0.5 leading-tight mt-0.5`}>
                         {booth.exhibitor_name.split(" ")[0]}
                       </span>
                     ) : (
-                      <span className="text-[10px] sm:text-xs uppercase font-mono font-bold opacity-80">
+                      <span className={`${dims.subText} uppercase font-mono font-bold opacity-85 leading-tight mt-0.5`}>
                         {booth.status === "available" ? `PKR ${booth.price}` : booth.status}
                       </span>
                     )}
 
                     {/* Corner badge for size */}
                     {booth.size === "island" && (
-                      <span className="absolute -top-2 -right-2 px-1.5 py-0.5 bg-[#38B2AC] text-[#0F172A] font-black text-[9px] rounded-md uppercase font-mono shadow-xs">
+                      <span className="absolute -top-1.5 -right-1.5 px-1 py-0.2 bg-[#38B2AC] text-[#0F172A] font-black text-[8px] rounded uppercase font-mono shadow-xs">
                         Island
                       </span>
                     )}

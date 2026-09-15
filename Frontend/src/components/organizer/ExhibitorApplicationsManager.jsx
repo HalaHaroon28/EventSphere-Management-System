@@ -102,8 +102,8 @@ const ExhibitorApplicationsManager = ({
           <button
             onClick={() => setFilterStatus("all")}
             className={`px-3 py-1.5 rounded-lg font-semibold transition-all shrink-0 cursor-pointer ${filterStatus === "all"
-                ? "bg-white dark:bg-[#203748] text-[#1F2937] dark:text-white shadow-xs"
-                : "text-[#6B7280] dark:text-[#CBD5E1]/70 hover:text-[#1F2937] dark:hover:text-white"
+              ? "bg-white dark:bg-[#203748] text-[#1F2937] dark:text-white shadow-xs"
+              : "text-[#6B7280] dark:text-[#CBD5E1]/70 hover:text-[#1F2937] dark:hover:text-white"
               }`}
           >
             All ({applications.length})
@@ -111,8 +111,8 @@ const ExhibitorApplicationsManager = ({
           <button
             onClick={() => setFilterStatus("pending")}
             className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${filterStatus === "pending"
-                ? "btn-teal-primary text-white font-bold shadow-xs"
-                : "text-[#6B7280] dark:text-[#CBD5E1]/70 hover:text-[#1F2937] dark:hover:text-white"
+              ? "btn-teal-primary text-white font-bold shadow-xs"
+              : "text-[#6B7280] dark:text-[#CBD5E1]/70 hover:text-[#1F2937] dark:hover:text-white"
               }`}
           >
             <span className="w-1.5 h-1.5 rounded-full bg-white/80" />
@@ -121,8 +121,8 @@ const ExhibitorApplicationsManager = ({
           <button
             onClick={() => setFilterStatus("approved")}
             className={`px-3 py-1.5 rounded-lg font-semibold transition-all shrink-0 cursor-pointer ${filterStatus === "approved"
-                ? "bg-emerald-600 text-white shadow-xs"
-                : "text-[#6B7280] dark:text-[#CBD5E1]/70 hover:text-[#1F2937] dark:hover:text-white"
+              ? "bg-emerald-600 text-white shadow-xs"
+              : "text-[#6B7280] dark:text-[#CBD5E1]/70 hover:text-[#1F2937] dark:hover:text-white"
               }`}
           >
             Approved ({applications.filter((a) => a.status === "approved").length})
@@ -130,8 +130,8 @@ const ExhibitorApplicationsManager = ({
           <button
             onClick={() => setFilterStatus("rejected")}
             className={`px-3 py-1.5 rounded-lg font-semibold transition-all shrink-0 cursor-pointer ${filterStatus === "rejected"
-                ? "bg-[#1F2937] dark:bg-[#0F172A] text-white shadow-xs"
-                : "text-[#6B7280] dark:text-[#CBD5E1]/70 hover:text-[#1F2937] dark:hover:text-white"
+              ? "bg-[#1F2937] dark:bg-[#0F172A] text-white shadow-xs"
+              : "text-[#6B7280] dark:text-[#CBD5E1]/70 hover:text-[#1F2937] dark:hover:text-white"
               }`}
           >
             Rejected ({applications.filter((a) => a.status === "rejected").length})
@@ -178,10 +178,10 @@ const ExhibitorApplicationsManager = ({
                     </h3>
                     <span
                       className={`text-[10px] uppercase font-bold px-2.5 py-0.5 rounded-full border ${app.status === "pending"
-                          ? "bg-teal-50 dark:bg-[#203748] text-[#1488A6] dark:text-[#38B2AC] border border-[#1488A6]/30 dark:border-[#38B2AC]/40"
-                          : app.status === "approved"
-                            ? "bg-emerald-50 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800"
-                            : "bg-rose-50 dark:bg-rose-950 text-rose-800 dark:text-rose-300 border-rose-200 dark:border-rose-800"
+                        ? "bg-teal-50 dark:bg-[#203748] text-[#1488A6] dark:text-[#38B2AC] border border-[#1488A6]/30 dark:border-[#38B2AC]/40"
+                        : app.status === "approved"
+                          ? "bg-emerald-50 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800"
+                          : "bg-rose-50 dark:bg-rose-950 text-rose-800 dark:text-rose-300 border-rose-200 dark:border-rose-800"
                         }`}
                     >
                       {app.status}
@@ -199,8 +199,8 @@ const ExhibitorApplicationsManager = ({
                     {app.status === "approved" && (
                       boothNum ? (
                         <span className={`px-2.5 py-0.5 rounded font-bold font-mono text-[10px] ${app.booth_status === "confirmed"
-                            ? "bg-emerald-600 text-white"
-                            : "bg-[#1488A6] dark:bg-[#38B2AC] text-white dark:text-slate-950"
+                          ? "bg-emerald-600 text-white"
+                          : "bg-[#1488A6] dark:bg-[#38B2AC] text-white dark:text-slate-950"
                           }`}>
                           {app.booth_status === "confirmed" ? `Confirmed Booth: ${boothNum}` : `Exhibitor Picked Booth: ${boothNum}`}
                         </span>
@@ -245,8 +245,8 @@ const ExhibitorApplicationsManager = ({
 
                   {noteText && (
                     <div className={`text-[11px] p-3 rounded-xl border font-body ${app.status === "rejected"
-                        ? "bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800/50 text-rose-800 dark:text-rose-300"
-                        : "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800/50 text-emerald-800 dark:text-emerald-300"
+                      ? "bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800/50 text-rose-800 dark:text-rose-300"
+                      : "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800/50 text-emerald-800 dark:text-emerald-300"
                       }`}>
                       <span className="font-bold">
                         {app.status === "rejected" ? "Rejection Reason:" : "Approval Message:"}
@@ -367,7 +367,7 @@ const ExhibitorApplicationsManager = ({
               Decline Exhibitor Application
             </h3>
             <p className="text-xs text-[#6B7280] dark:text-[#CBD5E1]/70">
-              Provide a clear rejection reason. This reason will be saved in the database and displayed to the exhibitor.
+              Provide a clear rejection reason. This reason will be saved and displayed to the exhibitor.
             </p>
 
             <textarea

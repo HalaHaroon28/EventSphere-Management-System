@@ -2,7 +2,7 @@ import http from 'http';
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-// Reload server models - updated for public enterprise feedback handling
+// Reload server models - updated for recipient auto-resolution and robust messaging [v2]
 
 import connectDB from './config/db.js';
 import { initSocket } from './config/socket.js';

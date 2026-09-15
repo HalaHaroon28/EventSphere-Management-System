@@ -35,7 +35,10 @@ import { MyBoothManager } from "./components/exhibitor/MyBoothManager";
 import { CompanyProfileView } from "./components/exhibitor/CompanyProfileView";
 import { ExhibitorMessages } from "./components/exhibitor/ExhibitorMessages";
 import { ApplyExpoModal } from "./components/exhibitor/ApplyExpoModal";
+import { BrowseExposView } from "./components/exhibitor/BrowseExposView";
 import { ExhibitorSearch } from "./components/attendee/ExhibitorSearch";
+import { AttendeeDashboard } from "./components/attendee/AttendeeDashboard";
+import { AIMatchmakerModal } from "./components/attendee/AIMatchmakerModal";
 import { GetPassModal } from "./components/attendee/GetPassModal";
 import { ProfileView } from "./components/common/ProfileView";
 import { FeedbackSupportView } from "./components/common/FeedbackSupportView";
@@ -69,8 +72,13 @@ const MainContent = () => {
   const [approvalTargetAppId, setApprovalTargetAppId] = useState(null);
   const [detailModalExpoId, setDetailModalExpoId] = useState(null);
   const [detailModalInitialTab, setDetailModalInitialTab] = useState("overview");
+  const [detailModalSelectedBoothId, setDetailModalSelectedBoothId] = useState(null);
   const [getPassExpo, setGetPassExpo] = useState(null);
   const [resetToken, setResetToken] = useState(null);
+
+  // AI Matchmaker Modal state
+  const [isAIMatchmakerOpen, setIsAIMatchmakerOpen] = useState(false);
+  const [aiMatchmakerQuery, setAiMatchmakerQuery] = useState("");
 
   // Attendee in-page modals & drawer state
   const [isMyPassesOpen, setIsMyPassesOpen] = useState(false);
@@ -80,6 +88,22 @@ const MainContent = () => {
   const [contactBoothTarget, setContactBoothTarget] = useState(null);
   const [contactBoothExpoTitle, setContactBoothExpoTitle] = useState("");
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+
+  const handleOpenAIMatchmaker = (initialQuery = "") => {
+    setAiMatchmakerQuery(initialQuery);
+    setIsAIMatchmakerOpen(true);
+  };
+
+  const handleLocateBoothFromMatchmaker = (rec) => {
+    setIsAIMatchmakerOpen(false);
+    const targetExpoId = rec.expo_id || (expos[0] ? (expos[0]._id || expos[0].id) : null);
+    if (targetExpoId) {
+      setSelectedExpoId(targetExpoId);
+      setDetailModalExpoId(targetExpoId);
+      setDetailModalInitialTab("floorplan");
+      setDetailModalSelectedBoothId(rec.booth_id || rec.booth_number);
+    }
+  };
 
   useEffect(() => {
     if (!authLoading) {
@@ -110,6 +134,7 @@ const MainContent = () => {
   const handleSelectExpo = (expoId, tab = "overview") => {
     setSelectedExpoId(expoId);
     setDetailModalInitialTab(tab || "overview");
+    setDetailModalSelectedBoothId(null);
     setDetailModalExpoId(expoId);
   };
 
@@ -184,7 +209,7 @@ const MainContent = () => {
         />
       );
     }
-    if (activeView === "expos" && currentRole !== "organizer") {
+    if (activeView === "expos" && currentRole !== "organizer" && currentRole !== "exhibitor") {
       return (
         <ExpoListing
           onSelectExpo={handleSelectExpo}
@@ -193,7 +218,7 @@ const MainContent = () => {
         />
       );
     }
-    if (activeView === "sessions" || activeView === "schedule" && currentRole !== "organizer") {
+    if ((activeView === "sessions" || activeView === "schedule") && currentRole !== "organizer" && currentRole !== "exhibitor") {
       return (
         <SessionsListing
           onSelectExpo={handleSelectExpo}
@@ -201,7 +226,7 @@ const MainContent = () => {
         />
       );
     }
-    if (activeView === "exhibitors" && currentRole !== "organizer") {
+    if (activeView === "exhibitors" && currentRole !== "organizer" && currentRole !== "exhibitor") {
       return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <ExhibitorSearch
@@ -213,6 +238,19 @@ const MainContent = () => {
               handleSelectExpo(expoId, "floorplan");
             }}
             onSelectExpo={handleSelectExpo}
+            onOpenAIMatchmaker={handleOpenAIMatchmaker}
+          />
+        </div>
+      );
+    }
+
+    if ((activeView === "dashboard" || activeView === "attendee-dashboard") && currentRole === "attendee") {
+      return (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <AttendeeDashboard
+            onNavigate={(v) => setActiveView(v)}
+            onOpenPass={(regId) => setActivePassId(regId)}
+            onOpenAIMatchmaker={handleOpenAIMatchmaker}
           />
         </div>
       );
@@ -302,10 +340,12 @@ const MainContent = () => {
         case "browse-expos":
         case "expos":
           return (
-            <ExpoListing
-              onSelectExpo={handleSelectExpo}
-              onRegisterPass={handleRegisterPass}
-              onApplyExhibitor={handleApplyExhibitor}
+            <BrowseExposView
+              onNavigateToBoothSelection={(expoId) => {
+                setApplyExpoId(expoId);
+                setActiveView("booth-selection");
+              }}
+              onNavigateToApplications={() => setActiveView("my-applications")}
             />
           );
         default:
@@ -355,6 +395,7 @@ const MainContent = () => {
           onOpenMySessions={() => setIsMySessionsOpen(true)}
           onOpenInquiries={() => setIsInquiriesDrawerOpen(true)}
           onOpenProfile={() => setIsProfileModalOpen(true)}
+          onOpenAIMatchmaker={handleOpenAIMatchmaker}
         />
 
 
@@ -387,6 +428,18 @@ const MainContent = () => {
       {/* Gemini AI Multi-turn Chatbot Concierge */}
       <AIChatbot />
 
+      {/* Gemini Smart AI Booth Matchmaker Modal */}
+      <AIMatchmakerModal
+        isOpen={isAIMatchmakerOpen}
+        onClose={() => setIsAIMatchmakerOpen(false)}
+        initialQuery={aiMatchmakerQuery}
+        onLocateBooth={handleLocateBoothFromMatchmaker}
+        onMessageExhibitor={(rec) => {
+          setIsAIMatchmakerOpen(false);
+          handleOpenContactBooth({ _id: rec.exhibitor_id, company_name: rec.company_name }, rec.hall || "");
+        }}
+      />
+
       {/* Global Toast Alerts */}
       <ToastContainer />
 
@@ -395,9 +448,11 @@ const MainContent = () => {
         <ExpoDetailModal
           expoId={detailModalExpoId}
           initialTab={detailModalInitialTab || "overview"}
+          selectedBoothId={detailModalSelectedBoothId}
           onClose={() => {
             setDetailModalExpoId(null);
             setDetailModalInitialTab("overview");
+            setDetailModalSelectedBoothId(null);
           }}
           onRegisterPass={handleRegisterPass}
           onApplyExhibitor={handleApplyExhibitor}

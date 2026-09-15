@@ -28,7 +28,15 @@ const AuthProvider = ({ children }) => {
     const response = await authService.login(email, password);
     
     if (response.otpRequired) {
-      return { otpRequired: true, userId: response.user_id, devOtpCode: response.dev_otp_code };
+      return {
+        otpRequired: true,
+        userId: response.user_id,
+        email: response.email || email,
+        role: response.role,
+        isVerified: response.is_verified,
+        devOtpCode: response.dev_otp_code,
+        message: response.message,
+      };
     }
     
     if (response.token) {
